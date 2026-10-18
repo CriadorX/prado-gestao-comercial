@@ -12,6 +12,7 @@
   <link rel="apple-touch-icon" href="favicon-solid.png?v=3">
   <link rel="stylesheet" href="styles.css?v=20261016_10">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 </head>
 <body>
   <!-- TELA DE LOGIN EM 3 ETAPAS ESTILO CORRETORA (MONTEBRAVO / PRADO) -->
@@ -989,17 +990,17 @@
             <span style="font-size:9.5px">SÉRIE 1 - FOLHA 1/1</span>
           </div>
 
-          <!-- Bloco Direito: Código de Barras e Chave de Acesso -->
-          <div style="flex:1.4;padding:6px">
-            <!-- Código de barras simulado em CSS -->
-            <div style="background:#000;height:32px;width:95%;margin:2px auto;display:flex;align-items:center;justify-content:center;color:#fff;font-family:monospace;letter-spacing:3px;font-size:9px">
-              ||| | ||||| || |||| |||||| ||| ||||| |||| | ||
+          <!-- Bloco Direito: Código de Barras Real e Chave de Acesso -->
+          <div style="flex:1.4;padding:6px;display:flex;flex-direction:column;justify-content:center;background:#fff">
+            <!-- Código de barras real Code 128C para leitura óptica e celular -->
+            <div style="width:100%;text-align:center;background:#fff;padding:2px 0">
+              <svg id="danfeBarcode" style="width:100%;max-width:330px;height:42px;display:block;margin:0 auto"></svg>
             </div>
-            <div style="font-size:9px;margin-top:4px">
+            <div style="font-size:9px;margin-top:2px;text-align:center;width:100%">
               <b>CHAVE DE ACESSO:</b><br>
-              <code id="danfeChaveAcesso" style="font-size:9.5px;font-weight:bold;display:block;margin-top:2px">3526 1059 8257 6500 0103 5500 1000 0000 2712 3456 7890</code>
+              <code id="danfeChaveAcesso" style="font-size:9.5px;font-weight:bold;letter-spacing:1px;display:block;margin-top:1px">3526 1059 8257 6500 0103 5500 1000 0000 2712 3456 7890</code>
             </div>
-            <div style="font-size:8.5px;color:#333;margin-top:4px;border-top:1px dashed #666;padding-top:2px">
+            <div style="font-size:8px;color:#333;margin-top:2px;border-top:1px dashed #666;padding-top:2px;text-align:center;width:100%">
               Consulta de autenticidade no portal nacional da NF-e www.nfe.fazenda.gov.br ou no site da Sefaz Autorizadora.
             </div>
           </div>

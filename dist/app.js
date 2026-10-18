@@ -2445,6 +2445,99 @@ function compilarDadosNotaDoFormulario() {
   };
 }
 
+// -------------------------------------------------------------------------
+// MOTOR DE CÓDIGO DE BARRAS CODE 128-C (PADRÃO OFICIAL SEFAZ / MINISTÉRIO DA FAZENDA)
+// Codifica rigorosamente os 44 dígitos da chave de acesso para leitura por qualquer scanner óptico ou celular
+// -------------------------------------------------------------------------
+const CODE128_PATTERNS = [
+  '212222', '222122', '222221', '121223', '121322', '131222', '122213', '122312', '132212', '221213',
+  '221312', '231212', '112232', '122132', '122231', '113222', '123122', '123221', '223211', '221132',
+  '221231', '213212', '223112', '312131', '311222', '321122', '321221', '312212', '322112', '322211',
+  '212123', '212321', '232121', '111323', '131123', '131321', '112313', '132113', '132311', '211313',
+  '231113', '231311', '112133', '112331', '132131', '113123', '113321', '133121', '313121', '211331',
+  '231131', '213113', '213311', '213131', '311123', '311321', '331121', '312113', '312311', '332111',
+  '314111', '221411', '431111', '111224', '111422', '121124', '121421', '141122', '141221', '112214',
+  '112412', '122114', '122411', '142112', '142211', '241211', '221114', '413111', '241112', '134111',
+  '111242', '121142', '121241', '114212', '124112', '124211', '411212', '421112', '421211', '212141',
+  '214121', '412121', '111143', '111341', '131141', '114113', '114311', '411113', '411311', '113141',
+  '114131', '311141', '411131', '211412', '211214', '211232', '2331112'
+];
+
+function desenharCode128CSvg(svgEl, chave44) {
+  const digits = String(chave44 || '').replace(/\D/g, '').padStart(44, '0').slice(-44);
+  const codes = [105]; // Start Code C (exclusivo para pares de números)
+  let checksum = 105;
+  for (let i = 0; i < 44; i += 2) {
+    const val = parseInt(digits.slice(i, i + 2), 10);
+    codes.push(val);
+    checksum += val * (i / 2 + 1);
+  }
+  codes.push(checksum % 103);
+  codes.push(106); // Stop Code
+
+  let pattern = '';
+  codes.forEach(c => {
+    pattern += (CODE128_PATTERNS[c] || '211232');
+  });
+
+  const quietZone = 10; // Margem de silêncio oficial de 10 módulos à esquerda e direita
+  let totalModulos = quietZone * 2;
+  for (let i = 0; i < pattern.length; i++) {
+    totalModulos += parseInt(pattern[i], 10);
+  }
+
+  const moduloWidth = 1.0;
+  const height = 40;
+  const svgWidth = totalModulos * moduloWidth;
+
+  let x = quietZone * moduloWidth;
+  let isBar = true;
+  let rects = '';
+
+  for (let i = 0; i < pattern.length; i++) {
+    const w = parseInt(pattern[i], 10) * moduloWidth;
+    if (isBar) {
+      rects += `<rect x="${x.toFixed(2)}" y="0" width="${w.toFixed(2)}" height="${height}" fill="#000000" />`;
+    }
+    x += w;
+    isBar = !isBar;
+  }
+
+  svgEl.setAttribute('viewBox', `0 0 ${svgWidth} ${height}`);
+  svgEl.setAttribute('preserveAspectRatio', 'none');
+  svgEl.setAttribute('width', '100%');
+  svgEl.setAttribute('height', `${height}px`);
+  svgEl.innerHTML = `<rect width="${svgWidth}" height="${height}" fill="#ffffff" />` + rects;
+}
+
+function renderizarCodigoBarrasDanfe(chaveAcesso) {
+  const svg = document.querySelector('#danfeBarcode');
+  if (!svg) return;
+  const chaveLimpa = String(chaveAcesso || '').replace(/\D/g, '').padStart(44, '0').slice(-44);
+
+  // Tenta biblioteca JsBarcode primeiro
+  if (typeof window.JsBarcode === 'function') {
+    try {
+      window.JsBarcode(svg, chaveLimpa, {
+        format: 'CODE128C',
+        lineColor: '#000000',
+        width: 1.25,
+        height: 38,
+        displayValue: false,
+        margin: 6,
+        background: '#ffffff'
+      });
+      return;
+    } catch (e) {
+      console.warn('JsBarcode aviso, ativando motor nativo Code 128C:', e);
+    }
+  }
+
+  // Motor nativo vetorial ISO/IEC 15417 Code 128C (100% autônomo e escaneável)
+  desenharCode128CSvg(svg, chaveLimpa);
+}
+window.renderizarCodigoBarrasDanfe = renderizarCodigoBarrasDanfe;
+
 function preencherDanfeComDados(nota) {
   notaAtualEmissao = nota;
 
@@ -2463,6 +2556,9 @@ function preencherDanfeComDados(nota) {
   document.querySelector('#danfeValDesc').textContent = money(nota.desconto);
   document.querySelector('#danfeValNota').textContent = money(nota.valor_total);
   document.querySelector('#danfeObs').textContent = nota.dados_adicionais;
+
+  // Renderiza código de barras real escaneável
+  renderizarCodigoBarrasDanfe(nota.chave_acesso);
 
   // Itens na tabela do DANFE
   const tbody = document.querySelector('#danfeItensBody');
@@ -2598,7 +2694,10 @@ function imprimirDanfe() {
       font-size: 10px !important;
       line-height: 1.2 !important;
       padding: 10px 14px !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
+    svg { display: block; margin: 0 auto; max-width: 100%; }
     @page { size: A4 portrait; margin: 8mm; }
   </style>
 </head>
