@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="description" content="Gestão de intermediações comerciais da Prado Comércio & Soluções">
+  <title>Prado Gestão Comercial</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=3">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-solid.png?v=3">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-solid.png?v=3">
+  <link rel="shortcut icon" href="favicon.ico?v=3">
+  <link rel="apple-touch-icon" href="favicon-solid.png?v=3">
+  <link rel="stylesheet" href="styles.css?v=20261016_10">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <!-- TELA DE LOGIN EM 3 ETAPAS ESTILO CORRETORA (MONTEBRAVO / PRADO) -->
+  <div id="loginOverlay" class="login-overlay auth-overlay">
+    <!-- LADO ESQUERDO: CARROSSEL HERO CORPORATIVO (ESTILO MONTEBRAVO) -->
+    <div class="auth-hero-pane">
+      <div class="auth-carousel" id="authCarousel" style="position:absolute;inset:0;width:100%;height:100%">
+        <!-- Slide 1 -->
+        <div class="auth-slide active" data-slide="0" style="position:absolute;inset:0;width:100%;height:100%;display:block;opacity:1;visibility:visible;background-size:cover;background-position:center;background-repeat:no-repeat;background-image:url('login-slide-1.jpg')">
+          <div class="auth-slide-overlay"></div>
+          <div class="auth-slide-content">
+            <span class="auth-slide-badge">Representação Comercial</span>
+            <h2 class="auth-slide-title">Aproveite as melhores oportunidades com facilidades criadas para você</h2>
+          </div>
+        </div>
+        <!-- Slide 2 -->
+        <div class="auth-slide" data-slide="1" style="position:absolute;inset:0;width:100%;height:100%;background-size:cover;background-position:center;background-repeat:no-repeat;background-image:url('login-slide-2.jpg')">
+          <div class="auth-slide-overlay"></div>
+          <div class="auth-slide-content">
+            <span class="auth-slide-badge">Gestão &amp; Parcerias</span>
+            <h2 class="auth-slide-title">Poder de escolha e mais confiança na hora de intermediar negócios</h2>
+          </div>
+        </div>
+        <!-- Slide 3 -->
+        <div class="auth-slide" data-slide="2" style="position:absolute;inset:0;width:100%;height:100%;background-size:cover;background-position:center;background-repeat:no-repeat;background-image:url('login-slide-3.jpg')">
+          <div class="auth-slide-overlay"></div>
+          <div class="auth-slide-content">
+            <span class="auth-slide-badge">Portal Prado</span>
+            <h2 class="auth-slide-title">Acompanhe seus pedidos, propostas e clientes com total segurança</h2>
+          </div>
+        </div>
+
+        <!-- Controles do carrossel no rodapé -->
+        <div class="auth-carousel-nav">
+          <button type="button" class="auth-carousel-arrow" id="authCarouselPrev" aria-label="Slide anterior">‹</button>
+          <div class="auth-carousel-indicators" id="authCarouselDots">
+            <button type="button" class="auth-dot active" data-index="0" aria-label="Slide 1"></button>
+            <button type="button" class="auth-dot" data-index="1" aria-label="Slide 2"></button>
+            <button type="button" class="auth-dot" data-index="2" aria-label="Slide 3"></button>
+          </div>
+          <button type="button" class="auth-carousel-arrow" id="authCarouselNext" aria-label="Próximo slide">›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LADO DIREITO: CARD DE LOGIN E ETAPAS (FUNDO NEUTRO + MARCA D'ÁGUA) -->
+    <div class="auth-form-pane">
+      <div class="auth-top-actions">
+        <span class="auth-top-item" title="Conexão criptografada ponta a ponta">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Ambiente Seguro</span>
+        </span>
+        <a href="mailto:comercial@pradosolucoes.com.br" class="auth-top-item" title="Falar com o suporte Prado">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Ajuda</span>
+        </a>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-brand">
+          <img src="logo-prado-premium.png" alt="Prado Comércio &amp; Soluções">
+          <div><strong>PRADO</strong><span>Gestão Comercial</span></div>
+        </div>
+
+        <!-- ETAPA 1a: USUÁRIO SALVO -->
+        <section class="auth-step" data-step="saved" hidden>
+          <p class="auth-kicker">Boas-vindas à Prado!</p>
+          <h2 class="auth-title">Selecione o seu usuário para continuar</h2>
+          <button type="button" class="auth-user-chip" id="authSavedContinue">
+            <span class="auth-user-ico">👤</span>
+            <span><small>Número da conta ou CPF</small><b id="authSavedEmail">—</b></span>
+            <span class="auth-chev">›</span>
+          </button>
+          <button type="button" class="auth-btn auth-btn-purple" onclick="document.querySelector('#authSavedContinue').click()">➜ Acessar</button>
+          <button type="button" class="auth-btn auth-btn-purple-soft" id="authSwitchUser">Entrar com outra conta</button>
+          <div class="auth-divider"><span>ou</span></div>
+          <button type="button" class="auth-btn auth-btn-google auth-google-btn-action">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.97 0 12s.45 3.82 1.25 5.42l4.03-3.15Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z"/></svg>
+            <span>Continuar com o Google</span>
+          </button>
+        </section>
+
+        <!-- ETAPA 1b: IDENTIFICAÇÃO (CPF OU E-MAIL) -->
+        <section class="auth-step" data-step="email" hidden>
+          <p class="auth-kicker">Boas-vindas à Prado!</p>
+          <h2 class="auth-title">Informe seu CPF ou número de conta para continuar</h2>
+          <form id="authEmailForm" novalidate>
+            <label class="auth-field">
+              <span>CPF ou Número de conta</span>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">👤</span>
+                <input type="text" id="authEmail" autocomplete="username" placeholder="000.000.000-00 ou e-mail" required>
+              </div>
+            </label>
+            <label class="auth-checkbox-wrap" style="display:flex;align-items:center;gap:8px;margin:-4px 0 14px;cursor:pointer;font-size:12.5px;color:#64748b">
+              <input type="checkbox" id="authRememberUser" checked style="accent-color:#5b4db7;width:16px;height:16px;cursor:pointer">
+              <span>Salvar CPF ou número de conta</span>
+            </label>
+            <p class="auth-error" hidden></p>
+            <button type="button" class="auth-btn auth-btn-purple-soft" id="authForgotAccBtn" style="margin-top:0;margin-bottom:8px">Esqueci minha conta</button>
+            <button type="submit" class="auth-btn auth-btn-purple" id="authEmailSubmit">➜ Acessar</button>
+            
+            <div class="auth-divider"><span>ou</span></div>
+            <button type="button" class="auth-btn auth-btn-google" id="authBtnGoogleLogin">
+              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.97 0 12s.45 3.82 1.25 5.42l4.03-3.15Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z"/></svg>
+              <span>Continuar com o Google</span>
+            </button>
+            
+            <p class="auth-hint" style="margin-top:16px;text-align:center">
+              Novo operador? <button type="button" class="auth-link" id="authGoToSignup">Criar uma conta de acesso</button>
+            </p>
+          </form>
+        </section>
+
+      <!-- ETAPA CADASTRO DE NOVO OPERADOR -->
+      <section class="auth-step" data-step="signup" hidden>
+        <p class="auth-kicker">Prado Gestão Comercial</p>
+        <h2 class="auth-title">Criar conta de acesso</h2>
+        <p class="auth-sub">Cadastre seus dados para acessar o sistema de intermediações.</p>
+        <form id="authSignupForm">
+          <label class="auth-field">
+            <span>Nome Completo</span>
+            <div class="auth-input-wrap">
+              <span class="auth-input-icon">👤</span>
+              <input type="text" id="authSignupNome" placeholder="Seu nome completo" required>
+            </div>
+          </label>
+          <label class="auth-field">
+            <span>E-mail corporativo ou pessoal</span>
+            <div class="auth-input-wrap">
+              <span class="auth-input-icon">✉️</span>
+              <input type="email" id="authSignupEmail" placeholder="seu@email.com" required>
+            </div>
+          </label>
+          <label class="auth-field">
+            <span>CPF</span>
+            <div class="auth-input-wrap">
+              <span class="auth-input-icon">📄</span>
+              <input type="text" id="authSignupCpf" placeholder="000.000.000-00" required>
+            </div>
+          </label>
+          <label class="auth-field">
+            <span>Cargo / Função</span>
+            <div class="auth-input-wrap">
+              <span class="auth-input-icon">💼</span>
+              <input type="text" id="authSignupCargo" placeholder="Ex: Representante Comercial" required>
+            </div>
+          </label>
+          <label class="auth-field">
+            <span>Senha</span>
+            <div class="auth-input-wrap">
+              <input type="password" id="authSignupPassword" placeholder="Crie uma senha forte (mín. 8 caracteres)" required>
+              <button type="button" class="auth-eye" id="authToggleSignupPwd" aria-label="Mostrar senha">👁</button>
+            </div>
+          </label>
+          <div class="pwd-rules" id="signupPwdRules" style="margin:-10px 0 14px;font-size:12px;color:#64748b;line-height:1.5">
+            <span id="ruleLength">⚪ Mínimo 8 caracteres</span> · 
+            <span id="ruleCase">⚪ Maiúscula e minúscula</span> · 
+            <span id="ruleNumSym">⚪ Número e símbolo (!@#$)</span>
+          </div>
+          <label class="auth-field">
+            <span>Confirmar Senha</span>
+            <div class="auth-input-wrap">
+              <input type="password" id="authSignupConfirmPassword" placeholder="Repita a senha criada" required>
+            </div>
+          </label>
+          <p class="auth-error" hidden></p>
+          <button type="submit" class="auth-btn auth-btn-purple" id="authBtnCadastrar">➜ Criar minha conta</button>
+          <button type="button" class="auth-link auth-back" id="authBackFromSignup">‹ Já tenho uma conta? Fazer login</button>
+        </form>
+      </section>
+
+      <!-- ETAPA 1d: AGUARDANDO CONFIRMAÇÃO DE E-MAIL INSTITUCIONAL -->
+      <section class="auth-step" data-step="confirm-email" hidden>
+        <p class="auth-kicker">Prado Gestão Comercial</p>
+        <div style="text-align:center;margin:16px 0 20px;">
+          <div style="width:72px;height:72px;margin:0 auto 16px;border-radius:50%;background:#e0e7ff;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 8px 20px rgba(99,102,241,0.15);">
+            ✉️
+          </div>
+          <h2 class="auth-title" style="margin-bottom:8px">Validação de Acesso</h2>
+          <p class="auth-sub" style="margin-bottom:12px">Enviamos um e-mail com link de confirmação para:</p>
+          <div style="background:#f8fafc;border:1px solid #cbd5e1;padding:12px 16px;border-radius:10px;font-weight:700;color:#1e1b4b;font-size:15px;word-break:break-all;" id="confirmEmailTarget">
+            seu@email.com
+          </div>
+        </div>
+        <div class="auth-tip-box" style="background:#f0fdf4;border-color:#bbf7d0;color:#166534;font-size:13px;line-height:1.6;margin-bottom:22px;">
+          ✓ <b>Instruções:</b> Abra sua caixa de entrada, abra a mensagem da <b>Prado Gestão Comercial</b> e clique no botão <b>"Confirmar meu E-mail de Acesso"</b> para ativar seu login com segurança corporativa.
+        </div>
+        <button type="button" class="auth-btn auth-btn-purple" id="btnGoToLoginAfterConfirm">➜ Já confirmei, fazer login</button>
+        <button type="button" class="auth-link auth-back" id="btnBackToSignupFromConfirm" style="margin-top:14px">‹ Voltar ou trocar e-mail</button>
+      </section>
+
+      <!-- ETAPA 2: SENHA (IDÊNTICO À IMAGEM MONTEBRAVO) -->
+      <section class="auth-step" data-step="password" hidden>
+        <p class="auth-kicker">Boas-vindas à Prado!</p>
+        <h2 class="auth-title">Informe sua senha para acessar</h2>
+        <form id="authPasswordForm">
+          <label class="auth-field auth-field-disabled">
+            <span>Número da conta ou CPF</span>
+            <div class="auth-input-wrap">
+              <span class="auth-input-icon">👤</span>
+              <input type="text" id="authPwdEmail" autocomplete="username" readonly>
+            </div>
+          </label>
+          <label class="auth-field">
+            <span>Senha</span>
+            <div class="auth-input-wrap">
+              <input type="password" id="authPassword" autocomplete="current-password" placeholder="Digite sua senha" required>
+              <button type="button" class="auth-eye" id="authTogglePwd" aria-label="Mostrar senha">👁</button>
+            </div>
+          </label>
+          <p class="auth-error" hidden></p>
+          <button type="button" class="auth-btn auth-btn-purple-soft" id="authForgotPwd">Esqueci minha senha / Redefinir</button>
+          <button type="submit" class="auth-btn auth-btn-purple" id="authBtnAcessar">➜ Acessar</button>
+          <button type="button" class="auth-link auth-back" id="authBackToEmail">‹ Trocar conta ou CPF</button>
+        </form>
+      </section>
+
+      <!-- ETAPA 2b: RECUPERAÇÃO / REDEFINIÇÃO IMEDIATA DE SENHA -->
+      <section class="auth-step" data-step="recovery" hidden>
+        <p class="auth-kicker">Recuperação de acesso</p>
+        <h2 class="auth-title">Redefinir sua senha</h2>
+        <p class="auth-sub">Defina uma nova senha imediatamente abaixo para sua conta cadastrada.</p>
+        <form id="authRecoveryForm">
+          <label class="auth-field auth-field-disabled">
+            <span>Conta / E-mail identificado</span>
+            <div class="auth-input-wrap">
+              <span class="auth-input-icon">👤</span>
+              <input type="text" id="authRecoveryInput" readonly>
+            </div>
+          </label>
+          <label class="auth-field">
+            <span>Nova Senha</span>
+            <div class="auth-input-wrap">
+              <input type="password" id="authNewPassword" placeholder="Mínimo 8 caracteres (maiúscula, número e símbolo)" required>
+              <button type="button" class="auth-eye" id="authToggleNewPwd" aria-label="Mostrar senha">👁</button>
+            </div>
+          </label>
+          <label class="auth-field">
+            <span>Confirmar Nova Senha</span>
+            <div class="auth-input-wrap">
+              <input type="password" id="authConfirmNewPassword" placeholder="Repita a nova senha" required>
+            </div>
+          </label>
+          <p class="auth-error" hidden></p>
+          <div class="auth-success-box" id="authRecoverySuccess" hidden>
+            ✓ Senha redefinida com sucesso! Você já pode acessar com sua nova senha.
+          </div>
+          <button type="submit" class="auth-btn auth-btn-purple" id="authRecoverySubmit">Salvar nova senha e continuar</button>
+          <button type="button" class="auth-link auth-back" id="authBackFromRecovery">‹ Voltar para o login</button>
+        </form>
+      </section>
+
+      <!-- ETAPA 3a: TOKEN DO APLICATIVO / GOOGLE AUTHENTICATOR -->
+      <section class="auth-step" data-step="token" hidden>
+        <h2 class="auth-title">Informe seu Token do aplicativo</h2>
+        <p class="auth-sub">Digite os 6 dígitos gerados pelo <b>Google Authenticator</b> no seu celular.</p>
+        
+        <div class="auth-tip-box" style="background:#eff6ff;border-color:#bfdbfe;color:#1e40af">
+          📱 <b>Como ver o código:</b> Abra o app Google Authenticator no seu celular. Os 6 dígitos estão aparecendo na tela sob o nome <b>Prado Gestão</b>!
+        </div>
+
+        <div class="otp" id="otpToken">
+          <input class="otp-box" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Dígito 1">
+          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 2">
+          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 3">
+          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 4">
+          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 5">
+          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 6">
+        </div>
+        <p class="auth-error" hidden></p>
+        <button type="button" class="auth-btn auth-btn-purple auth-confirm" id="authTokenConfirm" disabled>Confirmar e acessar conta</button>
+        <button type="button" class="auth-btn auth-btn-purple-soft" id="authBtnShowQr" style="margin-top:10px">📲 Ver QR Code / Cadastrar outro celular</button>
+        <button type="button" class="auth-link auth-back auth-cancel-mfa">‹ Cancelar e sair</button>
+      </section>
+
+      <!-- ETAPA 3b: CADASTRAR NO GOOGLE AUTHENTICATOR (QR CODE VISÍVEL) -->
+      <section class="auth-step" data-step="enroll" hidden>
+        <h2 class="auth-title">Cadastre seu Google Authenticator</h2>
+        <p class="auth-sub">Aponte a câmera do seu celular para cadastrar a Prado no seu app.</p>
+        <ol class="auth-steps-list">
+          <li>Abra o <b>Google Authenticator</b> no celular e toque no botão <b>＋</b></li>
+          <li>Escolha <b>Ler código QR</b> e aponte para o quadrado abaixo</li>
+          <li>Olhe na tela do celular: digite os <b>6 dígitos</b> que apareceram no app</li>
+        </ol>
+        <div class="auth-qr">
+          <img id="authQrImg" alt="QR Code do Google Authenticator" style="width:200px;height:200px;background:#fff;padding:8px;border:2px solid #5b4db7;border-radius:18px">
+        </div>
+        <div class="auth-secret">
+          <small>Chave para digitação manual no app:</small>
+          <code id="authSecret">PRAD OGES TAOM FA23</code>
+          <button type="button" class="auth-link" id="authCopySecret">Copiar chave</button>
+        </div>
+
+        <div class="auth-tip-box" style="background:#eff6ff;border-color:#bfdbfe;color:#1e40af">
+          📱 <b>Leu o QR Code?</b> O app no seu celular já está mostrando 6 números! Digite-os nos 6 quadradinhos abaixo para confirmar a ativação.
+        </div>
+
+        <div class="otp" id="otpEnroll">
+          <input class="otp-box" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Dígito 1">
+          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 2">
+          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 3">
+          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 4">
+          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 5">
+          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 6">
+        </div>
+        <p class="auth-error" hidden></p>
+        <button type="button" class="auth-btn auth-btn-purple auth-confirm" id="authEnrollConfirm" disabled>Ativar e acessar conta</button>
+        <button type="button" class="auth-link auth-back" id="authBackToToken" style="margin-top:12px">‹ Já cadastrei, apenas digitar código</button>
+      </section>
+
+      <!-- CONFIGURAÇÃO SUPABASE DISCRETA (apenas atalho de suporte, nunca bloqueia) -->
+      <section class="auth-step" data-step="config" hidden>
+        <h2 class="auth-title">Conexão Supabase</h2>
+        <p class="auth-sub">Configuração técnica para desenvolvedores e administradores.</p>
+        <label class="auth-field">
+          <span>Project URL</span>
+          <div class="auth-input-wrap">
+            <input type="url" id="inputSupabaseUrl" placeholder="https://xxxxxxxx.supabase.co">
+          </div>
+        </label>
+        <label class="auth-field">
+          <span>Anon public key</span>
+          <div class="auth-input-wrap">
+            <input type="password" id="inputSupabaseKey" placeholder="eyJhbGci...">
+          </div>
+        </label>
+        <p class="auth-error" hidden></p>
+        <button type="button" class="auth-btn auth-btn-purple" id="btnSalvarSupabase">Salvar e conectar</button>
+        <button type="button" class="auth-link auth-back" id="authConfigBack">‹ Voltar ao Login</button>
+      </section>
+
+      <div class="auth-footer-bar">
+        <span>🔒 Protegido por autenticação em 2 etapas</span>
+        <button type="button" id="authOpenConfigBtn" class="auth-gear-btn" title="Configuração técnica do banco">⚙️</button>
+      </div>
+    </div> <!-- fim auth-card -->
+  </div> <!-- fim auth-form-pane -->
+</div> <!-- fim loginOverlay -->
+
+  <aside class="sidebar">
+    <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Fechar menu lateral">✕</button>
+    <div class="brand">
+      <img src="favicon-solid.png?v=3" alt="Prado Comércio & Soluções" style="width:58px;height:58px;object-fit:contain;background:#fff;border-radius:50%;padding:2px;box-shadow:0 4px 14px rgba(0,0,0,.25);border:2px solid var(--gold)">
+      <div><strong>PRADO</strong><span>GESTÃO COMERCIAL</span></div>
+    </div>
+    <nav id="nav"></nav>
+    <div style="padding:10px 14px;border-top:1px solid rgba(255,255,255,.08);margin-top:auto">
+      <button class="nav-item" id="sidebarThemeBtn" onclick="alternarModoEscuro()" style="width:100%;margin:0;padding:10px 12px;background:rgba(255,255,255,.06);font-size:12.5px" title="Alternar entre Modo Escuro e Claro">
+        <b style="font-size:16px">🌓</b><span id="sidebarThemeTxt">Modo Escuro</span>
+      </button>
+    </div>
+    <div class="profile"><div class="avatar">MP</div><div><b>Michel do Prado</b><small>Administrador</small></div></div>
+  </aside>
+
+  <!-- BACKDROP PARA FECHAMENTO TOUCH DO MENU NO CELULAR -->
+  <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+  <main>
+    <header>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="mobile" id="menu">☰</button>
+        <img src="favicon-solid.png?v=3" alt="Prado Logo" style="width:48px;height:48px;object-fit:contain;border-radius:50%;background:#ffffff;box-shadow:0 4px 14px rgba(0,0,0,.18);border:2px solid var(--gold);padding:2px">
+        <div>
+          <h1 id="title">Visão geral</h1>
+          <p id="subtitle">Controle completo das suas intermediações</p>
+        </div>
+      </div>
+      <div class="head-actions">
+        <button class="icon" title="Notificações">🔔<i></i></button>
+        <button class="secondary" id="themeToggleBtn" onclick="alternarModoEscuro()" title="Alternar entre Modo Escuro e Claro">🌙 Modo Escuro</button>
+        <button class="secondary" onclick="openLoginOverlay()" title="Trocar Usuário">👤 Trocar Usuário</button>
+        <button class="secondary" onclick="fazerLogout()" title="Sair do sistema (Logoff)" style="color:var(--red);border-color:#fca5a5;background:#fff5f5;font-weight:700">🚪 Sair</button>
+        <button class="primary" data-action="new">＋ Novo cadastro</button>
+      </div>
+    </header>
+
+    <div class="notice">
+      <b>Sistema Ativo</b>
+      <span>Plataforma conectada. Dados operando com validação e regras de acesso por usuário.</span>
+      <button>Entendi</button>
+    </div>
+
+    <section id="app"></section>
+  </main>
+
+  <!-- MODAL PRINCIPAL DE CADASTROS E DETALHES -->
+  <dialog id="modal">
+    <form method="dialog" id="entityForm">
+      <header>
+        <div>
+          <h2 id="modalTitle">Novo cadastro</h2>
+          <p id="modalSubtitle">Preencha os dados principais. Você poderá completar depois.</p>
+        </div>
+        <button type="button" class="close" id="modalCloseBtn" onclick="document.querySelector('#modal').close()" aria-label="Fechar modal">×</button>
+      </header>
+      <div id="formFields" class="form-grid"></div>
+      <footer>
+        <button type="button" class="secondary" id="modalCancelBtn" onclick="document.querySelector('#modal').close()">Cancelar</button>
+        <button type="submit" id="saveBtn" class="primary">Salvar cadastro</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- MODAL DE PROPOSTA COMERCIAL PDF TIMBRADA -->
+  <!-- MODAL DE LANÇAMENTO E EDIÇÃO DE ORÇAMENTO COMERCIAL -->
+  <dialog id="modalOrcamento" style="width:min(920px,96vw)">
+    <form id="orcamentoForm" onsubmit="salvarOrcamento(event)">
+      <header>
+        <div>
+          <h2 id="orcamentoModalTitle">Lançar Novo Orçamento Comercial</h2>
+          <p id="orcamentoModalSubtitle">Preencha os dados do cliente, itens e condições comerciais para emitir a proposta timbrada oficial.</p>
+        </div>
+        <button type="button" class="close" id="modalOrcamentoCloseBtn" onclick="document.querySelector('#modalOrcamento').close()" aria-label="Fechar modal">×</button>
+      </header>
+
+      <div style="padding:16px 20px;max-height:calc(85vh - 140px);overflow-y:auto">
+        <input type="hidden" id="orc_edit_index" value="-1">
+
+        <!-- 1. DADOS BÁSICOS DO ORÇAMENTO -->
+        <div class="orcamento-section-title">
+          <span>📋 1. Identificação do Orçamento</span>
+        </div>
+        <div class="orcamento-form-grid">
+          <div class="field">
+            <label for="orc_numero">Número do Orçamento</label>
+            <input id="orc_numero" placeholder="Ex: 027/2026" required>
+          </div>
+          <div class="field">
+            <label for="orc_data_emissao">Data de Emissão</label>
+            <input type="date" id="orc_data_emissao" required>
+          </div>
+          <div class="field">
+            <label for="orc_data_validade">Validade da Proposta</label>
+            <input type="date" id="orc_data_validade" required>
+          </div>
+          <div class="field">
+            <label for="orc_responsavel">Responsável Comercial</label>
+            <input id="orc_responsavel" placeholder="Michel do Prado" required>
+          </div>
+          <div class="field" style="grid-column:1/-1">
+            <label for="orc_referencia">Referência / Linha de Fornecimento</label>
+            <input id="orc_referencia" placeholder="Ex: Colchões Solteiros D33, Sacos de Lixo Hospitalar, etc.">
+          </div>
+        </div>
+
+        <!-- 2. DADOS DO CLIENTE -->
+        <div class="orcamento-section-title">
+          <span>🏢 2. Dados do Cliente / Destinatário</span>
+          <span style="font-size:12px;color:var(--muted);font-weight:normal">Puxe um cliente cadastrado ou digite abaixo</span>
+        </div>
+        <div class="orcamento-form-grid">
+          <div class="field" style="grid-column:1/-1">
+            <label for="orc_cliente_select">Selecionar Cliente Cadastrado (Preenchimento Rápido)</label>
+            <select id="orc_cliente_select" onchange="selecionarClienteParaOrcamento(this.value)">
+              <option value="">-- Selecionar cliente cadastrado ou digitar manualmente abaixo --</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="orc_cli_nome">Razão Social / Nome do Cliente</label>
+            <input id="orc_cli_nome" placeholder="Ex: Lar dos Velhinhos de Piracicaba" required>
+          </div>
+          <div class="field">
+            <label for="orc_cli_doc">CNPJ ou CPF</label>
+            <input id="orc_cli_doc" placeholder="00.000.000/0000-00">
+          </div>
+          <div class="field">
+            <label for="orc_cli_email">E-mail do Comprador</label>
+            <input id="orc_cli_email" placeholder="compras@cliente.com.br">
+          </div>
+          <div class="field">
+            <label for="orc_cli_telefone">Telefone / WhatsApp</label>
+            <input id="orc_cli_telefone" placeholder="(19) 3372-9485">
+          </div>
+          <div class="field" style="grid-column:1/-1">
+            <label for="orc_cli_endereco">Endereço de Entrega Completo (com CEP)</label>
+            <input id="orc_cli_endereco" placeholder="Ex: Av. Torquato da Silva Leitão, 615 - São Dimas - Piracicaba/SP - CEP 13416-215">
+          </div>
+        </div>
+
+        <!-- 3. ITENS COTADOS -->
+        <div class="orcamento-section-title">
+          <span>📦 3. Itens e Produtos da Proposta</span>
+          <button type="button" class="secondary" style="padding:4px 10px;font-size:12px;font-weight:700" onclick="adicionarLinhaItemOrcamento()">＋ Adicionar Outro Item</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="orcamento-itens-table" id="orcItensTable">
+            <thead>
+              <tr>
+                <th style="width:35px;text-align:center">#</th>
+                <th>Produto e Especificação Técnica</th>
+                <th style="width:70px">Un.</th>
+                <th style="width:85px">Qtd</th>
+                <th style="width:125px">Vlr. Unit. (R$)</th>
+                <th style="width:125px">Total (R$)</th>
+                <th style="width:45px;text-align:center">✕</th>
+              </tr>
+            </thead>
+            <tbody id="orcItensBody">
+              <!-- Linhas inseridas dinamicamente via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 4. TOTAIS E FECHAMENTO -->
+        <div style="display:flex;justify-content:flex-end;margin-top:10px">
+          <div style="width:360px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:12px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px">
+              <span>Subtotal dos Itens:</span>
+              <b id="orc_subtotal_preview">R$ 0,00</b>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:13px">
+              <span>Desconto Aplicado (R$):</span>
+              <input type="number" step="0.01" id="orc_desconto" value="0" style="width:125px;padding:4px 8px;font-size:13px;text-align:right" oninput="recalcularTotaisOrcamento()">
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:13px">
+              <span>Frete / Despesas (R$):</span>
+              <input type="number" step="0.01" id="orc_frete" value="0" style="width:125px;padding:4px 8px;font-size:13px;text-align:right" oninput="recalcularTotaisOrcamento()">
+            </div>
+            <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:2px solid #008299;font-size:15px;color:#073863">
+              <b>VALOR TOTAL:</b>
+              <strong id="orc_total_preview" style="color:#008299;font-size:18px">R$ 0,00</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. CONDIÇÕES COMERCIAIS -->
+        <div class="orcamento-section-title">
+          <span>🤝 4. Condições Comerciais & Observações</span>
+        </div>
+        <div class="orcamento-form-grid">
+          <div class="field">
+            <label for="orc_pagamento">Condições de Pagamento</label>
+            <input id="orc_pagamento" value="À vista." placeholder="Ex: À vista, 28 DDL faturado, etc.">
+          </div>
+          <div class="field">
+            <label for="orc_entrega_frete">Entrega e Frete</label>
+            <input id="orc_entrega_frete" value="Prazo sujeito à disponibilidade. Frete incluso, salvo indicação expressa.">
+          </div>
+          <div class="field" style="grid-column:1/-1">
+            <label for="orc_observacoes">Observações da Proposta</label>
+            <textarea id="orc_observacoes" rows="3" placeholder="Garantia, lote certificado, descontos aplicados, prazo de entrega, etc."></textarea>
+          </div>
+          <div class="field">
+            <label for="orc_status">Situação do Orçamento</label>
+            <select id="orc_status">
+              <option value="Em cotação">Em cotação</option>
+              <option value="Enviado ao Cliente">Enviado ao Cliente</option>
+              <option value="Aprovado" selected>Aprovado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <button type="button" class="secondary" onclick="document.querySelector('#modalOrcamento').close()">Cancelar</button>
+        <button type="submit" class="primary" style="background:#073863">💾 Salvar Orçamento & Gerar Proposta Timbrada</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- MODAL DE PROPOSTA COMERCIAL PDF TIMBRADA (IDÊNTICO AO DOCUMENTO OFICIAL PRADO) -->
+  <dialog id="proposalModal" style="width:min(900px,96vw);padding:0;background:transparent;border:none">
+    <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.2)">
+      <!-- Barra de Ações (Ocultada na Impressão) -->
+      <div class="proposal-actions-bar no-print" style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:#073863;color:#fff;border-bottom:1px solid #052a4a">
+        <div style="display:flex;align-items:center;gap:10px">
+          <b style="font-size:14px;letter-spacing:.5px">📄 Proposta Comercial Oficial Timbrada</b>
+          <span id="propStatusBadge" class="badge" style="background:#22c55e;color:#fff;font-size:11px">Aprovado</span>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button type="button" class="secondary" style="background:#0c4a7f;color:#fff;border-color:#1e639e;font-size:12.5px" id="propBtnZap" onclick="enviarPropostaWhatsAppAtual()">
+            💬 Enviar WhatsApp
+          </button>
+          <button type="button" class="primary" style="background:var(--gold);color:#151515;font-weight:800;font-size:12.5px" onclick="imprimirDocumentoTimbrado()">
+            🖨️ Imprimir / Salvar em PDF
+          </button>
+          <button type="button" class="secondary" style="background:transparent;color:#fca5a5;border-color:#7f1d1d;font-size:12.5px" onclick="document.querySelector('#proposalModal').close()">
+            ✖ Fechar
+          </button>
+        </div>
+      </div>
+
+      <!-- ÁREA DE IMPRESSÃO / FOLHA TIMBRADA -->
+      <div class="timbrado-documento" id="proposalPrintArea">
+        <!-- 1. TOPO TIMBRADO -->
+        <div class="timbrado-header">
+          <img src="logo-prado-premium.png" alt="Prado Comércio & Soluções" class="timbrado-logo">
+          <div class="timbrado-titulo-orc">
+            <h2>ORÇAMENTO COMERCIAL</h2>
+            <div class="timbrado-num">Nº <span id="propNumero">027/2026</span></div>
+          </div>
+        </div>
+
+        <div class="timbrado-subempresa">
+          <b>LicitaDigitalTech – Comércio & Soluções</b> | Razão Social 59.825.765 Michel do Prado<br>
+          CNPJ 59.825.765/0001-03 | IE 465.150.144.115 | Monte Mor - SP<br>
+          (19) 98814-6164 | licitadigitaltech@gmail.com
+        </div>
+
+        <!-- 2. METADADOS -->
+        <div class="timbrado-metadados-bar">
+          <div>Emissão: <b id="propEmissao">09/10/2026</b> | Responsável: <b id="propResponsavel">Michel do Prado</b></div>
+          <div>Validade: <b id="propValidade">30/10/2026</b> | <b id="propReferencia">Colchões Solteiros</b></div>
+        </div>
+
+        <!-- 3. DADOS DO CLIENTE -->
+        <div style="font-weight:800;color:#0b3c66;font-size:13px;margin-bottom:4px;text-transform:uppercase">DADOS DO CLIENTE</div>
+        <div class="timbrado-box-cliente">
+          <div class="row" style="margin-bottom:6px">
+            <div style="flex:1;min-width:260px">
+              Cliente: <b id="propCliNome">Lar dos Velhinhos de Piracicaba</b>
+            </div>
+            <div style="min-width:240px">
+              CNPJ: <span id="propCliDoc">54.406.723/0001-14</span><br>
+              E-mail: <span id="propCliEmail">compras@lardosvelhinhospiracicaba.org.br</span>
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1;min-width:260px">
+              Entrega: <span id="propCliEntrega">Av. Torquato da Silva Leitão, 615 - São Dimas - Piracicaba/SP - CEP 13416-215</span>
+            </div>
+            <div style="min-width:240px">
+              Telefone: <span id="propCliTel">(19) 3372-9485</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. ITENS COTADOS -->
+        <div style="font-weight:800;color:#0b3c66;font-size:13px;margin-bottom:4px;text-transform:uppercase">ITEM COTADO</div>
+        <table class="timbrado-tabela-itens">
+          <thead>
+            <tr>
+              <th style="width:45px">ITEM</th>
+              <th>PRODUTO E ESPECIFICAÇÃO</th>
+              <th style="width:50px">UN.</th>
+              <th style="width:65px">QTD.</th>
+              <th style="width:110px">VLR. UNIT.</th>
+              <th style="width:115px">TOTAL</th>
+            </tr>
+          </thead>
+          <tbody id="propItensBody">
+            <!-- Linhas de produtos geradas dinamicamente -->
+          </tbody>
+        </table>
+
+        <!-- 5. QUADRO DE TOTAIS -->
+        <table class="timbrado-totais-box">
+          <tr>
+            <td style="text-align:right;color:#475569">Subtotal</td>
+            <td style="text-align:right;font-weight:700;width:130px" id="propSubtotal">R$ 87.750,00</td>
+          </tr>
+          <tr>
+            <td style="text-align:right;color:#475569">Desconto</td>
+            <td style="text-align:right;font-weight:700;color:#dc2626" id="propDesconto">R$ 15.000,00</td>
+          </tr>
+          <tr>
+            <td style="text-align:right;color:#475569">Frete / outras despesas</td>
+            <td style="text-align:right;font-weight:700" id="propFrete">R$ 0,00</td>
+          </tr>
+          <tr class="timbrado-total-destaque">
+            <td style="text-align:right;padding:8px 10px">VALOR TOTAL</td>
+            <td style="text-align:right;padding:8px 10px" id="propValorTotal">R$ 72.750,00</td>
+          </tr>
+        </table>
+
+        <!-- 6. CONDIÇÕES COMERCIAIS -->
+        <div style="font-weight:800;color:#0b3c66;font-size:13px;margin-bottom:4px;text-transform:uppercase">CONDIÇÕES COMERCIAIS</div>
+        <div class="timbrado-condicoes">
+          <div class="item">
+            <div class="lbl">Pagamento</div>
+            <div class="val" id="propCondPagamento">À vista.</div>
+          </div>
+          <div class="item">
+            <div class="lbl">Entrega e frete</div>
+            <div class="val" id="propCondEntrega">Prazo sujeito à disponibilidade. Frete incluso, salvo indicação expressa.</div>
+          </div>
+          <div class="item">
+            <div class="lbl">Observações</div>
+            <div class="val" id="propCondObs">Desconto de R$ 15.000,00 já aplicado onde o preço de cada unidade passa a ser R$485,00. Preço válido até 30/10/2026. Prazo de entrega 30 dias, certificado de garantia em anexo.</div>
+          </div>
+        </div>
+
+        <!-- 7. RODAPÉ INSTITUCIONAL -->
+        <div class="timbrado-footer">
+          PRADO COMÉRCIO & SOLUÇÕES | CNPJ 59.825.765/0001-03 | Monte Mor - SP
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast"></div>
+
+  <!-- OVERLAY DE CARREGAMENTO & ATUALIZAÇÃO COM LOGO GIRANDO E BARRA DE CARREGAMENTO -->
+  <div id="prado-loader" class="prado-loader-backdrop" hidden role="status" aria-live="polite">
+    <div class="prado-loader-card">
+      <div class="prado-loader-logo-ring">
+        <img src="logo-prado-premium.png" alt="Prado" class="prado-loader-spinner">
+      </div>
+      <h3 id="pradoLoaderTitle" class="prado-loader-title">Atualizando Sistema...</h3>
+      <p id="pradoLoaderMsg" class="prado-loader-msg">Sincronizando com o Supabase com segurança RLS</p>
+      <div class="prado-progress-bar-wrap">
+        <div id="pradoProgressBar" class="prado-progress-bar-fill" style="width: 20%"></div>
+      </div>
+      <div class="prado-progress-stats">
+        <span id="pradoProgressStep">Verificando banco de dados...</span>
+        <span id="pradoProgressPercent">20%</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=20261016_12"></script>
+  <script src="settings.js?v=20261016_12"></script>
+  <script src="audit.js?v=20261016_12"></script>
+  <script src="auth.js?v=20261016_12"></script>
+</body>
+</html>

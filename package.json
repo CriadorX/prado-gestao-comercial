@@ -1,0 +1,13 @@
+{
+  "name": "prado-gestao-comercial",
+  "version": "1.0.0",
+  "description": "Sistema de Gestão Comercial e Intermediações da Prado Comércio & Soluções",
+  "main": "dist/index.html",
+  "scripts": {
+    "dev": "npx serve dist -l 8080",
+    "deploy": "vercel --prod"
+  },
+  "keywords": ["gestao-comercial", "prado", "intermediacoes", "supabase", "vercel"],
+  "author": "Prado Comércio & Soluções",
+  "license": "Private"
+}

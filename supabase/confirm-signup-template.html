@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Confirmação de Acesso - Prado Comércio & Soluções</title>
+</head>
+<body style="margin: 0; padding: 24px 12px; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 18px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;">
+    <!-- CABEÇALHO COM LOGO NO CANTO SUPERIOR ESQUERDO -->
+    <tr>
+      <td style="padding: 32px 36px 12px 36px; text-align: left; border-bottom: 1px solid #f1f5f9;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+          <tr>
+            <td align="left" style="vertical-align: middle;">
+              <img src="https://iili.io/njcdyiB.png" alt="Prado Comércio & Soluções" width="125" style="display: block; max-width: 125px; height: auto; border: 0; border-radius: 8px;" />
+            </td>
+            <td align="right" style="vertical-align: middle;">
+              <span style="display: inline-block; font-size: 11px; font-weight: 700; color: #07355f; background: #e0f2fe; padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px;">Portal Seguro</span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- CORPO DA MENSAGEM -->
+    <tr>
+      <td style="padding: 28px 36px 36px 36px;">
+        <h1 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 800; color: #07355f; letter-spacing: -0.3px;">
+          Prado Comércio & Soluções
+        </h1>
+        <p style="margin: 0 0 20px 0; font-size: 13.5px; color: #64748b; line-height: 1.4;">
+          Sistema de Gestão Comercial e Intermediações
+        </p>
+
+        <p style="margin: 0 0 16px 0; font-size: 15px; color: #334155; line-height: 1.6;">
+          Olá,
+        </p>
+        <p style="margin: 0 0 24px 0; font-size: 15px; color: #334155; line-height: 1.6;">
+          Sua conta de operador foi criada com sucesso no sistema da <b>Prado Gestão Comercial</b>. Para validar seu e-mail e ativar seu acesso com total segurança, clique no botão abaixo:
+        </p>
+
+        <!-- BOTÃO DE CONFIRMAÇÃO OFICIAL SUPABASE -->
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 28px 0;">
+          <tr>
+            <td align="center" style="border-radius: 12px; background: #5b4db7; box-shadow: 0 4px 14px rgba(91, 77, 183, 0.35);">
+              <a href="{{ .ConfirmationURL }}" target="_blank" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 12px; border: 1px solid #4f42a7;">
+                Confirmar meu E-mail de Acesso &rarr;
+              </a>
+            </td>
+          </tr>
+        </table>
+
+        <!-- LINK ALTERNATIVO -->
+        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; margin: 24px 0 0 0;">
+          <p style="margin: 0 0 6px 0; font-size: 12.5px; color: #64748b; font-weight: 600;">
+            Se o botão acima não funcionar, copie e cole este link no seu navegador:
+          </p>
+          <p style="margin: 0; font-size: 12px; color: #5b4db7; word-break: break-all; font-family: monospace;">
+            {{ .ConfirmationURL }}
+          </p>
+        </div>
+
+        <p style="margin: 24px 0 0 0; font-size: 13px; color: #94a3b8; line-height: 1.5;">
+          Se você não solicitou este cadastro no sistema Prado, nenhuma ação adicional é necessária. Este link expira em 24 horas.
+        </p>
+      </td>
+    </tr>
+
+    <!-- RODAPÉ CORPORATIVO -->
+    <tr>
+      <td style="padding: 20px 36px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;">
+        <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 700; color: #07355f;">
+          Prado Comércio & Soluções
+        </p>
+        <p style="margin: 0; font-size: 11px; color: #94a3b8; line-height: 1.4;">
+          Razão Social 59.825.765 Michel do Prado | CNPJ 59.825.765/0001-03<br>
+          Monte Mor - SP | Este é um e-mail automático do sistema. Por favor, não responda.
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
