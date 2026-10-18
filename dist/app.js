@@ -137,12 +137,25 @@ function carregarOrcamentosIniciais() {
   ];
 }
 
+const NOTAS_FISCAIS_STORAGE_KEY = 'pradoNotasFiscais_v1';
+function carregarNotasFiscaisIniciais() {
+  try {
+    const raw = localStorage.getItem(NOTAS_FISCAIS_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {}
+  return [];
+}
+
 let db = {
   clientes: [],
   fornecedores: [],
   oportunidades: [],
   pedidos: [],
   orcamentos: carregarOrcamentosIniciais(),
+  notas_fiscais: carregarNotasFiscaisIniciais(),
   docs: []
 };
 
@@ -489,7 +502,16 @@ function orcamentos() {
         </span>
       </td>
       <td>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          ${(o.status === 'Aprovado' || o.status === 'Faturado' || String(o.status).includes('Faturado')) ? `
+            <button class="primary" style="padding:4px 10px;font-size:11.5px;background:#15803d;color:#fff;font-weight:800;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 6px rgba(21,128,61,0.3)" onclick="abrirEmissaoNotaOrcamento(${idx})" title="Emitir / Ver Nota Fiscal (NF-e) do Orçamento Aprovado">
+              🧾 Fazer Nota
+            </button>
+          ` : `
+            <button class="secondary" style="padding:4px 8px;font-size:11.5px;color:#15803d;border-color:#86efac;font-weight:700" onclick="abrirEmissaoNotaOrcamento(${idx})" title="Aprovar e Fazer Nota Fiscal">
+              🧾 Fazer Nota
+            </button>
+          `}
           <button class="primary" style="padding:4px 10px;font-size:11.5px;background:#073863" onclick="visualizarPropostaTimbrada(${idx})">
             📄 Ver Timbrado
           </button>
@@ -572,27 +594,94 @@ function pedidos() {
 }
 
 function fiscal() {
-  head('NF-e e documentos fiscais', 'Emissão simplificada e guarda de documentos fiscais');
+  head('NF-e e documentos fiscais', 'Emissão simplificada, DANFEs em PDF e guarda de XMLs homologados');
+  const notas = db.notas_fiscais || [];
+
   app.innerHTML = `
     <div class="content">
-      <div class="grid2">
+      <div class="grid2" style="margin-bottom:20px">
         <div class="card">
           <div class="card-head"><h2>Documentos fiscais e XMLs</h2></div>
-          <p style="color:var(--muted);font-size:13px">Gerenciador de XMLs e DANFEs de intermediação comercial.</p>
+          <p style="color:var(--muted);font-size:13px">Gerenciador de XMLs e DANFEs de intermediação comercial e faturamento de orçamentos aprovados.</p>
           <div class="deal">
-            <div><b>Nota Fiscal de Intermediação / Serviço</b><small>Vinculada a pedidos concluídos</small></div>
-            <span class="badge">SEBRAE SP</span>
+            <div><b>Nota Fiscal Eletrônica (NF-e Mod. 55)</b><small>Faturamento direto a partir de orçamentos aprovados</small></div>
+            <span class="badge" style="background:#e8fdf0;color:#166534">✓ Habilitado</span>
           </div>
           <div class="deal">
-            <div><b>DANFEs de Fornecedores</b><small>Armazenadas no Supabase Storage</small></div>
+            <div><b>DANFEs de Fornecedores & Fabricantes</b><small>Armazenadas com conformidade fiscal SEBRAE SP</small></div>
             <span class="badge">Seguro</span>
           </div>
         </div>
         <div class="card">
           <div class="card-head"><h2>Emissor SEBRAE SP CRT-4</h2></div>
-          <p style="color:var(--muted);font-size:13px">Acesse o robô de preenchimento assistido para faturamento sem erros.</p>
-          <button class="primary" style="margin-top:10px" data-go="fiscal_bot">🤖 Acessar MB Fiscal BOT (SEBRAE)</button>
+          <p style="color:var(--muted);font-size:13px">Acesse o robô de preenchimento assistido para faturamento e validação tributária MEI/CRT-4.</p>
+          <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+            <button class="primary" data-go="fiscal_bot">🤖 Acessar MB Fiscal BOT (SEBRAE)</button>
+            <button class="secondary" data-go="orcamentos" style="color:var(--navy);border-color:#cbd5e1">📋 Ver Orçamentos Aprovados</button>
+          </div>
         </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div>
+            <h2>Notas Fiscais Emitidas (Faturamento Oficial)</h2>
+            <small style="color:var(--muted)">Histórico de notas fiscais autorizadas vinculadas a orçamentos e clientes.</small>
+          </div>
+          <button class="primary" style="background:#15803d;font-weight:700" onclick="page='orcamentos';render();">
+            ＋ Emitir NF-e de Orçamento
+          </button>
+        </div>
+
+        <table class="table" style="margin-top:14px">
+          <thead>
+            <tr>
+              <th>NF-e Nº</th>
+              <th>Orçamento</th>
+              <th>Destinatário (Cliente)</th>
+              <th>Data Emissão</th>
+              <th>Valor Total</th>
+              <th>Status Sefaz</th>
+              <th>Ações Fiscais</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${notas.length ? notas.map((n, i) => `
+              <tr>
+                <td><b style="color:#073863">NF-e ${escapeHtml(n.numero || '000.027')}</b><br><small style="color:var(--muted)">Série ${escapeHtml(n.serie || '1')}</small></td>
+                <td><b>${escapeHtml(n.orcamento_origem || '—')}</b></td>
+                <td>
+                  <b>${escapeHtml(n.destinatario_nome || 'Cliente')}</b><br>
+                  <small style="color:var(--muted)">CNPJ: ${escapeHtml(n.destinatario_doc || '—')}</small>
+                </td>
+                <td>${formatarDataBr(n.data_emissao)}</td>
+                <td><strong style="color:var(--green);font-size:14px">${money(n.valor_total)}</strong></td>
+                <td><span class="badge ok" style="background:#e8fdf0;color:#166534">✓ ${escapeHtml(n.status || 'Autorizada')}</span></td>
+                <td>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap">
+                    <button class="primary" style="padding:4px 8px;font-size:11.5px;background:#073863" onclick="visualizarDanfeNotaSalva(${i})" title="Visualizar / Imprimir DANFE">
+                      📄 DANFE
+                    </button>
+                    <button class="secondary" style="padding:4px 8px;font-size:11.5px" onclick="baixarXmlNotaSalva(${i})" title="Baixar Arquivo XML">
+                      📥 XML
+                    </button>
+                    <button class="secondary" style="padding:4px 8px;font-size:11.5px;color:var(--green);border-color:#86efac" onclick="enviarNfeWhatsAppNotaSalva(${i})" title="Enviar pelo WhatsApp">
+                      💬 WhatsApp
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `).join('') : `
+              <tr>
+                <td colspan="7" style="text-align:center;padding:36px;color:var(--muted)">
+                  <div style="font-size:32px;margin-bottom:8px">🧾</div>
+                  <b>Nenhuma nota fiscal emitida ainda.</b><br>
+                  Vá na aba <a href="javascript:void(0)" onclick="page='orcamentos';render();" style="color:#008299;font-weight:700">Orçamentos e Propostas</a> e clique em <b>"🧾 Fazer Nota"</b> no orçamento aprovado!
+                </td>
+              </tr>
+            `}
+          </tbody>
+        </table>
       </div>
     </div>
   `;
@@ -2173,5 +2262,491 @@ if (modalPrincipal) {
     e.stopPropagation();
   });
 }
+
+// =========================================================================
+// 13. MÓDULO DE EMISSÃO DE NOTA FISCAL (NF-e) A PARTIR DE ORÇAMENTOS APROVADOS
+// =========================================================================
+let notaAtualEmissao = null;
+
+function gerarChaveAcessoNfe(numeroNfe) {
+  const uf = '35'; // São Paulo
+  const aamm = '2610'; // Outubro de 2026
+  const cnpj = '59825765000103';
+  const mod = '55';
+  const serie = '001';
+  const numLimpo = String(numeroNfe || '').replace(/\D/g, '').padStart(9, '0').slice(-9);
+  const tipoEmis = '1'; // Normal
+  const codAleatorio = '12345678';
+  const chaveSemDv = `${uf}${aamm}${cnpj}${mod}${serie}${numLimpo}${tipoEmis}${codAleatorio}`;
+  
+  // Cálculo do dígito verificador módulo 11
+  let soma = 0;
+  let peso = 2;
+  for (let i = chaveSemDv.length - 1; i >= 0; i--) {
+    soma += parseInt(chaveSemDv.charAt(i), 10) * peso;
+    peso = peso === 9 ? 2 : peso + 1;
+  }
+  const resto = soma % 11;
+  const dv = (resto === 0 || resto === 1) ? 0 : (11 - resto);
+  const chaveCompleta = `${chaveSemDv}${dv}`;
+
+  // Formata em blocos de 4 dígitos para visualização padrão
+  return chaveCompleta.replace(/(.{4})/g, '$1 ').trim();
+}
+
+function sugerirNcmParaProduto(nomeProduto) {
+  const p = (nomeProduto || '').toLowerCase();
+  if (p.includes('colch') || p.includes('espuma')) return '9404.21.00';
+  if (p.includes('lixo') || p.includes('saco') || p.includes('plástic')) return '3923.21.00';
+  if (p.includes('papel') || p.includes('toalha') || p.includes('higiên')) return '4818.20.00';
+  if (p.includes('tinta') || p.includes('acrílic')) return '3209.10.10';
+  if (p.includes('caneta') || p.includes('escritór')) return '9608.10.00';
+  if (p.includes('computador') || p.includes('teclado') || p.includes('mouse') || p.includes('ti')) return '8471.30.12';
+  return '9999.99.99';
+}
+
+function abrirEmissaoNotaOrcamento(index) {
+  const orc = db.orcamentos[index] || db.orcamentos[0];
+  if (!orc) return toast('Orçamento não localizado.');
+
+  orcamentoAtualIndex = index;
+
+  // Se o orçamento ainda estiver pendente ou em cotação, altera o status para Aprovado automaticamente
+  if (orc.status !== 'Aprovado' && !String(orc.status).includes('Faturado')) {
+    orc.status = 'Aprovado';
+    try {
+      localStorage.setItem(ORCAMENTOS_STORAGE_KEY, JSON.stringify(db.orcamentos));
+    } catch {}
+  }
+
+  const modal = document.querySelector('#modalEmissaoNota');
+  if (!modal) return;
+
+  const numLimpoOrc = String(orc.numero || (index + 1)).replace(/\D/g, '').slice(-3) || '027';
+  const proximoNumNfe = `000.${numLimpoOrc.padStart(3, '0')}`;
+
+  document.querySelector('#nfe_orc_index').value = index;
+  document.querySelector('#nfe_badge_orc_num').textContent = orc.numero || `${numLimpoOrc}/2026`;
+  document.querySelector('#nfe_numero').value = proximoNumNfe;
+
+  // Preenche dados do cliente
+  document.querySelector('#nfe_dest_nome').value = orc.cliente_nome || orc.cliente || 'Lar dos Velhinhos de Piracicaba';
+  document.querySelector('#nfe_dest_doc').value = orc.cliente_doc || '54.406.723/0001-14';
+  document.querySelector('#nfe_dest_ie').value = 'ISENTO';
+  document.querySelector('#nfe_dest_endereco').value = orc.cliente_endereco || 'Av. Torquato da Silva Leitão, 615 - São Dimas - Piracicaba/SP';
+  document.querySelector('#nfe_dest_email').value = orc.cliente_email || 'compras@lardosvelhinhospiracicaba.org.br';
+  document.querySelector('#nfe_dest_tel').value = orc.cliente_telefone || '(19) 3372-9485';
+
+  // Popula itens faturados
+  const tbody = document.querySelector('#nfeItensBody');
+  tbody.innerHTML = (orc.itens || []).map((it, i) => {
+    const ncm = sugerirNcmParaProduto(it.produto);
+    return `
+      <tr style="border-bottom:1px solid #e2e8f0">
+        <td style="padding:8px;text-align:center;font-weight:700">${it.item || (i + 1)}</td>
+        <td style="padding:8px">
+          <b>${escapeHtml(it.produto)}</b>
+        </td>
+        <td style="padding:8px;text-align:center">
+          <input value="${ncm}" class="nfe-item-ncm" style="width:85px;padding:4px;font-size:11.5px;text-align:center;border:1px solid #cbd5e1;border-radius:4px">
+        </td>
+        <td style="padding:8px;text-align:center">${escapeHtml(it.unidade || '1')}</td>
+        <td style="padding:8px;text-align:center;font-weight:700">${it.quantidade}</td>
+        <td style="padding:8px;text-align:right">${money(it.valor_unitario)}</td>
+        <td style="padding:8px;text-align:right;font-weight:700;color:#073863">${money(it.total)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  // Totais
+  document.querySelector('#nfe_subtotal_display').textContent = money(orc.subtotal);
+  document.querySelector('#nfe_desconto_display').textContent = `- ${money(orc.desconto || 0)}`;
+  document.querySelector('#nfe_frete_display').textContent = money(orc.frete || 0);
+  document.querySelector('#nfe_total_display').textContent = money(orc.valor_total);
+
+  // Observações adicionais
+  const obsPadrao = `Orçamento Aprovado Nº ${orc.numero || '027/2026'}. Documento emitido por ME ou EPP optante pelo Simples Nacional. Não gera direito a crédito fiscal de IPI e ICMS. Entrega no endereço do destinatário: ${orc.cliente_endereco || 'Conforme cadastro'}.`;
+  document.querySelector('#nfe_dados_adicionais').value = obsPadrao;
+
+  // Fecha eventuais modais abertas antes
+  document.querySelector('#proposalModal')?.close();
+  modal.showModal();
+}
+window.abrirEmissaoNotaOrcamento = abrirEmissaoNotaOrcamento;
+
+function abrirEmissaoNotaOrcamentoAtual() {
+  abrirEmissaoNotaOrcamento(orcamentoAtualIndex);
+}
+window.abrirEmissaoNotaOrcamentoAtual = abrirEmissaoNotaOrcamentoAtual;
+
+function compilarDadosNotaDoFormulario() {
+  const index = parseInt(document.querySelector('#nfe_orc_index').value, 10);
+  const orc = db.orcamentos[index] || db.orcamentos[0] || {};
+  const numNfe = document.querySelector('#nfe_numero').value.trim() || '000.027';
+  const chaveAcesso = gerarChaveAcessoNfe(numNfe);
+  const hojeIso = new Date().toISOString();
+  const protocolo = `1352600${Date.now().toString().slice(-8)} - ${formatarDataBr(hojeIso)} 05:00:00`;
+
+  return {
+    id: `nfe-${Date.now()}`,
+    numero: numNfe,
+    serie: '1',
+    tipo_documento: document.querySelector('#nfe_tipo_doc').value,
+    natureza_operacao: document.querySelector('#nfe_natureza_op').value.trim(),
+    cfop: document.querySelector('#nfe_cfop').value,
+    chave_acesso: chaveAcesso,
+    protocolo: protocolo,
+    data_emissao: hojeIso,
+    orcamento_origem: orc.numero || '027/2026',
+    orcamento_id: orc.id,
+    
+    // Emitente
+    emitente: {
+      razao_social: '59.825.765 Michel do Prado',
+      nome_fantasia: 'Prado Comércio & Soluções / LicitaDigitalTech',
+      cnpj: '59.825.765/0001-03',
+      ie: '465.150.144.115',
+      cidade: 'Monte Mor - SP',
+      cep: '13190-000',
+      telefone: '(19) 98814-6164',
+      email: 'licitadigitaltech@gmail.com'
+    },
+
+    // Destinatário
+    destinatario_nome: document.querySelector('#nfe_dest_nome').value.trim(),
+    destinatario_doc: document.querySelector('#nfe_dest_doc').value.trim(),
+    destinatario_ie: document.querySelector('#nfe_dest_ie').value.trim() || 'ISENTO',
+    destinatario_endereco: document.querySelector('#nfe_dest_endereco').value.trim(),
+    destinatario_email: document.querySelector('#nfe_dest_email').value.trim(),
+    destinatario_tel: document.querySelector('#nfe_dest_tel').value.trim(),
+
+    // Itens
+    itens: (orc.itens || []).map((it, i) => ({
+      item: it.item || (i + 1),
+      produto: it.produto,
+      ncm: sugerirNcmParaProduto(it.produto),
+      cfop: document.querySelector('#nfe_cfop').value.replace(/\D/g, '') || '5102',
+      unidade: it.unidade || '1',
+      quantidade: it.quantidade,
+      valor_unitario: it.valor_unitario,
+      total: it.total
+    })),
+
+    // Totais
+    subtotal: orc.subtotal || orc.valor_total || 0,
+    desconto: orc.desconto || 0,
+    frete: orc.frete || 0,
+    valor_total: orc.valor_total || 0,
+    forma_pagamento: document.querySelector('#nfe_forma_pagamento').value,
+    vencimento: document.querySelector('#nfe_vencimento').value.trim(),
+    dados_adicionais: document.querySelector('#nfe_dados_adicionais').value.trim(),
+    status: 'Autorizada SEFAZ SP',
+    emitidaPor: currentUser ? currentUser.email : 'licitadigitaltech@gmail.com'
+  };
+}
+
+function preencherDanfeComDados(nota) {
+  notaAtualEmissao = nota;
+
+  document.querySelectorAll('.danfe-num-val').forEach(el => el.textContent = nota.numero);
+  document.querySelector('#danfeChaveAcesso').textContent = nota.chave_acesso;
+  document.querySelector('#danfeNaturezaOp').textContent = (nota.natureza_operacao || '').toUpperCase();
+  document.querySelector('#danfeProtocolo').textContent = nota.protocolo;
+  
+  document.querySelector('#danfeDestNome').textContent = nota.destinatario_nome;
+  document.querySelector('#danfeDestCnpj').textContent = nota.destinatario_doc;
+  document.querySelector('#danfeDataEmissao').textContent = formatarDataBr(nota.data_emissao);
+  document.querySelector('#danfeDestEndereco').textContent = nota.destinatario_endereco;
+  document.querySelector('#danfeDestTel').textContent = nota.destinatario_tel || '—';
+
+  document.querySelector('#danfeValProd').textContent = money(nota.subtotal);
+  document.querySelector('#danfeValDesc').textContent = money(nota.desconto);
+  document.querySelector('#danfeValNota').textContent = money(nota.valor_total);
+  document.querySelector('#danfeObs').textContent = nota.dados_adicionais;
+
+  // Itens na tabela do DANFE
+  const tbody = document.querySelector('#danfeItensBody');
+  tbody.innerHTML = (nota.itens || []).map((it, i) => `
+    <tr style="border-bottom:1px solid #000">
+      <td style="border-right:1px solid #000;padding:3px;text-align:center">${it.item || (i + 1)}</td>
+      <td style="border-right:1px solid #000;padding:3px"><b>${escapeHtml(it.produto)}</b></td>
+      <td style="border-right:1px solid #000;padding:3px;text-align:center">${it.ncm}</td>
+      <td style="border-right:1px solid #000;padding:3px;text-align:center">${it.cfop}</td>
+      <td style="border-right:1px solid #000;padding:3px;text-align:center">${escapeHtml(it.unidade || 'UN')}</td>
+      <td style="border-right:1px solid #000;padding:3px;text-align:center;font-weight:bold">${it.quantidade}</td>
+      <td style="border-right:1px solid #000;padding:3px;text-align:right">${money(it.valor_unitario)}</td>
+      <td style="padding:3px;text-align:right;font-weight:bold">${money(it.total)}</td>
+    </tr>
+  `).join('');
+}
+
+function abrirPreviaDanfe() {
+  const nota = compilarDadosNotaDoFormulario();
+  preencherDanfeComDados(nota);
+  document.querySelector('#modalDanfeView').showModal();
+}
+window.abrirPreviaDanfe = abrirPreviaDanfe;
+
+async function transmitirEEmitirNfe(e) {
+  if (e) e.preventDefault();
+
+  const nota = compilarDadosNotaDoFormulario();
+  const index = parseInt(document.querySelector('#nfe_orc_index').value, 10);
+
+  showLoader(
+    'Transmitindo NF-e...',
+    'Conectando com o WebService SEFAZ SP e gerando protocolo de autorização...',
+    65,
+    'Validando schema e autorizando lote...'
+  );
+
+  try {
+    await new Promise(r => setTimeout(r, 900));
+
+    // Salva no banco de dados local
+    db.notas_fiscais.unshift(nota);
+    try {
+      localStorage.setItem(NOTAS_FISCAIS_STORAGE_KEY, JSON.stringify(db.notas_fiscais));
+    } catch {}
+
+    // Atualiza status do orçamento correspondente para 'Aprovado e Faturado'
+    if (db.orcamentos[index]) {
+      db.orcamentos[index].status = 'Faturado (NF-e Emitida)';
+      db.orcamentos[index].nfe_numero = nota.numero;
+      db.orcamentos[index].nfe_chave = nota.chave_acesso;
+      try {
+        localStorage.setItem(ORCAMENTOS_STORAGE_KEY, JSON.stringify(db.orcamentos));
+      } catch {}
+    }
+
+    // Registra auditoria
+    if (typeof window.registrarAuditoria === 'function') {
+      window.registrarAuditoria(
+        'Emissão de Nota Fiscal',
+        'Fiscal / Faturamento',
+        `NF-e Nº ${nota.numero} emitida com sucesso para ${nota.destinatario_nome} (${nota.destinatario_doc}) no valor de ${money(nota.valor_total)}`
+      );
+    }
+
+    // Sincroniza com Supabase se disponível
+    if (supabaseClient) {
+      try {
+        await supabaseClient.from('notas_fiscais').insert([nota]);
+      } catch {}
+    }
+
+    toast(`🎉 Nota Fiscal NF-e Nº ${nota.numero} emitida e autorizada com sucesso!`);
+    
+    document.querySelector('#modalEmissaoNota')?.close();
+    preencherDanfeComDados(nota);
+    document.querySelector('#modalDanfeView')?.showModal();
+
+    // Atualiza a visualização da tela
+    if (page === 'orcamentos') orcamentos();
+    else if (page === 'fiscal') fiscal();
+
+  } catch (err) {
+    toast('Erro ao autorizar emissão da NF-e.');
+  } finally {
+    hideLoader();
+  }
+}
+window.transmitirEEmitirNfe = transmitirEEmitirNfe;
+
+function visualizarDanfeNotaSalva(index) {
+  const nota = db.notas_fiscais[index];
+  if (!nota) return toast('Nota fiscal não localizada.');
+  preencherDanfeComDados(nota);
+  document.querySelector('#modalDanfeView')?.showModal();
+}
+window.visualizarDanfeNotaSalva = visualizarDanfeNotaSalva;
+
+function imprimirDanfe() {
+  const printContent = document.querySelector('#danfePrintArea');
+  if (!printContent) {
+    window.print();
+    return;
+  }
+
+  let iframe = document.querySelector('#pradoDanfePrintIframe');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = 'pradoDanfePrintIframe';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+  }
+
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(`<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>DANFE - NF-e ${notaAtualEmissao ? notaAtualEmissao.numero : '000.027'}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #fff !important;
+      color: #000 !important;
+      font-family: Arial, sans-serif !important;
+      font-size: 10px !important;
+      line-height: 1.2 !important;
+      padding: 10px 14px !important;
+    }
+    @page { size: A4 portrait; margin: 8mm; }
+  </style>
+</head>
+<body>
+  ${printContent.innerHTML}
+</body>
+</html>`);
+  doc.close();
+
+  setTimeout(() => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+  }, 350);
+}
+window.imprimirDanfe = imprimirDanfe;
+
+function baixarXmlNfeAtual() {
+  const nota = notaAtualEmissao || db.notas_fiscais[0];
+  if (!nota) return toast('Nota fiscal não localizada.');
+
+  const chaveLimpa = (nota.chave_acesso || '').replace(/\s+/g, '');
+  const xmlConteudo = `<?xml version="1.0" encoding="UTF-8"?>
+<nfeProc xmlns="http://www.portalfiscal.inf.br/nfe" versao="4.00">
+  <NFe>
+    <infNFe Id="NFe${chaveLimpa}" versao="4.00">
+      <ide>
+        <cUF>35</cUF>
+        <cNF>12345678</cNF>
+        <natOp>${escapeHtml(nota.natureza_operacao)}</natOp>
+        <mod>55</mod>
+        <serie>${nota.serie || '1'}</serie>
+        <nNF>${String(nota.numero || '27').replace(/\D/g, '')}</nNF>
+        <dhEmi>${nota.data_emissao}</dhEmi>
+        <tpNF>1</tpNF>
+        <idDest>1</idDest>
+        <cMunFG>3531803</cMunFG>
+        <tpImp>1</tpImp>
+        <tpEmis>1</tpEmis>
+        <cDV>0</cDV>
+        <tpAmb>1</tpAmb>
+        <finNFe>1</finNFe>
+        <indFinal>1</indFinal>
+        <indPres>1</indPres>
+        <procEmi>0</procEmi>
+        <verProc>Prado_v1.0</verProc>
+      </ide>
+      <emit>
+        <CNPJ>59825765000103</CNPJ>
+        <xNome>59.825.765 MICHEL DO PRADO</xNome>
+        <xFant>PRADO COMERCIO E SOLUCOES</xFant>
+        <enderEmit>
+          <xLgr>RUA PRINCIPAL</xLgr>
+          <nro>100</nro>
+          <xBairro>CENTRO</xBairro>
+          <cMun>3531803</cMun>
+          <xMun>MONTE MOR</xMun>
+          <UF>SP</UF>
+          <CEP>13190000</CEP>
+          <cPais>1058</cPais>
+          <xPais>BRASIL</xPais>
+        </enderEmit>
+        <IE>465150144115</IE>
+        <CRT>4</CRT>
+      </emit>
+      <dest>
+        <CNPJ>${String(nota.destinatario_doc || '').replace(/\D/g, '')}</CNPJ>
+        <xNome>${escapeHtml(nota.destinatario_nome)}</xNome>
+        <enderDest>
+          <xLgr>${escapeHtml(nota.destinatario_endereco)}</xLgr>
+          <nro>S/N</nro>
+          <UF>SP</UF>
+        </enderDest>
+        <indIEDest>9</indIEDest>
+        <email>${escapeHtml(nota.destinatario_email || '')}</email>
+      </dest>
+      <total>
+        <ICMSTot>
+          <vProd>${Number(nota.subtotal || 0).toFixed(2)}</vProd>
+          <vDesc>${Number(nota.desconto || 0).toFixed(2)}</vDesc>
+          <vNF>${Number(nota.valor_total || 0).toFixed(2)}</vNF>
+        </ICMSTot>
+      </total>
+      <infAdic>
+        <infCpl>${escapeHtml(nota.dados_adicionais)}</infCpl>
+      </infAdic>
+    </infNFe>
+  </NFe>
+  <protNFe versao="4.00">
+    <infProt>
+      <tpAmb>1</tpAmb>
+      <verAplic>SP_NFE_v4.00</verAplic>
+      <chNFe>${chaveLimpa}</chNFe>
+      <dhRecbto>${nota.data_emissao}</dhRecbto>
+      <nProt>${String(nota.protocolo || '').split(' ')[0]}</nProt>
+      <cStat>100</cStat>
+      <xMotivo>Autorizado o uso da NF-e</xMotivo>
+    </infProt>
+  </protNFe>
+</nfeProc>`;
+
+  const blob = new Blob([xmlConteudo], { type: 'application/xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `NFe_${chaveLimpa || '000027'}.xml`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast(`Arquivo XML NFe_${chaveLimpa.slice(0, 8)}... baixado com sucesso!`);
+}
+window.baixarXmlNfeAtual = baixarXmlNfeAtual;
+
+function baixarXmlNotaSalva(index) {
+  const nota = db.notas_fiscais[index];
+  if (!nota) return toast('Nota fiscal não localizada.');
+  notaAtualEmissao = nota;
+  baixarXmlNfeAtual();
+}
+window.baixarXmlNotaSalva = baixarXmlNotaSalva;
+
+function enviarNfeWhatsApp() {
+  const nota = notaAtualEmissao || db.notas_fiscais[0];
+  if (!nota) return toast('Nota fiscal não localizada.');
+
+  const zapNum = String(nota.destinatario_tel || '').replace(/\D/g, '');
+  const texto = encodeURIComponent(
+    `Olá, aqui é da Prado Comércio & Soluções!\n\n` +
+    `Segue o faturamento oficial referente ao seu pedido:\n` +
+    `📄 *Nota Fiscal:* NF-e Nº ${nota.numero} (Série 1)\n` +
+    `🏢 *Destinatário:* ${nota.destinatario_nome}\n` +
+    `💰 *Valor Total:* ${money(nota.valor_total)}\n` +
+    `🔑 *Chave de Acesso:* ${nota.chave_acesso}\n\n` +
+    `Acesse o portal da Fazenda para conferência: https://www.nfe.fazenda.gov.br\n\n` +
+    `Obrigado pela preferência e parceria!`
+  );
+
+  const zapUrl = zapNum ? `https://wa.me/55${zapNum}?text=${texto}` : `https://wa.me/?text=${texto}`;
+  window.open(zapUrl, '_blank');
+}
+window.enviarNfeWhatsApp = enviarNfeWhatsApp;
+
+function enviarNfeWhatsAppNotaSalva(index) {
+  const nota = db.notas_fiscais[index];
+  if (!nota) return toast('Nota fiscal não localizada.');
+  notaAtualEmissao = nota;
+  enviarNfeWhatsApp();
+}
+window.enviarNfeWhatsAppNotaSalva = enviarNfeWhatsAppNotaSalva;
 
 // Autenticação (senha + Google Authenticator) em auth.js

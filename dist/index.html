@@ -583,7 +583,10 @@
           <b style="font-size:14px;letter-spacing:.5px">📄 Proposta Comercial Oficial Timbrada</b>
           <span id="propStatusBadge" class="badge" style="background:#22c55e;color:#fff;font-size:11px">Aprovado</span>
         </div>
-        <div style="display:flex;gap:10px">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button type="button" class="primary" style="background:#15803d;color:#fff;font-weight:800;font-size:12.5px;box-shadow:0 2px 6px rgba(21,128,61,0.3)" id="propBtnFazerNota" onclick="abrirEmissaoNotaOrcamentoAtual()">
+            🧾 Fazer Nota Fiscal (NF-e)
+          </button>
           <button type="button" class="secondary" style="background:#0c4a7f;color:#fff;border-color:#1e639e;font-size:12.5px" id="propBtnZap" onclick="enviarPropostaWhatsAppAtual()">
             💬 Enviar WhatsApp
           </button>
@@ -699,6 +702,439 @@
         <!-- 7. RODAPÉ INSTITUCIONAL -->
         <div class="timbrado-footer">
           PRADO COMÉRCIO & SOLUÇÕES | CNPJ 59.825.765/0001-03 | Monte Mor - SP
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- MODAL DE EMISSÃO DE NOTA FISCAL (NF-e) A PARTIR DE ORÇAMENTO APROVADO -->
+  <dialog id="modalEmissaoNota" style="width:min(960px,96vw);padding:0;background:transparent;border:none">
+    <form id="formEmissaoNota" onsubmit="transmitirEEmitirNfe(event)" style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.28);max-height:92vh;display:flex;flex-direction:column">
+      <input type="hidden" id="nfe_orc_index" value="0">
+      
+      <!-- Cabeçalho da Emissão -->
+      <header style="background:linear-gradient(135deg, #073863, #0a4d87);color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid var(--gold)">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:24px">
+            🧾
+          </div>
+          <div>
+            <h2 style="font-size:18px;margin:0;font-weight:800;letter-spacing:.3px">Emissão de Nota Fiscal Eletrônica (NF-e)</h2>
+            <p style="margin:2px 0 0;font-size:12.5px;color:#cbd5e1">
+              Faturamento oficial do Orçamento Aprovado <b>Nº <span id="nfe_badge_orc_num">027/2026</span></b>
+            </p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="badge" style="background:#15803d;color:#fff;font-size:11.5px;padding:4px 10px">✓ Orçamento Aprovado</span>
+          <button type="button" style="background:transparent;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px" onclick="document.querySelector('#modalEmissaoNota').close()" aria-label="Fechar">✕</button>
+        </div>
+      </header>
+
+      <!-- Corpo com Rolagem -->
+      <div style="overflow-y:auto;padding:20px 24px;flex:1;background:#f8fafc">
+        <!-- 1. IDENTIFICAÇÃO DA OPERAÇÃO FISCAL -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:800;color:#073863;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+            <span>🏛️ 1. Identificação da Operação & Natureza Fiscal</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px">
+            <div class="field">
+              <label for="nfe_tipo_doc" style="font-size:12px;font-weight:700;color:#475569">Tipo de Documento Fiscal</label>
+              <select id="nfe_tipo_doc" style="width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px">
+                <option value="55" selected>NF-e Modelo 55 (Venda de Mercadorias / Suprimentos)</option>
+                <option value="NFS-e">NFS-e (Serviços de Intermediação e Agenciamento)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="nfe_natureza_op" style="font-size:12px;font-weight:700;color:#475569">Natureza da Operação</label>
+              <input id="nfe_natureza_op" value="Venda de mercadoria adquirida ou recebida de terceiros" style="width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px">
+            </div>
+            <div class="field">
+              <label for="nfe_numero" style="font-size:12px;font-weight:700;color:#475569">Número da NF-e / Série</label>
+              <div style="display:flex;gap:6px">
+                <input id="nfe_numero" value="000.027" style="flex:2;padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;font-weight:700;color:#073863">
+                <input id="nfe_serie" value="Série 1" style="flex:1;padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;text-align:center" readonly>
+              </div>
+            </div>
+            <div class="field">
+              <label for="nfe_cfop" style="font-size:12px;font-weight:700;color:#475569">CFOP Principal</label>
+              <select id="nfe_cfop" style="width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;font-weight:600">
+                <option value="5.102" selected>5.102 - Venda de mercadoria (Operação Estadual)</option>
+                <option value="6.102">6.102 - Venda de mercadoria (Interestadual)</option>
+                <option value="5.933">5.933 - Prestação de serviços de intermediação comercial</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. DADOS DO EMITENTE E DESTINATÁRIO -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <!-- Emitente -->
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px">
+            <div style="font-size:12.5px;font-weight:800;color:#073863;text-transform:uppercase;margin-bottom:8px">
+              🏢 Emitente (Sua Empresa)
+            </div>
+            <div style="font-size:12px;color:#334155;line-height:1.6">
+              <b>59.825.765 Michel do Prado</b><br>
+              <span style="color:#64748b">Nome Fantasia:</span> Prado Comércio & Soluções / LicitaDigitalTech<br>
+              <span style="color:#64748b">CNPJ:</span> <b>59.825.765/0001-03</b> · <span style="color:#64748b">IE:</span> 465.150.144.115<br>
+              <span style="color:#64748b">Regime:</span> Simples Nacional / CRT 4 (MEI SEBRAE SP)<br>
+              <span style="color:#64748b">Município:</span> Monte Mor - SP · CEP 13190-000
+            </div>
+          </div>
+
+          <!-- Destinatário (Cliente) -->
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px">
+            <div style="font-size:12.5px;font-weight:800;color:#073863;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between">
+              <span>👤 Destinatário / Tomador</span>
+              <span class="badge" style="background:#e0f2fe;color:#0284c7;font-size:10.5px">Cliente Aprovado</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div style="grid-column:1/-1">
+                <label style="font-size:11px;font-weight:700;color:#64748b">Razão Social / Nome</label>
+                <input id="nfe_dest_nome" style="width:100%;padding:6px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px;font-weight:700">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#64748b">CNPJ / CPF</label>
+                <input id="nfe_dest_doc" style="width:100%;padding:6px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#64748b">Inscrição Estadual</label>
+                <input id="nfe_dest_ie" value="ISENTO" style="width:100%;padding:6px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px">
+              </div>
+              <div style="grid-column:1/-1">
+                <label style="font-size:11px;font-weight:700;color:#64748b">Endereço de Entrega</label>
+                <input id="nfe_dest_endereco" style="width:100%;padding:6px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#64748b">E-mail para Envio da NF-e</label>
+                <input id="nfe_dest_email" type="email" style="width:100%;padding:6px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;color:#64748b">Telefone / WhatsApp</label>
+                <input id="nfe_dest_tel" style="width:100%;padding:6px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. ITENS DA NOTA FISCAL -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:800;color:#073863;text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+            <span>📦 2. Produtos / Serviços Faturados</span>
+            <span style="font-size:11.5px;color:#64748b;font-weight:normal">Carregados automaticamente do orçamento</span>
+          </div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:12.5px" id="nfeTabelaItens">
+              <thead>
+                <tr style="background:#f1f5f9;color:#334155;border-bottom:2px solid #cbd5e1">
+                  <th style="padding:8px;text-align:center;width:40px">#</th>
+                  <th style="padding:8px;text-align:left">Descrição do Produto / Serviço</th>
+                  <th style="padding:8px;text-align:center;width:90px">NCM</th>
+                  <th style="padding:8px;text-align:center;width:60px">Un.</th>
+                  <th style="padding:8px;text-align:center;width:70px">Qtd</th>
+                  <th style="padding:8px;text-align:right;width:110px">Vlr. Unitário</th>
+                  <th style="padding:8px;text-align:right;width:120px">Total Líquido</th>
+                </tr>
+              </thead>
+              <tbody id="nfeItensBody">
+                <!-- Linhas inseridas via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 4. QUADRO DE TOTAIS E FORMA DE PAGAMENTO -->
+        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px">
+          <!-- Condições Fiscais e Informações Complementares -->
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px">
+            <div style="font-size:12px;font-weight:800;color:#073863;text-transform:uppercase;margin-bottom:6px">
+              📝 Informações Complementares / Fisco
+            </div>
+            <textarea id="nfe_dados_adicionais" rows="3" style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;font-size:11.5px;color:#334155;line-height:1.4">Orçamento Aprovado Nº 027/2026. Documento emitido por ME ou EPP optante pelo Simples Nacional. Não gera direito a crédito fiscal de IPI e ICMS. Entrega no endereço do destinatário.</textarea>
+            <div style="margin-top:10px;display:flex;gap:12px">
+              <div style="flex:1">
+                <label style="font-size:11px;font-weight:700;color:#64748b">Forma de Pagamento</label>
+                <select id="nfe_forma_pagamento" style="width:100%;padding:6px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px">
+                  <option value="01">01 - Dinheiro / PIX (À vista)</option>
+                  <option value="15" selected>15 - Boleto Bancário / Faturado</option>
+                  <option value="03">03 - Cartão de Crédito</option>
+                  <option value="99">99 - Outros</option>
+                </select>
+              </div>
+              <div style="flex:1">
+                <label style="font-size:11px;font-weight:700;color:#64748b">Prazo / Vencimento</label>
+                <input id="nfe_vencimento" value="30 dias da emissão" style="width:100%;padding:6px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:12px">
+              </div>
+            </div>
+          </div>
+
+          <!-- Totais da Nota -->
+          <div style="background:#fff;border:1px solid #cbd5e1;border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:space-between">
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12.5px;color:#475569">
+                <span>Total Bruto dos Produtos:</span>
+                <b id="nfe_subtotal_display">R$ 87.750,00</b>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12.5px;color:#dc2626">
+                <span>Desconto Aplicado:</span>
+                <b id="nfe_desconto_display">- R$ 15.000,00</b>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12.5px;color:#475569">
+                <span>Frete / Seguro:</span>
+                <b id="nfe_frete_display">R$ 0,00</b>
+              </div>
+            </div>
+            <div style="border-top:2px solid #008299;padding-top:10px;display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <small style="color:#64748b;font-size:11px;display:block;text-transform:uppercase">Valor Total da NF-e</small>
+                <strong style="color:#073863;font-size:18px">TOTAL:</strong>
+              </div>
+              <span id="nfe_total_display" style="color:#15803d;font-size:22px;font-weight:900">R$ 72.750,00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rodapé com Botões de Ação -->
+      <footer style="padding:14px 24px;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <button type="button" class="secondary" style="padding:8px 16px;font-size:13px" onclick="document.querySelector('#modalEmissaoNota').close()">
+          Cancelar
+        </button>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button type="button" class="secondary" style="background:#0c4a7f;color:#fff;border-color:#1e639e;font-size:12.5px" onclick="abrirPreviaDanfe()">
+            📄 Prévia do DANFE
+          </button>
+          <button type="submit" class="primary" style="background:#15803d;color:#fff;font-weight:800;padding:10px 20px;font-size:13.5px;box-shadow:0 4px 12px rgba(21,128,61,0.3)">
+            🚀 Transmitir & Emitir Nota Fiscal (NF-e)
+          </button>
+        </div>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- MODAL DE VISUALIZAÇÃO E IMPRESSÃO OFICIAL DO DANFE (DOCUMENTO AUXILIAR DA NF-e) -->
+  <dialog id="modalDanfeView" style="width:min(940px,96vw);padding:0;background:transparent;border:none">
+    <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 12px 50px rgba(0,0,0,.35)">
+      <!-- Barra Superior de Controle do DANFE -->
+      <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:#073863;color:#fff">
+        <div style="display:flex;align-items:center;gap:10px">
+          <b style="font-size:14px">📄 DANFE Oficial — Documento Auxiliar da Nota Fiscal Eletrônica</b>
+          <span class="badge" style="background:#16a34a;color:#fff;font-size:11px">AUTORIZADA</span>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button type="button" class="secondary" style="background:#0c4a7f;color:#fff;border-color:#1e639e;font-size:12.5px" onclick="baixarXmlNfeAtual()">
+            📥 Baixar XML
+          </button>
+          <button type="button" class="secondary" style="background:#15803d;color:#fff;border-color:#22c55e;font-size:12.5px" onclick="enviarNfeWhatsApp()">
+            💬 WhatsApp
+          </button>
+          <button type="button" class="primary" style="background:var(--gold);color:#151515;font-weight:800;font-size:12.5px" onclick="imprimirDanfe()">
+            🖨️ Imprimir DANFE (PDF)
+          </button>
+          <button type="button" class="secondary" style="background:transparent;color:#fca5a5;border-color:#7f1d1d;font-size:12.5px" onclick="document.querySelector('#modalDanfeView').close()">
+            ✖ Fechar
+          </button>
+        </div>
+      </div>
+
+      <!-- CORPO IMPRESSO DO DANFE (PADRÃO SEFAZ / MINISTÉRIO DA FAZENDA) -->
+      <div id="danfePrintArea" style="padding:16px 20px;background:#fff;color:#000;font-family:Arial, sans-serif;font-size:11px;line-height:1.2;overflow-y:auto;max-height:82vh">
+        <!-- CANHOTO DE RECEBIMENTO -->
+        <div style="border:1px solid #000;margin-bottom:8px">
+          <div style="display:flex;border-bottom:1px solid #000">
+            <div style="flex:1;padding:4px 6px;font-size:9.5px;border-right:1px solid #000">
+              RECEBEMOS DE <b>59.825.765 MICHEL DO PRADO (PRADO COMÉRCIO & SOLUÇÕES)</b> OS PRODUTOS/SERVIÇOS CONSTANTES DA NOTA FISCAL INDICADA AO LADO
+            </div>
+            <div style="width:170px;padding:4px 6px;text-align:center">
+              <b>NF-e Nº <span class="danfe-num-val">000.027</span></b><br>
+              <span style="font-size:9px">SÉRIE 1</span>
+            </div>
+          </div>
+          <div style="display:flex">
+            <div style="width:130px;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
+              DATA DE RECEBIMENTO<br><br>____/____/________
+            </div>
+            <div style="flex:1;padding:4px 6px;font-size:9.5px">
+              IDENTIFICAÇÃO E ASSINATURA DO RECEBEDOR<br><br>__________________________________________________________________
+            </div>
+          </div>
+        </div>
+
+        <!-- CABEÇALHO DO DANFE -->
+        <div style="display:flex;border:1px solid #000;margin-bottom:8px">
+          <!-- Bloco do Emitente -->
+          <div style="flex:1.2;padding:8px;border-right:1px solid #000;display:flex;gap:10px;align-items:center">
+            <img src="logo-prado-premium.png" alt="Logo" style="width:65px;height:65px;object-fit:contain">
+            <div>
+              <b style="font-size:13px;display:block">59.825.765 MICHEL DO PRADO</b>
+              <span style="font-size:10px;font-weight:bold;color:#333">PRADO COMÉRCIO & SOLUÇÕES</span><br>
+              <span style="font-size:9.5px">RUA PRINCIPAL, 100 - CENTRO - MONTE MOR - SP</span><br>
+              <span style="font-size:9.5px">CEP: 13190-000 | FONE: (19) 98814-6164</span><br>
+              <span style="font-size:9.5px">licitadigitaltech@gmail.com</span>
+            </div>
+          </div>
+
+          <!-- Bloco Central: DANFE -->
+          <div style="width:140px;padding:6px;border-right:1px solid #000;text-align:center">
+            <b style="font-size:15px;display:block">DANFE</b>
+            <span style="font-size:8.5px;display:block">DOCUMENTO AUXILIAR DA NOTA FISCAL ELETRÔNICA</span>
+            <div style="margin:4px 0;font-size:9.5px">
+              0 - ENTRADA<br>
+              1 - SAÍDA [ <b>1</b> ]
+            </div>
+            <b style="font-size:12px;display:block">Nº <span class="danfe-num-val">000.027</span></b>
+            <span style="font-size:9.5px">SÉRIE 1 - FOLHA 1/1</span>
+          </div>
+
+          <!-- Bloco Direito: Código de Barras e Chave de Acesso -->
+          <div style="flex:1.4;padding:6px">
+            <!-- Código de barras simulado em CSS -->
+            <div style="background:#000;height:32px;width:95%;margin:2px auto;display:flex;align-items:center;justify-content:center;color:#fff;font-family:monospace;letter-spacing:3px;font-size:9px">
+              ||| | ||||| || |||| |||||| ||| ||||| |||| | ||
+            </div>
+            <div style="font-size:9px;margin-top:4px">
+              <b>CHAVE DE ACESSO:</b><br>
+              <code id="danfeChaveAcesso" style="font-size:9.5px;font-weight:bold;display:block;margin-top:2px">3526 1059 8257 6500 0103 5500 1000 0000 2712 3456 7890</code>
+            </div>
+            <div style="font-size:8.5px;color:#333;margin-top:4px;border-top:1px dashed #666;padding-top:2px">
+              Consulta de autenticidade no portal nacional da NF-e www.nfe.fazenda.gov.br ou no site da Sefaz Autorizadora.
+            </div>
+          </div>
+        </div>
+
+        <!-- PROTOCOLO E NATUREZA -->
+        <div style="display:flex;border:1px solid #000;margin-bottom:8px">
+          <div style="flex:2;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
+            NATUREZA DA OPERAÇÃO<br>
+            <b id="danfeNaturezaOp">VENDA DE MERCADORIA ADQUIRIDA OU RECEBIDA DE TERCEIROS</b>
+          </div>
+          <div style="flex:1.5;padding:4px 6px;font-size:9.5px">
+            PROTOCOLO DE AUTORIZAÇÃO DE USO<br>
+            <b id="danfeProtocolo">135260084920194 - 18/10/2026 05:00:00</b>
+          </div>
+        </div>
+
+        <!-- INSCRIÇÃO ESTADUAL E CNPJ -->
+        <div style="display:flex;border:1px solid #000;margin-bottom:8px">
+          <div style="flex:1;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
+            INSCRIÇÃO ESTADUAL<br><b>465.150.144.115</b>
+          </div>
+          <div style="flex:1;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
+            INSCRIÇÃO ESTADUAL DO SUBST. TRIBUTÁRIO<br><b>—</b>
+          </div>
+          <div style="flex:1;padding:4px 6px;font-size:9.5px">
+            CNPJ DO EMITENTE<br><b>59.825.765/0001-03</b>
+          </div>
+        </div>
+
+        <!-- DESTINATÁRIO / REMETENTE -->
+        <div style="font-weight:bold;font-size:10px;margin-bottom:2px">DESTINATÁRIO / REMETENTE</div>
+        <div style="border:1px solid #000;margin-bottom:8px">
+          <div style="display:flex;border-bottom:1px solid #000">
+            <div style="flex:2;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
+              NOME / RAZÃO SOCIAL<br><b id="danfeDestNome">Lar dos Velhinhos de Piracicaba</b>
+            </div>
+            <div style="flex:1.2;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
+              CNPJ / CPF<br><b id="danfeDestCnpj">54.406.723/0001-14</b>
+            </div>
+            <div style="width:110px;padding:4px 6px;font-size:9.5px">
+              DATA DA EMISSÃO<br><b id="danfeDataEmissao">18/10/2026</b>
+            </div>
+          </div>
+          <div style="display:flex;border-bottom:1px solid #000">
+            <div style="flex:2;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
+              ENDEREÇO<br><span id="danfeDestEndereco">Av. Torquato da Silva Leitão, 615</span>
+            </div>
+            <div style="flex:1;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
+              BAIRRO / DISTRITO<br><span>São Dimas</span>
+            </div>
+            <div style="width:110px;padding:4px 6px;font-size:9.5px">
+              CEP<br><span>13416-215</span>
+            </div>
+          </div>
+          <div style="display:flex">
+            <div style="flex:1.5;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
+              MUNICÍPIO<br><span>Piracicaba</span>
+            </div>
+            <div style="width:40px;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
+              UF<br><span>SP</span>
+            </div>
+            <div style="flex:1;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
+              FONE / FAX<br><span id="danfeDestTel">(19) 3372-9485</span>
+            </div>
+            <div style="flex:1;padding:4px 6px;font-size:9.5px">
+              INSCRIÇÃO ESTADUAL<br><span>ISENTO</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CÁLCULO DO IMPOSTO -->
+        <div style="font-weight:bold;font-size:10px;margin-bottom:2px">CÁLCULO DO IMPOSTO</div>
+        <div style="border:1px solid #000;margin-bottom:8px">
+          <div style="display:flex;border-bottom:1px solid #000;text-align:right">
+            <div style="flex:1;padding:4px;border-right:1px solid #000;font-size:9px">
+              BASE DE CÁLCULO DO ICMS<br><b>R$ 0,00</b>
+            </div>
+            <div style="flex:1;padding:4px;border-right:1px solid #000;font-size:9px">
+              VALOR DO ICMS<br><b>R$ 0,00</b>
+            </div>
+            <div style="flex:1;padding:4px;border-right:1px solid #000;font-size:9px">
+              BASE DE CÁLC. ICMS S.T.<br><b>R$ 0,00</b>
+            </div>
+            <div style="flex:1;padding:4px;border-right:1px solid #000;font-size:9px">
+              VALOR DO ICMS SUBST.<br><b>R$ 0,00</b>
+            </div>
+            <div style="flex:1.2;padding:4px;font-size:9px">
+              VALOR TOTAL DOS PRODUTOS<br><b id="danfeValProd">R$ 87.750,00</b>
+            </div>
+          </div>
+          <div style="display:flex;text-align:right">
+            <div style="flex:1;padding:4px;border-right:1px solid #000;font-size:9px">
+              VALOR DO FRETE<br><b>R$ 0,00</b>
+            </div>
+            <div style="flex:1;padding:4px;border-right:1px solid #000;font-size:9px">
+              VALOR DO SEGURO<br><b>R$ 0,00</b>
+            </div>
+            <div style="flex:1;padding:4px;border-right:1px solid #000;font-size:9px">
+              DESCONTO<br><b id="danfeValDesc" style="color:#b91c1c">R$ 15.000,00</b>
+            </div>
+            <div style="flex:1;padding:4px;border-right:1px solid #000;font-size:9px">
+              OUTRAS DESPESAS<br><b>R$ 0,00</b>
+            </div>
+            <div style="flex:1.2;padding:4px;font-size:10px;background:#f1f5f9">
+              VALOR TOTAL DA NOTA<br><b id="danfeValNota" style="font-size:12px;color:#073863">R$ 72.750,00</b>
+            </div>
+          </div>
+        </div>
+
+        <!-- DADOS DOS PRODUTOS / SERVIÇOS -->
+        <div style="font-weight:bold;font-size:10px;margin-bottom:2px">DADOS DOS PRODUTOS / SERVIÇOS</div>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #000;margin-bottom:8px;font-size:9px">
+          <thead>
+            <tr style="background:#e2e8f0;border-bottom:1px solid #000">
+              <th style="border-right:1px solid #000;padding:3px;width:30px">CÓD</th>
+              <th style="border-right:1px solid #000;padding:3px;text-align:left">DESCRIÇÃO DO PRODUTO / SERVIÇO</th>
+              <th style="border-right:1px solid #000;padding:3px;width:55px">NCM/SH</th>
+              <th style="border-right:1px solid #000;padding:3px;width:40px">CFOP</th>
+              <th style="border-right:1px solid #000;padding:3px;width:30px">UN</th>
+              <th style="border-right:1px solid #000;padding:3px;width:40px">QTD</th>
+              <th style="border-right:1px solid #000;padding:3px;width:65px;text-align:right">VLR UNIT</th>
+              <th style="padding:3px;width:75px;text-align:right">VLR TOTAL</th>
+            </tr>
+          </thead>
+          <tbody id="danfeItensBody">
+            <!-- Linhas geradas via JS -->
+          </tbody>
+        </table>
+
+        <!-- DADOS ADICIONAIS -->
+        <div style="font-weight:bold;font-size:10px;margin-bottom:2px">DADOS ADICIONAIS</div>
+        <div style="border:1px solid #000;padding:6px;min-height:55px;font-size:9px">
+          <b>INFORMAÇÕES COMPLEMENTARES:</b><br>
+          <span id="danfeObs">Orçamento Aprovado Nº 027/2026. DOCUMENTO EMITIDO POR ME OU EPP OPTANTE PELO SIMPLES NACIONAL. NÃO GERA DIREITO A CRÉDITO FISCAL DE IPI E ICMS. Entrega no endereço do destinatário.</span>
         </div>
       </div>
     </div>
