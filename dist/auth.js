@@ -591,6 +591,19 @@ $('#authRecoveryForm')?.addEventListener('submit', async e => {
   }, 1200);
 });
 
+// Identificador unificado para validação 2FA diária isolada por usuário específico
+function getMfaUserKey(u) {
+  const raw = String(u || authEmailResolved || authUser || 'licitadigitaltech@gmail.com').trim().toLowerCase();
+  const digits = raw.replace(/\D/g, '');
+  if (digits.length === 11) {
+    const cadastrados = typeof window.getUsuariosCadastrados === 'function' ? window.getUsuariosCadastrados() : [];
+    const match = cadastrados.find(x => String(x.cpf || '').replace(/\D/g, '') === digits);
+    if (match && match.email) return match.email.trim().toLowerCase();
+    return `cpf_${digits}`;
+  }
+  return raw;
+}
+
 // Validação de Senha (Etapa 2 -> Etapa 3)
 $('#authPasswordForm')?.addEventListener('submit', async e => {
   e.preventDefault();
@@ -652,6 +665,21 @@ $('#authPasswordForm')?.addEventListener('submit', async e => {
   // Sucesso na senha: limpa contador de falhas
   localStorage.removeItem(failKey);
   localStorage.removeItem(lockKey);
+
+  // Verificação diária do Token (solicitado apenas 1x ao dia por usuário específico)
+  const cleanUserKey = getMfaUserKey(userKey);
+  const hoje = new Date().toISOString().slice(0, 10);
+  const mfaValidoHoje = (localStorage.getItem(`prado_mfa_valid_${cleanUserKey}`) === hoje);
+
+  if (mfaValidoHoje) {
+    // Este usuário específico já digitou o token hoje: libera acesso direto!
+    hideLoader();
+    $('#authPassword').value = '';
+    localStorage.setItem(LAST_USER_KEY, authUser || 'licitadigitaltech@gmail.com');
+    toast('✓ Acesso seguro: Token do dia já verificado para sua conta. Entrando...');
+    await finishLogin();
+    return;
+  }
 
   setTimeout(() => {
     hideLoader();
@@ -785,6 +813,11 @@ async function verifyTotp(code, step, otp) {
         await supabaseClient.auth.mfa.challengeAndVerify({ factorId: mfaFactorId, code });
       } catch {}
     }
+
+    // Grava validação do token do dia exclusivamente para este usuário específico
+    const cleanUserKey = getMfaUserKey(authUser);
+    const hoje = new Date().toISOString().slice(0, 10);
+    localStorage.setItem(`prado_mfa_valid_${cleanUserKey}`, hoje);
 
     toast('Google Authenticator verificado com sucesso!');
     await finishLogin();
