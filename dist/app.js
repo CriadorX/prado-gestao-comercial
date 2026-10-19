@@ -85,7 +85,9 @@ const menu = [
   ['fiscal_bot', '🤖', 'MB Fiscal BOT (SEBRAE)'],
   ['financeiro', '▥', 'Financeiro'],
   ['risco', '◎', 'Análise de risco'],
-  ['relatorios', '◫', 'Relatórios']
+  ['relatorios', '◫', 'Relatórios'],
+  ['auditoria', '🛡️', 'Auditoria & Equipe'],
+  ['configuracoes', '⚙', 'Configurações']
 ];
 
 // 4. ESTADO DO BANCO DE DADOS (COM PERSISTÊNCIA E MODELO HISTÓRICO HOMOLOGADO)
@@ -448,10 +450,10 @@ function initSupabase() {
   }
 }
 
-// 6. RENDERIZAÇÃO DA NAVEGAÇÃO E PERFIL (COM OCULTAÇÃO DO FINANCEIRO PARA OPERADORES)
+// 6. RENDERIZAÇÃO DA NAVEGAÇÃO E PERFIL (COM OCULTAÇÃO DO FINANCEIRO E AUDITORIA PARA OPERADORES)
 function renderNav() {
   const menuVisivel = menu.filter(([id]) => {
-    if (id === 'financeiro') return ehAdminGlobal();
+    if (id === 'financeiro' || id === 'auditoria') return ehAdminGlobal();
     return true;
   });
 
@@ -490,6 +492,7 @@ document.querySelector('#nav').onclick = e => {
   const b = e.target.closest('[data-page]');
   if (!b) return;
   page = b.dataset.page;
+  window.page = page;
   localStorage.setItem('pradoCurrentPage', page);
   document.querySelectorAll('.nav-item').forEach(x => x.classList.toggle('active', x === b));
   render();
@@ -4498,13 +4501,28 @@ const titles = {
   fiscal_bot,
   financeiro,
   risco,
-  relatorios
+  relatorios,
+  auditoria: () => {
+    if (typeof window.renderAuditoria === 'function') {
+      window.renderAuditoria();
+    } else if (window.titles && typeof window.titles.auditoria === 'function' && window.titles.auditoria !== titles.auditoria) {
+      window.titles.auditoria();
+    }
+  },
+  configuracoes: () => {
+    if (window.titles && typeof window.titles.configuracoes === 'function' && window.titles.configuracoes !== titles.configuracoes) {
+      window.titles.configuracoes();
+    }
+  }
 };
+window.titles = titles;
 
 function render() {
+  window.page = page;
   renderNav();
-  if (titles[page]) {
-    titles[page]();
+  const handler = titles[page] || (window.titles && window.titles[page]);
+  if (typeof handler === 'function') {
+    handler();
   }
   app.classList.remove('entering');
   void app.offsetWidth;

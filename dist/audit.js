@@ -144,7 +144,9 @@
   // ---------- INSERÇÃO DO BOTÃO NO MENU DO ADMINISTRADOR ----------
   function ensureAuditButton() {
     const user = window.currentUser;
-    const isAdmin = user && (user.role === 'admin_global' || user.email === 'licitadigitaltech@gmail.com');
+    const isAdmin = typeof window.ehAdminGlobal === 'function'
+      ? window.ehAdminGlobal()
+      : (user && (user.role === 'admin_global' || user.email === 'licitadigitaltech@gmail.com' || (user.email && user.email.includes('michel'))));
     const existing = document.querySelector('#nav [data-page="auditoria"]');
 
     if (isAdmin) {
@@ -198,11 +200,13 @@
   setInterval(monitorarNavegacao, 1500);
 
   // ---------- TELA DO ADMINISTRADOR: AUDITORIA & EQUIPE ----------
-  if (!window.titles) window.titles = {};
-
-  window.titles.auditoria = function() {
+  const renderAuditoria = function() {
     const user = window.currentUser;
-    if (!user || (user.role !== 'admin_global' && user.email !== 'licitadigitaltech@gmail.com')) {
+    const isAdmin = typeof window.ehAdminGlobal === 'function'
+      ? window.ehAdminGlobal()
+      : (user && (user.role === 'admin_global' || user.email === 'licitadigitaltech@gmail.com' || (user.email && user.email.includes('michel'))));
+
+    if (!isAdmin) {
       document.querySelector('#title').textContent = 'Acesso Restrito';
       document.querySelector('#subtitle').textContent = 'Permissão exclusiva do Administrador';
       document.querySelector('#app').innerHTML = `
@@ -403,6 +407,12 @@
       window.print();
     });
   };
+  window.renderAuditoria = renderAuditoria;
+  if (!window.titles) window.titles = {};
+  window.titles.auditoria = renderAuditoria;
+  if (typeof titles !== 'undefined') {
+    titles.auditoria = renderAuditoria;
+  }
 
   function renderLinhasAuditoria(logs) {
     if (!logs || !logs.length) {
