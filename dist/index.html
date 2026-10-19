@@ -477,8 +477,9 @@
             <input id="orc_cli_nome" placeholder="Ex: Lar dos Velhinhos de Piracicaba" required>
           </div>
           <div class="field">
-            <label for="orc_cli_doc">CNPJ ou CPF</label>
-            <input id="orc_cli_doc" placeholder="00.000.000/0000-00">
+            <label for="orc_cli_doc">CNPJ ou CPF (Busca Automática)</label>
+            <input id="orc_cli_doc" placeholder="00.000.000/0000-00" oninput="attachOrcamentoCnpjAutofill(this.value)">
+            <small id="orc_cli_doc_status" style="font-size:11px;color:var(--muted);margin-top:2px;display:block">Digite o CNPJ para preencher os dados cadastrais da empresa</small>
           </div>
           <div class="field">
             <label for="orc_cli_email">E-mail do Comprador</label>
@@ -494,22 +495,28 @@
           </div>
         </div>
 
-        <!-- 3. ITENS COTADOS -->
-        <div class="orcamento-section-title">
-          <span>📦 3. Itens e Produtos da Proposta</span>
-          <button type="button" class="secondary" style="padding:4px 10px;font-size:12px;font-weight:700" onclick="adicionarLinhaItemOrcamento()">＋ Adicionar Outro Item</button>
+        <!-- 3. ITENS COTADOS COM DEFINIÇÃO DE MARGEM PRADO -->
+        <div class="orcamento-section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div>
+            <span>📦 3. Itens, Custo de Fábrica & Margem de Ganho Prado</span>
+            <small style="display:block;font-size:11.5px;color:var(--muted);font-weight:normal">Defina a sua margem de ganho sobre o custo da fábrica ou digite o preço final de venda.</small>
+          </div>
+          <button type="button" class="secondary" style="padding:5px 12px;font-size:12px;font-weight:700;background:#eef6fa;color:var(--navy);border-color:#b0c4de" onclick="adicionarLinhaItemOrcamento()">＋ Adicionar Outro Item</button>
         </div>
-        <div style="overflow-x:auto">
-          <table class="orcamento-itens-table" id="orcItensTable">
+        <div style="overflow-x:auto;margin-bottom:12px">
+          <table class="orcamento-itens-table" id="orcItensTable" style="width:100%;min-width:880px">
             <thead>
-              <tr>
+              <tr style="background:#073863;color:#fff;font-size:11.5px">
                 <th style="width:35px;text-align:center">#</th>
                 <th>Produto e Especificação Técnica</th>
-                <th style="width:70px">Un.</th>
-                <th style="width:85px">Qtd</th>
-                <th style="width:125px">Vlr. Unit. (R$)</th>
-                <th style="width:125px">Total (R$)</th>
-                <th style="width:45px;text-align:center">✕</th>
+                <th style="width:60px;text-align:center">Un.</th>
+                <th style="width:75px;text-align:center">Qtd</th>
+                <th style="width:125px;text-align:right" title="Preço negociado direto com a fábrica">Custo Fábrica (un)</th>
+                <th style="width:90px;text-align:center" title="Sua porcentagem de ganho sobre o produto">% Margem</th>
+                <th style="width:125px;text-align:right" title="Preço unitário cobrado do cliente final">Venda Unit. (R$)</th>
+                <th style="width:125px;text-align:right" title="Total da linha de venda">Total Venda (R$)</th>
+                <th style="width:105px;text-align:right;color:#86efac" title="Lucro bruto neste produto">Lucro Bruto</th>
+                <th style="width:35px;text-align:center">✕</th>
               </tr>
             </thead>
             <tbody id="orcItensBody">
@@ -518,36 +525,108 @@
           </table>
         </div>
 
-        <!-- 4. TOTAIS E FECHAMENTO -->
-        <div style="display:flex;justify-content:flex-end;margin-top:10px">
-          <div style="width:360px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:12px">
+        <!-- 4. PAINEL EXECUTIVO: TOTAIS, SIMULAÇÃO TRIBUTÁRIA (MEI vs ME) & FLUXO 50/50 -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:14px;margin-top:14px;margin-bottom:16px">
+          <!-- Bloco A: Totais de Venda da Proposta -->
+          <div style="background:#fff;border:1px solid #cbd5e1;border-radius:10px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,.03)">
+            <div style="font-weight:800;font-size:12.5px;color:#073863;margin-bottom:10px;text-transform:uppercase;display:flex;align-items:center;gap:6px">
+              <span>🏷️ Fechamento da Proposta Comercial</span>
+            </div>
             <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px">
-              <span>Subtotal dos Itens:</span>
+              <span style="color:#64748b">Subtotal dos Itens (Venda):</span>
               <b id="orc_subtotal_preview">R$ 0,00</b>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:13px">
-              <span>Desconto Aplicado (R$):</span>
-              <input type="number" step="0.01" id="orc_desconto" value="0" style="width:125px;padding:4px 8px;font-size:13px;text-align:right" oninput="recalcularTotaisOrcamento()">
+              <span style="color:#64748b">Desconto Concedido (R$):</span>
+              <input type="number" step="0.01" id="orc_desconto" value="0" style="width:120px;padding:4px 8px;font-size:13px;text-align:right;border:1px solid #cbd5e1;border-radius:6px" oninput="recalcularTotaisOrcamento()">
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:13px">
-              <span>Frete / Despesas (R$):</span>
-              <input type="number" step="0.01" id="orc_frete" value="0" style="width:125px;padding:4px 8px;font-size:13px;text-align:right" oninput="recalcularTotaisOrcamento()">
+              <span style="color:#64748b">Frete / Despesas Adicionais (R$):</span>
+              <input type="number" step="0.01" id="orc_frete" value="0" style="width:120px;padding:4px 8px;font-size:13px;text-align:right;border:1px solid #cbd5e1;border-radius:6px" oninput="recalcularTotaisOrcamento()">
             </div>
-            <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:2px solid #008299;font-size:15px;color:#073863">
-              <b>VALOR TOTAL:</b>
-              <strong id="orc_total_preview" style="color:#008299;font-size:18px">R$ 0,00</strong>
+            <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:2px solid #008299;font-size:14px;color:#073863;align-items:center">
+              <b>VALOR TOTAL DA VENDA:</b>
+              <strong id="orc_total_preview" style="color:#008299;font-size:20px;font-weight:900">R$ 0,00</strong>
+            </div>
+            <small style="display:block;margin-top:6px;color:#059669;font-weight:700;font-size:11.5px;text-align:right">
+              💰 Cliente paga 100% à vista na aprovação
+            </small>
+          </div>
+
+          <!-- Bloco B: Inteligência Tributária (MEI Atual vs ME Simples Nacional) & Lucro Real -->
+          <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,.03)">
+            <div style="font-weight:800;font-size:12.5px;color:#073863;margin-bottom:10px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between">
+              <span>⚖️ Regime Tributário Prado</span>
+              <span id="orc_badge_regime" class="badge" style="background:#dbeafe;color:#1e40af;font-size:11px">MEI Ativo</span>
+            </div>
+            <div style="display:flex;gap:12px;margin-bottom:10px;font-size:12px">
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer">
+                <input type="radio" name="orc_regime_tributario" value="MEI" checked onchange="recalcularTotaisOrcamento()">
+                <span><b>MEI Atual</b> (DAS fixo · 0% s/ faturamento)</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer">
+                <input type="radio" name="orc_regime_tributario" value="ME" onchange="recalcularTotaisOrcamento()">
+                <span><b>ME Futura</b> (Simples Nacional)</span>
+              </label>
+            </div>
+            <div id="orc_bloco_aliquota_me" style="display:none;margin-bottom:8px;padding:6px 10px;background:#eff6ff;border-radius:6px;font-size:12px;align-items:center;justify-content:space-between">
+              <span>Alíquota Simples Nacional (Anexo I Comércio):</span>
+              <div style="display:flex;align-items:center;gap:4px">
+                <input type="number" step="0.1" id="orc_aliquota_me" value="4.0" style="width:65px;padding:3px 6px;text-align:right;font-weight:700;font-size:12px;border:1px solid #93c5fd;border-radius:4px" oninput="recalcularTotaisOrcamento()">
+                <b>%</b>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px">
+              <span style="color:#64748b">Custo Total das Fábricas:</span>
+              <b id="orc_custo_fabrica_total" style="color:#991b1b">R$ 0,00</b>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px">
+              <span style="color:#64748b">Lucro Bruto Comercial:</span>
+              <b id="orc_lucro_bruto_total" style="color:#059669">R$ 0,00 (0%)</b>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px">
+              <span style="color:#64748b">Provisão de Imposto (Simples):</span>
+              <b id="orc_imposto_provisao" style="color:#b45309">R$ 0,00</b>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px dashed #cbd5e1;font-size:13.5px;color:#166534">
+              <b>LUCRO LÍQUIDO REAL PRADO:</b>
+              <strong id="orc_lucro_liquido_real" style="font-size:17px;font-weight:900">R$ 0,00</strong>
+            </div>
+          </div>
+
+          <!-- Bloco C: Fluxo Real de Pagamento Prado (Regra 50% / 50%) -->
+          <div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,.03)">
+            <div style="font-weight:800;font-size:12.5px;color:#065f46;margin-bottom:10px;text-transform:uppercase;display:flex;align-items:center;gap:6px">
+              <span>🛡️ Fluxo Financeiro Seguro Prado (50% / 50%)</span>
+            </div>
+            <div style="font-size:12px;color:#047857;margin-bottom:10px;line-height:1.4">
+              O cliente paga 100% à vista. Você repassa 50% de entrada à fábrica e retém o saldo final até a entrega ser confirmada pelo cliente.
+            </div>
+            <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #d1fae5;margin-bottom:6px">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                <span style="color:#374151">1. Entrada para a Fábrica (50%):</span>
+                <b id="orc_fluxo_entrada_fab" style="color:#b91c1c;font-weight:800">R$ 0,00</b>
+              </div>
+              <small style="color:#6b7280;display:block;font-size:11px">Pago na emissão do pedido para liberar faturamento da fábrica</small>
+            </div>
+            <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #d1fae5">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                <span style="color:#374151">2. Saldo para a Fábrica (50%):</span>
+                <b id="orc_fluxo_saldo_fab" style="color:#0284c7;font-weight:800">R$ 0,00</b>
+              </div>
+              <small style="color:#6b7280;display:block;font-size:11px">Retido no seu caixa e liberado após cliente atestar o recebimento</small>
             </div>
           </div>
         </div>
 
-        <!-- 5. CONDIÇÕES COMERCIAIS -->
+        <!-- 5. CONDIÇÕES COMERCIAIS & OBSERVAÇÕES -->
         <div class="orcamento-section-title">
-          <span>🤝 4. Condições Comerciais & Observações</span>
+          <span>🤝 5. Condições Comerciais & Observações</span>
         </div>
         <div class="orcamento-form-grid">
           <div class="field">
             <label for="orc_pagamento">Condições de Pagamento</label>
-            <input id="orc_pagamento" value="À vista." placeholder="Ex: À vista, 28 DDL faturado, etc.">
+            <input id="orc_pagamento" value="À vista (100% na aprovação da proposta)." placeholder="Ex: À vista, 28 DDL faturado, etc.">
           </div>
           <div class="field">
             <label for="orc_entrega_frete">Entrega e Frete</label>
@@ -698,6 +777,19 @@
           <div class="item">
             <div class="lbl">Observações</div>
             <div class="val" id="propCondObs">Desconto de R$ 15.000,00 já aplicado onde o preço de cada unidade passa a ser R$485,00. Preço válido até 30/10/2026. Prazo de entrega 30 dias, certificado de garantia em anexo.</div>
+        <!-- 6b. DADOS BANCÁRIOS & LIQUIDAÇÃO OFICIAL PIX -->
+        <div style="font-weight:800;color:#0b3c66;font-size:12.5px;margin:12px 0 4px;text-transform:uppercase">DADOS BANCÁRIOS PARA LIQUIDAÇÃO COMERCIAL</div>
+        <div style="background:#f8fafc;border:1px solid #b0c4de;border-radius:4px;padding:8px 12px;font-size:11.5px;line-height:1.45;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <div>
+              <b>Chave PIX Oficial (CNPJ):</b> <code style="font-size:12.5px;font-weight:800;color:#073863;background:#eef6fa;padding:1px 6px;border-radius:4px">59.825.765/0001-03</code><br>
+              <b>Favorecido:</b> 59.825.765 Michel do Prado (Prado Comércio &amp; Soluções)<br>
+              <span style="color:#059669;font-weight:700">✓ Faturamento direto e acompanhamento logístico integral até o destino</span>
+            </div>
+            <div style="text-align:right">
+              <b>Contato Comercial / Envio de Comprovante:</b><br>
+              (19) 98814-6164 · licitadigitaltech@gmail.com
+            </div>
           </div>
         </div>
 
@@ -1142,6 +1234,212 @@
     </div>
   </dialog>
 
+  <!-- MODAL DE IMPORTAÇÃO E CONCILIAÇÃO DE EXTRATO BANCO DO BRASIL (OFX / CSV / TEXTO) -->
+  <dialog id="modalExtratoBB" style="width:min(860px,96vw);padding:0;background:transparent;border:none">
+    <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+      <header style="background:linear-gradient(135deg, #003366 0%, #002244 100%);color:#fff;padding:16px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #ffcc00">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:42px;height:42px;border-radius:10px;background:#ffcc00;color:#003366;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center">
+            BB
+          </div>
+          <div>
+            <h2 style="font-size:17px;margin:0;font-weight:800;letter-spacing:.3px">Importar Extrato Oficial — Banco do Brasil</h2>
+            <p style="margin:2px 0 0;font-size:12px;color:#cbd5e1">Conta Corrente PJ Prado Comércio &amp; Soluções | Formatos OFX, CSV ou Linhas Copiadas</p>
+          </div>
+        </div>
+        <button type="button" style="background:transparent;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px" onclick="document.querySelector('#modalExtratoBB').close()">✕</button>
+      </header>
+
+      <div style="padding:20px 24px;background:#f8fafc">
+        <!-- Abas: Arquivo OFX/CSV ou Colar Linhas -->
+        <div style="display:flex;gap:10px;margin-bottom:16px;border-bottom:1px solid #cbd5e1;padding-bottom:10px">
+          <button type="button" class="primary" id="btnAbaArquivoBB" style="background:#003366;font-size:13px;padding:8px 16px" onclick="trocarAbaExtratoBB('arquivo')">
+            📁 Enviar Arquivo OFX / CSV
+          </button>
+          <button type="button" class="secondary" id="btnAbaTextoBB" style="font-size:13px;padding:8px 16px" onclick="trocarAbaExtratoBB('texto')">
+            📋 Colar Extrato do Internet Banking / App BB
+          </button>
+        </div>
+
+        <!-- Conteúdo Aba 1: Upload Arquivo -->
+        <div id="abaArquivoBB">
+          <div style="border:2px dashed #003366;border-radius:12px;padding:32px 20px;text-align:center;background:#fff;cursor:pointer" onclick="document.querySelector('#fileInputExtratoBB').click()">
+            <input type="file" id="fileInputExtratoBB" accept=".ofx,.csv,.txt" style="display:none" onchange="manipularArquivoExtratoBB(event)">
+            <div style="font-size:42px;margin-bottom:8px">🏦</div>
+            <b style="font-size:15px;color:#003366;display:block">Clique para selecionar o Extrato (.OFX ou .CSV) do Banco do Brasil</b>
+            <p style="font-size:12.5px;color:#64748b;margin:6px auto 0;max-width:520px">
+              No Internet Banking ou App do Banco do Brasil, vá em <b>Extrato &gt; Salvar / Exportar &gt; Formato OFX</b> ou CSV. O sistema categorizará automaticamente suas entradas e saídas!
+            </p>
+          </div>
+        </div>
+
+        <!-- Conteúdo Aba 2: Colar Texto do Extrato -->
+        <div id="abaTextoBB" style="display:none">
+          <label for="txtExtratoBB" style="font-size:12.5px;font-weight:700;color:#003366;display:block;margin-bottom:6px">
+            Cole as linhas do extrato copiadas do Internet Banking ou App BB:
+          </label>
+          <textarea id="txtExtratoBB" rows="7" placeholder="Exemplo:&#10;09/10/2026  PIX RECEBIDO - LAR DOS VELHINHOS  72.750,00 C&#10;10/10/2026  PIX ENVIADO - FABRICA LORD BRASIL  -25.000,00 D&#10;15/10/2026  PGTO DAS-MEI  -75,00 D" style="width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-family:monospace;font-size:12px"></textarea>
+          <button type="button" class="primary" style="margin-top:10px;background:#003366;font-weight:700" onclick="processarTextoExtratoBB()">
+            ⚡ Processar e Conciliar Linhas Copiadas
+          </button>
+        </div>
+
+        <!-- Resumo prévio das transações encontradas -->
+        <div id="areaPreviaTransacoesBB" style="display:none;margin-top:18px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <b style="font-size:13px;color:#003366">Transações Identificadas no Extrato (<span id="bbQtdTransacoes">0</span>):</b>
+            <span class="badge" style="background:#e8fdf0;color:#166534">✓ Reconhecimento Inteligente BB</span>
+          </div>
+          <div style="max-height:220px;overflow-y:auto;border:1px solid #cbd5e1;border-radius:8px;background:#fff">
+            <table style="width:100%;border-collapse:collapse;font-size:12px" id="tabelaPreviaBB">
+              <thead>
+                <tr style="background:#f1f5f9;color:#334155;border-bottom:1px solid #cbd5e1">
+                  <th style="padding:6px 8px;text-align:center;width:80px">Data</th>
+                  <th style="padding:6px 8px;text-align:left">Descrição Banco do Brasil</th>
+                  <th style="padding:6px 8px;text-align:left;width:150px">Categoria Sugerida</th>
+                  <th style="padding:6px 8px;text-align:right;width:110px">Valor (R$)</th>
+                </tr>
+              </thead>
+              <tbody id="corpoPreviaBB"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <footer style="padding:14px 24px;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
+        <button type="button" class="secondary" onclick="document.querySelector('#modalExtratoBB').close()">Cancelar</button>
+        <button type="button" class="primary" id="btnSalvarTransacoesBB" style="background:#003366;font-weight:800;display:none" onclick="confirmarImportacaoExtratoBB()">
+          💾 Confirmar &amp; Salvar no Balanço Financeiro
+        </button>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- MODAL DO RELATÓRIO CONTÁBIL & DECLARAÇÃO ANUAL (PRONTO PARA O CONTADOR E IR) -->
+  <dialog id="modalRelatorioContabil" style="width:min(900px,96vw);padding:0;background:transparent;border:none">
+    <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+      <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:#073863;color:#fff">
+        <div style="display:flex;align-items:center;gap:10px">
+          <b style="font-size:14px">📑 Relatório Contábil Oficial — Declaração Anual &amp; Livro Caixa</b>
+          <span class="badge" style="background:#ffcc00;color:#003366;font-weight:800;font-size:11px">BANCO DO BRASIL</span>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button type="button" class="primary" style="background:var(--gold);color:#151515;font-weight:800;font-size:12.5px" onclick="imprimirRelatorioContabil()">
+            🖨️ Imprimir / Salvar em PDF
+          </button>
+          <button type="button" class="secondary" style="background:transparent;color:#fca5a5;border-color:#7f1d1d;font-size:12.5px" onclick="document.querySelector('#modalRelatorioContabil').close()">
+            ✖ Fechar
+          </button>
+        </div>
+      </div>
+
+      <!-- CORPO IMPRESSO DO RELATÓRIO CONTÁBIL -->
+      <div id="relatorioContabilPrintArea" style="padding:24px 28px;background:#fff;color:#1a1a1a;font-family:Arial, sans-serif;font-size:12px;line-height:1.45;overflow-y:auto;max-height:82vh">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #073863;padding-bottom:12px;margin-bottom:14px">
+          <div style="display:flex;gap:12px;align-items:center">
+            <img src="logo-prado-premium.png" alt="Prado" style="width:65px;height:65px;object-fit:contain">
+            <div>
+              <b style="font-size:16px;color:#073863;display:block">PRADO COMÉRCIO &amp; SOLUÇÕES</b>
+              <span style="font-size:11.5px">59.825.765 MICHEL DO PRADO | CNPJ: 59.825.765/0001-03</span><br>
+              <span style="font-size:11px;color:#475569">Conta Bancária: Banco do Brasil (001) | Monte Mor - SP</span>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <b style="font-size:13px;color:#073863">LIVRO CAIXA &amp; BALANÇO OFICIAL</b><br>
+            <span style="font-size:11px;color:#64748b">Exercício Fiscal: <b>2026</b></span><br>
+            <span style="font-size:10px;color:#64748b">Emissão: <b id="rel_data_emissao">19/10/2026</b></span>
+          </div>
+        </div>
+
+        <!-- 1. IDENTIFICAÇÃO DO REGIME TRIBUTÁRIO -->
+        <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;padding:10px 14px;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;font-size:12px">
+            <div><b>Regime Tributário:</b> <span id="rel_regime_nome">MEI (Microempreendedor Individual) com transição para ME (Simples Nacional)</span></div>
+            <div><b>Atividade Principal:</b> Comércio e Intermediação B2B</div>
+          </div>
+        </div>
+
+        <!-- 2. DEMONSTRATIVO DE RESULTADOS DO EXERCÍCIO (DRE RESUMIDA) -->
+        <div style="font-weight:800;color:#073863;font-size:13px;margin-bottom:6px;text-transform:uppercase">
+          1. Demonstrativo Financeiro de Entradas e Saídas (Banco do Brasil)
+        </div>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #cbd5e1;margin-bottom:14px;font-size:12px">
+          <thead>
+            <tr style="background:#073863;color:#fff">
+              <th style="padding:6px 10px;text-align:left">Grupo de Contas</th>
+              <th style="padding:6px 10px;text-align:right;width:150px">Valor Total (R$)</th>
+              <th style="padding:6px 10px;text-align:right;width:90px">% s/ Venda</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #e2e8f0">
+              <td style="padding:6px 10px"><b>( + ) Receita Bruta Total do Comércio (Entradas Clientes)</b></td>
+              <td style="padding:6px 10px;text-align:right;font-weight:800;color:#073863" id="rel_tot_entradas">R$ 0,00</td>
+              <td style="padding:6px 10px;text-align:right;font-weight:700">100,0%</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;background:#fff5f5">
+              <td style="padding:6px 10px;color:#991b1b">( - ) Custo das Mercadorias / Pagamentos às Fábricas (50/50)</td>
+              <td style="padding:6px 10px;text-align:right;font-weight:700;color:#991b1b" id="rel_tot_custo_fab">R$ 0,00</td>
+              <td style="padding:6px 10px;text-align:right;color:#991b1b" id="rel_pct_custo_fab">0,0%</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;background:#f0fdf4">
+              <td style="padding:6px 10px;font-weight:800;color:#166534">( = ) Lucro Bruto Comercial da Prado</td>
+              <td style="padding:6px 10px;text-align:right;font-weight:900;color:#166534" id="rel_tot_lucro_bruto">R$ 0,00</td>
+              <td style="padding:6px 10px;text-align:right;font-weight:800;color:#166534" id="rel_pct_lucro_bruto">0,0%</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0">
+              <td style="padding:6px 10px;color:#475569">( - ) Despesas Operacionais e Bancárias</td>
+              <td style="padding:6px 10px;text-align:right;color:#475569" id="rel_tot_despesas">R$ 0,00</td>
+              <td style="padding:6px 10px;text-align:right;color:#475569" id="rel_pct_despesas">0,0%</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0">
+              <td style="padding:6px 10px;color:#b45309">( - ) Tributos Pagos / Provisão Simples Nacional (DAS)</td>
+              <td style="padding:6px 10px;text-align:right;color:#b45309" id="rel_tot_impostos">R$ 0,00</td>
+              <td style="padding:6px 10px;text-align:right;color:#b45309" id="rel_pct_impostos">0,0%</td>
+            </tr>
+            <tr style="background:#e0f2fe;border-top:2px solid #0284c7">
+              <td style="padding:8px 10px;font-size:13px;font-weight:900;color:#073863"><b>( = ) RESULTADO LÍQUIDO REAL DO PERÍODO</b></td>
+              <td style="padding:8px 10px;text-align:right;font-size:14px;font-weight:900;color:#073863" id="rel_tot_resultado_liquido">R$ 0,00</td>
+              <td style="padding:8px 10px;text-align:right;font-weight:900;color:#073863" id="rel_pct_resultado_liquido">0,0%</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- 3. DEMONSTRATIVO PARA O IRPF DO MICHEL (DISTRIBUIÇÃO DE LUCRO ISENTA) -->
+        <div style="font-weight:800;color:#073863;font-size:13px;margin:16px 0 6px;text-transform:uppercase">
+          2. Demonstrativo de Distribuição de Lucros Isentos para IRPF (Titular)
+        </div>
+        <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;padding:12px;font-size:11.5px;line-height:1.5;margin-bottom:18px">
+          <p style="margin:0 0 6px">
+            Conforme a Lei Complementar nº 123/2006 (Art. 14) e o Regulamento do Imposto de Renda (RIR):
+          </p>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px dashed #cbd5e1;padding-bottom:4px;margin-bottom:4px">
+            <span>Parcela Isenta com base no Livro Caixa Comprovado:</span>
+            <b id="rel_irpf_lucro_isento" style="color:#166534;font-size:12.5px">R$ 0,00</b>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span>Classificação na Declaração de IRPF:</span>
+            <b>Rendimentos Isentos e Não Tributáveis (Código 13)</b>
+          </div>
+        </div>
+
+        <!-- 4. ASSINATURAS OFICIAIS -->
+        <div style="display:flex;justify-content:space-around;margin-top:40px;gap:20px;text-align:center;font-size:11.5px">
+          <div style="flex:1">
+            <div style="border-top:1px solid #334155;width:80%;margin:0 auto 4px"></div>
+            <b>59.825.765 MICHEL DO PRADO</b><br>
+            <span>Titular / Administrador Comercial</span>
+          </div>
+          <div style="flex:1">
+            <div style="border-top:1px solid #334155;width:80%;margin:0 auto 4px"></div>
+            <b>RESPONSÁVEL CONTÁBIL</b><br>
+            <span>CRC Responsável</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
   <div id="toast"></div>
 
   <!-- OVERLAY DE CARREGAMENTO & ATUALIZAÇÃO COM LOGO GIRANDO E BARRA DE CARREGAMENTO -->
@@ -1162,9 +1460,9 @@
     </div>
   </div>
 
-  <script src="app.js?v=20261016_12"></script>
-  <script src="settings.js?v=20261016_12"></script>
-  <script src="audit.js?v=20261016_12"></script>
-  <script src="auth.js?v=20261016_12"></script>
+  <script src="app.js?v=20261019_01"></script>
+  <script src="settings.js?v=20261019_01"></script>
+  <script src="audit.js?v=20261019_01"></script>
+  <script src="auth.js?v=20261019_01"></script>
 </body>
 </html>

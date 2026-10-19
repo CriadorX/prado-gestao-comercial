@@ -7,3 +7,16 @@ node_modules/
 
 .vercel
 .env*
+
+# Ruflo local secrets and runtime data
+.env.local
+.env.*.local
+.claude-flow/data/
+.claude-flow/logs/
+.claude-flow/sessions/
+
+# Codex local configuration
+.codex/
+.swarm/
+# Claude Flow runtime data
+# Environment variables

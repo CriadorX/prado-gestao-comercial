@@ -149,6 +149,58 @@ function carregarNotasFiscaisIniciais() {
   return [];
 }
 
+const EXTRATO_BB_STORAGE_KEY = 'pradoExtratoBB_v1';
+function carregarExtratoBBInicial() {
+  try {
+    const raw = localStorage.getItem(EXTRATO_BB_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return [
+    {
+      id: 'bb-tx-1001',
+      data: '2026-10-09',
+      descricao: 'PIX RECEBIDO - LAR DOS VELHINHOS PIRACICABA',
+      tipo: 'C',
+      valor: 72750.00,
+      categoria: 'receita_cliente',
+      documento: '54.406.723/0001-14',
+      referencia: 'Orçamento 027/2026 (100% à vista aprovado)',
+      conciliado: true
+    },
+    {
+      id: 'bb-tx-1002',
+      data: '2026-10-10',
+      descricao: 'PIX ENVIADO - INDUSTRIA DE COLCHOES LORD BRASIL',
+      tipo: 'D',
+      valor: 25000.00,
+      categoria: 'custo_fabrica_50',
+      documento: '61.123.456/0001-89',
+      referencia: 'Entrada 50% Fabricação Pedido 027/2026',
+      conciliado: true
+    },
+    {
+      id: 'bb-tx-1003',
+      data: '2026-10-15',
+      descricao: 'PGTO GUIA DAS-MEI OUTUBRO/2026',
+      tipo: 'D',
+      valor: 75.00,
+      categoria: 'impostos_das',
+      documento: '59.825.765/0001-03',
+      referencia: 'Guia DAS-MEI Competência 10/2026',
+      conciliado: true
+    }
+  ];
+}
+
+function salvarExtratoBBPersistente() {
+  try {
+    localStorage.setItem(EXTRATO_BB_STORAGE_KEY, JSON.stringify(db.extrato_bb || []));
+  } catch {}
+}
+
 let db = {
   clientes: [],
   fornecedores: [],
@@ -156,6 +208,7 @@ let db = {
   pedidos: [],
   orcamentos: carregarOrcamentosIniciais(),
   notas_fiscais: carregarNotasFiscaisIniciais(),
+  extrato_bb: carregarExtratoBBInicial(),
   docs: []
 };
 
@@ -687,23 +740,246 @@ function fiscal() {
   `;
 }
 
+// -------------------------------------------------------------------------
+// BANCO DO BRASIL — COCKPIT FINANCEIRO, EXTRATO OFX/CSV, TETO MEI ➔ ME E LIVRO CAIXA
+// -------------------------------------------------------------------------
+let filtroExtratoBBCategoria = 'todas';
+let transacoesBBEmPrevia = [];
+
+const CATEGORIAS_BB = {
+  receita_cliente: { rotulo: 'Recebimento de Cliente (À vista)', cor: '#166534', bg: '#f0fdf4' },
+  custo_fabrica_50: { rotulo: 'Pgto Fábrica (Entrada 50%)', cor: '#991b1b', bg: '#fef2f2' },
+  custo_fabrica_saldo: { rotulo: 'Pgto Fábrica (Saldo 50%)', cor: '#b91c1c', bg: '#fff1f2' },
+  despesas_operacionais: { rotulo: 'Despesas Operacionais', cor: '#475569', bg: '#f8fafc' },
+  tarifas_bancarias: { rotulo: 'Tarifas Banco do Brasil', cor: '#64748b', bg: '#f1f5f9' },
+  impostos_das: { rotulo: 'Tributos (DAS-MEI / ME)', cor: '#b45309', bg: '#fffbeb' },
+  pro_labore_titular: { rotulo: 'Retirada / Lucro Titular', cor: '#073863', bg: '#e0f2fe' }
+};
+
 function financeiro() {
-  head('Gestão financeira', 'Custos, vendas, margens de intermediação e fluxo de caixa');
+  head('Gestão Financeira & Banco do Brasil', 'Extratos oficiais, conciliação 50/50 de indústrias, teto MEI e balanço para declaração');
+  
+  const txs = db.extrato_bb || [];
+  const TETO_MEI_ANUAL = 81000.00;
+  const LIMITE_TOLERANCIA_MEI = 97200.00; // 20% acima do teto
+
+  // Cálculos contábeis oficiais
+  const totalEntradas = txs
+    .filter(t => t.tipo === 'C' || t.categoria === 'receita_cliente')
+    .reduce((acc, t) => acc + (Number(t.valor) || 0), 0);
+
+  const totalFabricas = txs
+    .filter(t => t.tipo === 'D' && (t.categoria === 'custo_fabrica_50' || t.categoria === 'custo_fabrica_saldo'))
+    .reduce((acc, t) => acc + (Number(t.valor) || 0), 0);
+
+  const totalDespesas = txs
+    .filter(t => t.tipo === 'D' && (t.categoria === 'despesas_operacionais' || t.categoria === 'tarifas_bancarias'))
+    .reduce((acc, t) => acc + (Number(t.valor) || 0), 0);
+
+  const totalImpostos = txs
+    .filter(t => t.tipo === 'D' && t.categoria === 'impostos_das')
+    .reduce((acc, t) => acc + (Number(t.valor) || 0), 0);
+
+  const lucroBrutoComercial = totalEntradas - totalFabricas;
+  const saldoLiquidoReal = totalEntradas - totalFabricas - totalDespesas - totalImpostos;
+
+  // Termômetro de Faturamento MEI ➔ ME (Exercício 2026)
+  const pctTetoMei = Math.min(100, (totalEntradas / TETO_MEI_ANUAL) * 100);
+  const saldoRestanteMei = Math.max(0, TETO_MEI_ANUAL - totalEntradas);
+  const estaPertoDoLimite = pctTetoMei >= 80;
+  const estourouLimite = totalEntradas > TETO_MEI_ANUAL;
+
+  // Filtragem de transações na tabela
+  const txsFiltradas = txs.filter(t => {
+    if (filtroExtratoBBCategoria === 'todas') return true;
+    if (filtroExtratoBBCategoria === 'entradas') return t.tipo === 'C' || t.categoria === 'receita_cliente';
+    if (filtroExtratoBBCategoria === 'fabricas') return t.categoria === 'custo_fabrica_50' || t.categoria === 'custo_fabrica_saldo';
+    if (filtroExtratoBBCategoria === 'impostos') return t.categoria === 'impostos_das';
+    return t.categoria === filtroExtratoBBCategoria;
+  });
+
+  // Oportunidades comerciais para detalhamento
   const ops = getFilteredData('oportunidades');
-  const totalVendas = ops.reduce((acc, o) => acc + (Number(o.valor) || 0), 0);
-  const totalCusto = ops.reduce((acc, o) => acc + (Number(o.custoEstimado) || (Number(o.valor) * 0.6)), 0);
-  const margem = totalVendas - totalCusto;
 
   app.innerHTML = `
     <div class="content">
-      <div class="metrics">
-        ${metric('Faturamento bruto', money(totalVendas), 'Volume total intermediado', '↗')}
-        ${metric('Custo das indústrias', money(totalCusto), 'Preço pago aos fabricantes', '↘')}
-        ${metric('Margem líquida Prado', money(margem), totalVendas ? `${((margem / totalVendas) * 100).toFixed(1)}% de margem` : '0%', '★')}
-        ${metric('Comissões a faturar', money(margem * 0.95), 'Provisão líquida de impostos', '▣')}
+      <!-- CABEÇALHO DO COCKPIT BANCO DO BRASIL -->
+      <div style="background:linear-gradient(135deg, #003366 0%, #002244 100%);color:#fff;border-radius:14px;padding:20px 24px;margin-bottom:20px;border-bottom:4px solid #ffcc00;box-shadow:0 8px 24px rgba(0,51,102,.2)">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:48px;height:48px;border-radius:12px;background:#ffcc00;color:#003366;font-size:26px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.25)">
+              BB
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <h2 style="font-size:18px;margin:0;font-weight:800;color:#fff;letter-spacing:.3px">BANCO DO BRASIL S.A. (001)</h2>
+                <span class="badge" style="background:#ffcc00;color:#003366;font-weight:800;font-size:11px">CONTA PJ ATIVA</span>
+              </div>
+              <p style="margin:4px 0 0;font-size:12.5px;color:#cbd5e1">
+                Titular: <b>59.825.765 MICHEL DO PRADO</b> | CNPJ / Chave PIX: <b>59.825.765/0001-03</b>
+              </p>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="primary" style="background:#ffcc00;color:#003366;font-weight:800;padding:10px 16px;border-radius:8px" onclick="abrirModalExtratoBB('arquivo')">
+              📥 Importar Extrato OFX/CSV BB
+            </button>
+            <button class="secondary" style="background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3);font-weight:700;padding:10px 16px;border-radius:8px" onclick="abrirModalExtratoBB('texto')">
+              📋 Colar Extrato do Internet Banking
+            </button>
+            <button class="secondary" style="background:#22c55e;color:#fff;border-color:#16a34a;font-weight:800;padding:10px 16px;border-radius:8px" onclick="abrirRelatorioContabilDeclaracao()">
+              📑 Relatório para Contador / IR
+            </button>
+          </div>
+        </div>
       </div>
+
+      <!-- TERMÔMETRO DO TETO MEI ➔ ME (MONITORAMENTO EM TEMPO REAL) -->
+      <div style="background:#fff;border:1.5px solid ${estourouLimite ? '#ef4444' : (estaPertoDoLimite ? '#f59e0b' : '#cbd5e1')};border-radius:14px;padding:18px 22px;margin-bottom:20px;box-shadow:0 4px 16px rgba(0,0,0,.04)">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:10px">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:18px">${estourouLimite ? '🚨' : (estaPertoDoLimite ? '⚠️' : '📊')}</span>
+              <b style="font-size:14.5px;color:var(--navy)">Termômetro do Teto Anual MEI ➔ Transição para ME (Simples Nacional)</b>
+            </div>
+            <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">
+              Limite legal do MEI em 2026: <b>R$ 81.000,00/ano</b> (~R$ 6.750,00/mês). Entradas computadas via Banco do Brasil: <b>${money(totalEntradas)}</b>.
+            </p>
+          </div>
+          <div style="text-align:right">
+            <span style="font-size:18px;font-weight:900;color:${estourouLimite ? '#dc2626' : (estaPertoDoLimite ? '#d97706' : '#16a34a')}">
+              ${pctTetoMei.toFixed(1)}% do Teto Atingido
+            </span>
+            <div style="font-size:11.5px;color:var(--muted)">
+              Margem restante MEI: <b style="color:var(--ink)">${money(saldoRestanteMei)}</b>
+            </div>
+          </div>
+        </div>
+
+        <!-- BARRA VISUAL DE PROGRESSO -->
+        <div style="width:100%;height:14px;background:#e2e8f0;border-radius:10px;overflow:hidden;position:relative">
+          <div style="width:${pctTetoMei}%;height:100%;background:${estourouLimite ? '#ef4444' : (estaPertoDoLimite ? 'linear-gradient(90deg, #10b981 0%, #f59e0b 80%, #ef4444 100%)' : '#10b981')};border-radius:10px;transition:width .4s ease"></div>
+        </div>
+
+        ${estaPertoDoLimite ? `
+          <div style="margin-top:12px;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:12px;color:#92400e;display:flex;align-items:center;gap:10px">
+            <span style="font-size:20px">💡</span>
+            <div>
+              <b>Orientação Estratégica Prado:</b> O faturamento acumulado no BB atingiu <b>${money(totalEntradas)}</b> (${pctTetoMei.toFixed(1)}% do teto). 
+              Ao fechar o próximo pedido ou ultrapassar R$ 81.000,00, a Prado migrará com tranquilidade para <b>Microempresa (ME - Simples Nacional)</b>. 
+              A alíquota inicial no Anexo I (Comércio) é de apenas <b>4,0%</b>, elevando seu teto para até <b>R$ 360.000,00/ano</b>!
+            </div>
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- MÉTRICAS FINANCEIRAS DO BANCO DO BRASIL -->
+      <div class="metrics">
+        ${metric('Entradas BB (Clientes)', money(totalEntradas), `${txs.filter(t=>t.tipo==='C').length} recebimentos à vista`, '🏦')}
+        ${metric('Saídas Fábricas (50/50)', money(totalFabricas), `${txs.filter(t=>t.categoria.includes('fabrica')).length} pagamentos realizados`, '🏭')}
+        ${metric('Lucro Bruto Comercial', money(lucroBrutoComercial), totalEntradas ? `${((lucroBrutoComercial / totalEntradas) * 100).toFixed(1)}% de margem real` : '0%', '★')}
+        ${metric('Saldo Líquido / IRPF', money(saldoLiquidoReal), 'Disponível / Livro Caixa Isento', '💎')}
+      </div>
+
+      <!-- TABELA DO EXTRATO BANCÁRIO OFICIAL BANCO DO BRASIL -->
       <div class="card" style="margin-top:20px">
-        <div class="card-head"><h2>Detalhamento por Intermediação Comercial</h2></div>
+        <div class="card-head" style="flex-wrap:wrap;gap:12px">
+          <div>
+            <h2>Extrato Oficial — Banco do Brasil S.A.</h2>
+            <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">
+              Movimentações bancárias, conferência de créditos recebidos e saídas pagas às indústrias
+            </p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <!-- Filtro rápido por categoria -->
+            <select id="selFiltroExtratoBB" style="padding:6px 10px;border-radius:8px;border:1px solid var(--line);font-size:12.5px;color:var(--ink);background:var(--cardBg, #fff)" onchange="filtrarCategoriaExtratoBB(this.value)">
+              <option value="todas" ${filtroExtratoBBCategoria === 'todas' ? 'selected' : ''}>🔍 Todas as Movimentações (${txs.length})</option>
+              <option value="entradas" ${filtroExtratoBBCategoria === 'entradas' ? 'selected' : ''}>🟢 Apenas Recebimentos de Clientes</option>
+              <option value="fabricas" ${filtroExtratoBBCategoria === 'fabricas' ? 'selected' : ''}>🔴 Apenas Pagamentos a Fábricas</option>
+              <option value="impostos" ${filtroExtratoBBCategoria === 'impostos' ? 'selected' : ''}>🟡 Apenas Tributos / DAS</option>
+            </select>
+            <button class="secondary" style="padding:6px 12px;font-size:12.5px;font-weight:700" onclick="novoLancamentoManualBB()">
+              ➕ Lançamento Avulso
+            </button>
+          </div>
+        </div>
+
+        <table class="table" style="font-size:12.5px">
+          <thead>
+            <tr>
+              <th style="width:100px;text-align:center">Data</th>
+              <th style="width:70px;text-align:center">Tipo</th>
+              <th>Descrição no Extrato BB</th>
+              <th style="width:230px">Classificação Contábil</th>
+              <th style="text-align:right;width:130px">Valor (R$)</th>
+              <th style="text-align:center;width:100px">Conciliação</th>
+              <th style="text-align:center;width:60px">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${txsFiltradas.length ? txsFiltradas.map(t => {
+              const isCredito = t.tipo === 'C';
+              const catCfg = CATEGORIAS_BB[t.categoria] || { rotulo: 'Outros Lançamentos', cor: '#334155', bg: '#f1f5f9' };
+              return `
+                <tr>
+                  <td style="text-align:center"><code>${formatarDataBr(t.data)}</code></td>
+                  <td style="text-align:center">
+                    <span class="badge" style="background:${isCredito ? '#e8fdf0' : '#fee2e2'};color:${isCredito ? '#166534' : '#991b1b'};font-weight:800">
+                      ${isCredito ? 'CRÉDITO' : 'DÉBITO'}
+                    </span>
+                  </td>
+                  <td>
+                    <b>${escapeHtml(t.descricao)}</b>
+                    ${t.referencia ? `<br><small style="color:var(--muted)">🔗 ${escapeHtml(t.referencia)}</small>` : ''}
+                    ${t.documento ? `<small style="color:var(--muted)"> · CNPJ/CPF: ${escapeHtml(t.documento)}</small>` : ''}
+                  </td>
+                  <td>
+                    <select style="width:100%;padding:4px 6px;border-radius:6px;border:1px solid #cbd5e1;font-size:11.5px;background:${catCfg.bg};color:${catCfg.cor};font-weight:700" onchange="alterarCategoriaBB('${t.id}', this.value)">
+                      <option value="receita_cliente" ${t.categoria === 'receita_cliente' ? 'selected' : ''}>🟢 Recebimento Cliente (À vista)</option>
+                      <option value="custo_fabrica_50" ${t.categoria === 'custo_fabrica_50' ? 'selected' : ''}>🔴 Pgto Fábrica (Entrada 50%)</option>
+                      <option value="custo_fabrica_saldo" ${t.categoria === 'custo_fabrica_saldo' ? 'selected' : ''}>🔴 Pgto Fábrica (Saldo 50%)</option>
+                      <option value="despesas_operacionais" ${t.categoria === 'despesas_operacionais' ? 'selected' : ''}>⚪ Despesas Operacionais</option>
+                      <option value="tarifas_bancarias" ${t.categoria === 'tarifas_bancarias' ? 'selected' : ''}>⚪ Tarifas Banco do Brasil</option>
+                      <option value="impostos_das" ${t.categoria === 'impostos_das' ? 'selected' : ''}>🟡 Tributos (DAS-MEI / ME)</option>
+                      <option value="pro_labore_titular" ${t.categoria === 'pro_labore_titular' ? 'selected' : ''}>🔵 Retirada / Lucro Titular</option>
+                    </select>
+                  </td>
+                  <td style="text-align:right;font-weight:800;color:${isCredito ? 'var(--green)' : '#dc2626'}">
+                    ${isCredito ? '+' : '-'} ${money(t.valor)}
+                  </td>
+                  <td style="text-align:center">
+                    <span class="badge" style="background:#e0f2fe;color:#073863;font-size:11px">
+                      ✓ Conciliado BB
+                    </span>
+                  </td>
+                  <td style="text-align:center">
+                    <button type="button" class="link" style="color:#ef4444;font-size:14px;padding:2px 6px" onclick="excluirTransacaoBB('${t.id}')" title="Excluir lançamento">
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              `;
+            }).join('') : `
+              <tr>
+                <td colspan="7" style="text-align:center;padding:36px;color:var(--muted)">
+                  <div style="font-size:32px;margin-bottom:8px">🏦</div>
+                  <b>Nenhuma transação do Banco do Brasil encontrada para este filtro.</b><br>
+                  Clique em <b>"📥 Importar Extrato OFX/CSV BB"</b> ou <b>"📋 Colar Extrato do Internet Banking"</b> no topo para sincronizar!
+                </td>
+              </tr>
+            `}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- DETALHAMENTO POR INTERMEDIAÇÃO COMERCIAL -->
+      <div class="card" style="margin-top:20px">
+        <div class="card-head">
+          <div>
+            <h2>Margens por Intermediação Comercial (Projetado vs Realizado)</h2>
+            <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Comparativo da margem negociada com indústrias e clientes</p>
+          </div>
+        </div>
         <table class="table">
           <thead><tr><th>Intermediação</th><th>Cliente</th><th>Valor Venda</th><th>Custo Fornecedor</th><th>Margem Prado</th><th>Margem %</th></tr></thead>
           <tbody>
@@ -720,13 +996,471 @@ function financeiro() {
                   <td><b>${o.valor ? ((m / o.valor) * 100).toFixed(1) : 0}%</b></td>
                 </tr>
               `;
-            }).join('') : `<tr><td colspan="6" style="text-align:center;padding:30px">Nenhuma intermediação para cálculo financeiro.</td></tr>`}
+            }).join('') : `<tr><td colspan="6" style="text-align:center;padding:30px">Nenhuma intermediação cadastrada.</td></tr>`}
           </tbody>
         </table>
       </div>
     </div>
   `;
 }
+window.financeiro = financeiro;
+
+function filtrarCategoriaExtratoBB(cat) {
+  filtroExtratoBBCategoria = cat;
+  financeiro();
+}
+window.filtrarCategoriaExtratoBB = filtrarCategoriaExtratoBB;
+
+function alterarCategoriaBB(id, novaCat) {
+  const t = (db.extrato_bb || []).find(x => x.id === id);
+  if (t) {
+    t.categoria = novaCat;
+    salvarExtratoBBPersistente();
+    toast('Categoria contábil atualizada com sucesso!');
+    financeiro();
+  }
+}
+window.alterarCategoriaBB = alterarCategoriaBB;
+
+function excluirTransacaoBB(id) {
+  if (confirm('Deseja realmente remover esta movimentação bancária do Banco do Brasil?')) {
+    db.extrato_bb = (db.extrato_bb || []).filter(x => x.id !== id);
+    salvarExtratoBBPersistente();
+    toast('Movimentação bancária removida.');
+    financeiro();
+  }
+}
+window.excluirTransacaoBB = excluirTransacaoBB;
+
+function novoLancamentoManualBB() {
+  const desc = prompt('Descrição do lançamento (ex: PIX ENVIADO - FABRICA LORD BRASIL):');
+  if (!desc) return;
+  const valorStr = prompt('Valor em Reais (ex: 25000,00):');
+  if (!valorStr) return;
+  const valorNum = parseFloat(valorStr.replace(/\./g, '').replace(',', '.')) || 0;
+  if (valorNum <= 0) return alert('Valor inválido.');
+
+  const tipo = confirm('É uma ENTRADA / CRÉDITO na conta do Banco do Brasil?\n\nClique em OK para CRÉDITO (Entrada)\nClique em Cancelar para DÉBITO (Saída)') ? 'C' : 'D';
+  const categoriaPadrao = tipo === 'C' ? 'receita_cliente' : 'custo_fabrica_50';
+
+  const novaTx = {
+    id: `bb-tx-${Date.now()}`,
+    data: new Date().toISOString().split('T')[0],
+    descricao: desc.toUpperCase().trim(),
+    tipo: tipo,
+    valor: valorNum,
+    categoria: categoriaPadrao,
+    referencia: 'Lançamento Manual BB',
+    documento: '',
+    conciliado: true
+  };
+
+  db.extrato_bb = db.extrato_bb || [];
+  db.extrato_bb.unshift(novaTx);
+  salvarExtratoBBPersistente();
+  toast('✓ Novo lançamento do Banco do Brasil registrado com sucesso!');
+  financeiro();
+}
+window.novoLancamentoManualBB = novoLancamentoManualBB;
+
+// -------------------------------------------------------------------------
+// FUNÇÕES DO MODAL DE IMPORTAÇÃO BANCO DO BRASIL (OFX / CSV / TEXTO)
+// -------------------------------------------------------------------------
+function abrirModalExtratoBB(aba = 'arquivo') {
+  const modal = document.querySelector('#modalExtratoBB');
+  if (!modal) return;
+  trocarAbaExtratoBB(aba);
+  
+  // Limpa prévias anteriores
+  const fileInput = document.querySelector('#fileInputExtratoBB');
+  if (fileInput) fileInput.value = '';
+  const txtInput = document.querySelector('#txtExtratoBB');
+  if (txtInput) txtInput.value = '';
+  const areaPrevia = document.querySelector('#areaPreviaTransacoesBB');
+  if (areaPrevia) areaPrevia.style.display = 'none';
+  const btnSalvar = document.querySelector('#btnSalvarTransacoesBB');
+  if (btnSalvar) btnSalvar.style.display = 'none';
+  transacoesBBEmPrevia = [];
+
+  modal.showModal();
+}
+window.abrirModalExtratoBB = abrirModalExtratoBB;
+
+function trocarAbaExtratoBB(aba) {
+  const btnArquivo = document.querySelector('#btnAbaArquivoBB');
+  const btnTexto = document.querySelector('#btnAbaTextoBB');
+  const abaArquivo = document.querySelector('#abaArquivoBB');
+  const abaTexto = document.querySelector('#abaTextoBB');
+
+  if (aba === 'arquivo') {
+    if (btnArquivo) { btnArquivo.className = 'primary'; btnArquivo.style.background = '#003366'; }
+    if (btnTexto) { btnTexto.className = 'secondary'; btnTexto.style.background = 'transparent'; }
+    if (abaArquivo) abaArquivo.style.display = 'block';
+    if (abaTexto) abaTexto.style.display = 'none';
+  } else {
+    if (btnArquivo) { btnArquivo.className = 'secondary'; btnArquivo.style.background = 'transparent'; }
+    if (btnTexto) { btnTexto.className = 'primary'; btnTexto.style.background = '#003366'; }
+    if (abaArquivo) abaArquivo.style.display = 'none';
+    if (abaTexto) abaTexto.style.display = 'block';
+  }
+}
+window.trocarAbaExtratoBB = trocarAbaExtratoBB;
+
+function classificarTransacaoBBInteligente(descricao, tipo, valor) {
+  const d = String(descricao || '').toUpperCase();
+  if (tipo === 'C' || valor > 0) {
+    return 'receita_cliente';
+  }
+  if (d.includes('FABRICA') || d.includes('INDUSTRIA') || d.includes('LORD') || d.includes('COLCHOES') || d.includes('FORNECEDOR') || d.includes('PRODUTOR')) {
+    return 'custo_fabrica_50';
+  }
+  if (d.includes('DAS') || d.includes('SIMPLES') || d.includes('RECEITA') || d.includes('DARF') || d.includes('GPS') || d.includes('TRIBUT')) {
+    return 'impostos_das';
+  }
+  if (d.includes('TARIFA') || d.includes('PACOTE') || d.includes('MANUT') || d.includes('IOF') || d.includes('TED') || d.includes('DOC')) {
+    return 'tarifas_bancarias';
+  }
+  if (d.includes('MICHEL') || d.includes('PRO LABORE') || d.includes('RETIRADA') || d.includes('PRADO')) {
+    return 'pro_labore_titular';
+  }
+  return 'despesas_operacionais';
+}
+
+function parsearOFXBancoDoBrasil(ofxText) {
+  const transacoes = [];
+  const regexTrn = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi;
+  let match;
+
+  while ((match = regexTrn.exec(ofxText)) !== null) {
+    const bloco = match[1];
+    
+    // Tipo: CREDIT / DEBIT / OTHER
+    const tipoMatch = /<TRNTYPE>([A-Z]+)/i.exec(bloco);
+    const tipoStr = tipoMatch ? tipoMatch[1].toUpperCase() : 'OTHER';
+
+    // Data: YYYYMMDD...
+    const dtMatch = /<DTPOSTED>(\d{4})(\d{2})(\d{2})/i.exec(bloco);
+    const dataIso = dtMatch ? `${dtMatch[1]}-${dtMatch[2]}-${dtMatch[3]}` : new Date().toISOString().split('T')[0];
+
+    // Valor: pode ser negativo ou positivo
+    const amtMatch = /<TRNAMT>([-\d.,]+)/i.exec(bloco);
+    let valorRaw = amtMatch ? parseFloat(amtMatch[1].replace(',', '.')) : 0;
+    const isCredito = valorRaw > 0 || tipoStr === 'CREDIT';
+    const valorAbs = Math.abs(valorRaw);
+
+    // Descrição: MEMO ou NAME
+    const memoMatch = /<MEMO>([^<\r\n]+)/i.exec(bloco);
+    const nameMatch = /<NAME>([^<\r\n]+)/i.exec(bloco);
+    const desc = (memoMatch ? memoMatch[1] : (nameMatch ? nameMatch[1] : 'Movimentação Banco do Brasil')).trim();
+
+    // FITID ou ID
+    const fitMatch = /<FITID>([^<\r\n]+)/i.exec(bloco);
+    const txId = fitMatch ? `bb-${fitMatch[1].trim()}` : `bb-tx-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+
+    const tipo = isCredito ? 'C' : 'D';
+    const cat = classificarTransacaoBBInteligente(desc, tipo, valorRaw);
+
+    transacoes.push({
+      id: txId,
+      data: dataIso,
+      descricao: desc.toUpperCase(),
+      tipo: tipo,
+      valor: valorAbs,
+      categoria: cat,
+      referencia: 'Importado via Extrato OFX Banco do Brasil',
+      documento: '',
+      conciliado: true
+    });
+  }
+
+  return transacoes;
+}
+
+function parsearLinhasTextoOuCSVBB(texto) {
+  const linhas = String(texto || '').split(/\r?\n/);
+  const transacoes = [];
+
+  linhas.forEach((linha, idx) => {
+    const limpa = linha.trim();
+    if (!limpa || limpa.startsWith('Data') || limpa.startsWith('Extrato') || limpa.startsWith('Saldo') || limpa.length < 8) return;
+
+    // Detecta padrão de data DD/MM/AAAA ou YYYY-MM-DD
+    const dataMatch = limpa.match(/(\d{2})[/-](\d{2})[/-](\d{4})/);
+    let dataIso = new Date().toISOString().split('T')[0];
+    if (dataMatch) {
+      dataIso = `${dataMatch[3]}-${dataMatch[2]}-${dataMatch[1]}`;
+    }
+
+    // Detecta valor monetário (ex: 72.750,00 ou -25.000,00 ou 72750.00)
+    const valorMatch = limpa.match(/([+-]?\s*R?\$?\s*\d{1,3}(?:\.\d{3})*,\d{2})|([+-]?\s*R?\$?\s*\d+\.\d{2})/);
+    if (!valorMatch) return;
+
+    let valorStr = (valorMatch[1] || valorMatch[2]).replace(/[R$\s]/g, '');
+    let isNegativo = valorStr.includes('-');
+    let isDebitoSufixo = /[0-9]\s*D\b/i.test(limpa);
+    let isCreditoSufixo = /[0-9]\s*C\b/i.test(limpa);
+
+    valorStr = valorStr.replace(/[+-]/g, '').replace(/\./g, '').replace(',', '.');
+    const valorNum = Math.abs(parseFloat(valorStr) || 0);
+    if (valorNum === 0) return;
+
+    const isCredito = isCreditoSufixo || (!isNegativo && !isDebitoSufixo && !limpa.toUpperCase().includes('ENVIADO') && !limpa.toUpperCase().includes('PAGAMENTO') && !limpa.toUpperCase().includes('DEBITO'));
+    const tipo = isCredito ? 'C' : 'D';
+
+    // Remove data e valor da linha para capturar a descrição limpa
+    let desc = limpa
+      .replace(/(\d{2})[/-](\d{2})[/-](\d{4})/, '')
+      .replace(valorMatch[0], '')
+      .replace(/\b[CD]\b/g, '')
+      .replace(/[;|]/g, ' ')
+      .trim();
+    if (desc.length < 3) desc = 'MOVIMENTACAO BANCARIA BB';
+
+    const cat = classificarTransacaoBBInteligente(desc, tipo, isCredito ? valorNum : -valorNum);
+
+    transacoes.push({
+      id: `bb-tx-${Date.now()}-${idx}-${Math.random().toString(36).substr(2, 4)}`,
+      data: dataIso,
+      descricao: desc.toUpperCase(),
+      tipo: tipo,
+      valor: valorNum,
+      categoria: cat,
+      referencia: 'Importado via Extrato BB',
+      documento: '',
+      conciliado: true
+    });
+  });
+
+  return transacoes;
+}
+
+function manipularArquivoExtratoBB(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const conteudo = e.target.result;
+    let transacoes = [];
+
+    if (file.name.toLowerCase().endsWith('.ofx')) {
+      transacoes = parsearOFXBancoDoBrasil(conteudo);
+    } else {
+      transacoes = parsearLinhasTextoOuCSVBB(conteudo);
+    }
+
+    if (!transacoes.length) {
+      toast('Nenhuma movimentação identificada no arquivo. Verifique se é um OFX ou CSV do BB.');
+      return;
+    }
+
+    prepararPreviaTransacoesBB(transacoes);
+  };
+  reader.readAsText(file, 'ISO-8859-1'); // Suporta caracteres acentuados de bancos brasileiros
+}
+window.manipularArquivoExtratoBB = manipularArquivoExtratoBB;
+
+function processarTextoExtratoBB() {
+  const txt = document.querySelector('#txtExtratoBB')?.value || '';
+  if (!txt.trim()) {
+    toast('Por favor, cole as linhas do extrato antes de processar.');
+    return;
+  }
+
+  const transacoes = parsearLinhasTextoOuCSVBB(txt);
+  if (!transacoes.length) {
+    toast('Não foi possível identificar linhas com data e valor no texto.');
+    return;
+  }
+
+  prepararPreviaTransacoesBB(transacoes);
+}
+window.processarTextoExtratoBB = processarTextoExtratoBB;
+
+function prepararPreviaTransacoesBB(transacoes) {
+  transacoesBBEmPrevia = transacoes;
+  
+  const qtdEl = document.querySelector('#bbQtdTransacoes');
+  if (qtdEl) qtdEl.textContent = transacoes.length;
+
+  const corpoTabela = document.querySelector('#corpoPreviaBB');
+  if (corpoTabela) {
+    corpoTabela.innerHTML = transacoes.map(t => {
+      const isC = t.tipo === 'C';
+      const catCfg = CATEGORIAS_BB[t.categoria] || { rotulo: 'Outros' };
+      return `
+        <tr style="border-bottom:1px solid #f1f5f9">
+          <td style="padding:6px 8px;text-align:center"><code>${formatarDataBr(t.data)}</code></td>
+          <td style="padding:6px 8px"><b>${escapeHtml(t.descricao)}</b></td>
+          <td style="padding:6px 8px">
+            <span class="badge" style="background:${isC ? '#f0fdf4' : '#fef2f2'};color:${isC ? '#166534' : '#991b1b'};font-size:11px">
+              ${catCfg.rotulo}
+            </span>
+          </td>
+          <td style="padding:6px 8px;text-align:right;font-weight:700;color:${isC ? 'var(--green)' : '#dc2626'}">
+            ${isC ? '+' : '-'} ${money(t.valor)}
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  const areaPrevia = document.querySelector('#areaPreviaTransacoesBB');
+  if (areaPrevia) areaPrevia.style.display = 'block';
+
+  const btnSalvar = document.querySelector('#btnSalvarTransacoesBB');
+  if (btnSalvar) btnSalvar.style.display = 'inline-block';
+
+  toast(`✓ ${transacoes.length} transações do Banco do Brasil identificadas! Confira a prévia abaixo.`);
+}
+window.prepararPreviaTransacoesBB = prepararPreviaTransacoesBB;
+
+function confirmarImportacaoExtratoBB() {
+  if (!transacoesBBEmPrevia.length) {
+    toast('Nenhuma transação pronta para importação.');
+    return;
+  }
+
+  db.extrato_bb = db.extrato_bb || [];
+  // Evita duplicidade exata por id ou (data + descricao + valor)
+  let adicionadas = 0;
+  transacoesBBEmPrevia.forEach(nova => {
+    const jaExiste = db.extrato_bb.some(antiga => 
+      antiga.id === nova.id || 
+      (antiga.data === nova.data && antiga.descricao === nova.descricao && Math.abs(antiga.valor - nova.valor) < 0.01)
+    );
+    if (!jaExiste) {
+      db.extrato_bb.push(nova);
+      adicionadas++;
+    }
+  });
+
+  // Ordena por data decrescente
+  db.extrato_bb.sort((a, b) => new Date(b.data) - new Date(a.data));
+  salvarExtratoBBPersistente();
+
+  document.querySelector('#modalExtratoBB')?.close();
+  toast(`✓ ${adicionadas} novas transações do Banco do Brasil integradas ao Balanço Financeiro!`);
+  financeiro();
+}
+window.confirmarImportacaoExtratoBB = confirmarImportacaoExtratoBB;
+
+// -------------------------------------------------------------------------
+// RELATÓRIO CONTÁBIL OFICIAL / LIVRO CAIXA PARA O CONTADOR E IRPF
+// -------------------------------------------------------------------------
+function abrirRelatorioContabilDeclaracao() {
+  const modal = document.querySelector('#modalRelatorioContabil');
+  if (!modal) return;
+
+  const txs = db.extrato_bb || [];
+  
+  const totalEntradas = txs
+    .filter(t => t.tipo === 'C' || t.categoria === 'receita_cliente')
+    .reduce((acc, t) => acc + (Number(t.valor) || 0), 0);
+
+  const totalFabricas = txs
+    .filter(t => t.tipo === 'D' && (t.categoria === 'custo_fabrica_50' || t.categoria === 'custo_fabrica_saldo'))
+    .reduce((acc, t) => acc + (Number(t.valor) || 0), 0);
+
+  const totalDespesas = txs
+    .filter(t => t.tipo === 'D' && (t.categoria === 'despesas_operacionais' || t.categoria === 'tarifas_bancarias'))
+    .reduce((acc, t) => acc + (Number(t.valor) || 0), 0);
+
+  const totalImpostos = txs
+    .filter(t => t.tipo === 'D' && t.categoria === 'impostos_das')
+    .reduce((acc, t) => acc + (Number(t.valor) || 0), 0);
+
+  const lucroBruto = totalEntradas - totalFabricas;
+  const resultadoLiquido = totalEntradas - totalFabricas - totalDespesas - totalImpostos;
+
+  const pctFab = totalEntradas ? ((totalFabricas / totalEntradas) * 100).toFixed(1) : '0.0';
+  const pctLucro = totalEntradas ? ((lucroBruto / totalEntradas) * 100).toFixed(1) : '0.0';
+  const pctDesp = totalEntradas ? ((totalDespesas / totalEntradas) * 100).toFixed(1) : '0.0';
+  const pctImp = totalEntradas ? ((totalImpostos / totalEntradas) * 100).toFixed(1) : '0.0';
+  const pctRes = totalEntradas ? ((resultadoLiquido / totalEntradas) * 100).toFixed(1) : '0.0';
+
+  // Atualiza elementos no modal timbrado
+  const dataHoje = new Date().toLocaleDateString('pt-BR');
+  const emissaoEl = document.querySelector('#rel_data_emissao');
+  if (emissaoEl) emissaoEl.textContent = dataHoje;
+
+  const setTxt = (id, val) => {
+    const el = document.querySelector(id);
+    if (el) el.textContent = val;
+  };
+
+  setTxt('#rel_tot_entradas', money(totalEntradas));
+  setTxt('#rel_tot_custo_fab', money(totalFabricas));
+  setTxt('#rel_pct_custo_fab', `${pctFab}%`);
+  setTxt('#rel_tot_lucro_bruto', money(lucroBruto));
+  setTxt('#rel_pct_lucro_bruto', `${pctLucro}%`);
+  setTxt('#rel_tot_despesas', money(totalDespesas));
+  setTxt('#rel_pct_despesas', `${pctDesp}%`);
+  setTxt('#rel_tot_impostos', money(totalImpostos));
+  setTxt('#rel_pct_impostos', `${pctImp}%`);
+  setTxt('#rel_tot_resultado_liquido', money(resultadoLiquido));
+  setTxt('#rel_pct_resultado_liquido', `${pctRes}%`);
+  setTxt('#rel_irpf_lucro_isento', money(Math.max(0, resultadoLiquido)));
+
+  modal.showModal();
+}
+window.abrirRelatorioContabilDeclaracao = abrirRelatorioContabilDeclaracao;
+
+function imprimirRelatorioContabil() {
+  const printArea = document.querySelector('#relatorioContabilPrintArea');
+  if (!printArea) {
+    window.print();
+    return;
+  }
+
+  let iframe = document.querySelector('#pradoPrintIframe');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = 'pradoPrintIframe';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+  }
+
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(`<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Livro Caixa & Demonstrativo Contábil - Prado Comércio & Soluções</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #ffffff !important;
+      color: #1a1a1a !important;
+      font-family: Arial, sans-serif !important;
+      padding: 18px 24px !important;
+      font-size: 12px !important;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    th, td { padding: 6px 8px; border: 1px solid #cbd5e1; }
+    th { background: #073863 !important; color: #fff !important; }
+    .no-print { display: none !important; }
+  </style>
+</head>
+<body>
+  ${printArea.innerHTML}
+</body>
+</html>`);
+  doc.close();
+
+  setTimeout(() => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+  }, 350);
+}
+window.imprimirRelatorioContabil = imprimirRelatorioContabil;
 
 function risco() {
   head('Análise de risco & CNPJ', 'Consulta oficial à Receita Federal e conformidade cadastral');
@@ -1260,8 +1994,30 @@ async function adicionarCotacaoAoBanco(idx) {
     db.fornecedores.unshift(novoFornecedor);
     db.oportunidades.unshift(novaOp);
 
-    toast(`Indústria ${f.nome_empresa} cadastrada no Supabase!`);
-    abrirPropostaPDF(0);
+    toast(`✓ Fábrica ${f.nome_empresa} cadastrada! Abrindo orçamento com custo e margem...`);
+    page = 'orcamentos';
+    render();
+    setTimeout(() => {
+      abrirModalNovoOrcamento();
+      const refInp = document.querySelector('#orc_referencia');
+      if (refInp) refInp.value = f.produto_especificado || '';
+
+      const obsInp = document.querySelector('#orc_observacoes');
+      if (obsInp) obsInp.value = `Indústria cotada: ${f.nome_empresa} (CNPJ: ${f.cnpj}). Condições da fábrica: ${f.condicoes_pagamento}. Frete e entrega negociados direto com fabricante.`;
+
+      const tbody = document.querySelector('#orcItensBody');
+      if (tbody) {
+        tbody.innerHTML = '';
+        adicionarLinhaItemOrcamento(
+          f.produto_especificado || 'Produto Industrial',
+          '1',
+          1,
+          f.preco_venda_sugerido_unitario || 0,
+          f.preco_custo_unitario || 0,
+          f.margem_estimada_pct || 35.0
+        );
+      }
+    }, 150);
   } catch (err) {
     toast('Erro ao registrar cotação.');
   } finally {
@@ -1527,25 +2283,132 @@ function abrirModalNovoOrcamento(editIndex = -1) {
 
   document.querySelector('#orc_desconto').value = isEdit ? (orc.desconto || 0) : 0;
   document.querySelector('#orc_frete').value = isEdit ? (orc.frete || 0) : 0;
-  document.querySelector('#orc_pagamento').value = isEdit ? (orc.pagamento || 'À vista.') : 'À vista.';
+  document.querySelector('#orc_pagamento').value = isEdit ? (orc.pagamento || 'À vista (100% na aprovação da proposta).') : 'À vista (100% na aprovação da proposta).';
   document.querySelector('#orc_entrega_frete').value = isEdit ? (orc.entrega_frete || 'Prazo sujeito à disponibilidade. Frete incluso, salvo indicação expressa.') : 'Prazo sujeito à disponibilidade. Frete incluso, salvo indicação expressa.';
   document.querySelector('#orc_observacoes').value = isEdit ? (orc.observacoes || '') : '';
   document.querySelector('#orc_status').value = isEdit ? (orc.status || 'Aprovado') : 'Aprovado';
 
-  // Popula itens
+  // Configuração do Regime Tributário (MEI vs ME)
+  const regimeRadios = document.querySelectorAll('input[name="orc_regime_tributario"]');
+  const regimeSalvo = isEdit ? (orc.regime_tributario || 'MEI') : 'MEI';
+  regimeRadios.forEach(r => {
+    r.checked = (r.value === regimeSalvo);
+  });
+  const aliquotaMeInp = document.querySelector('#orc_aliquota_me');
+  if (aliquotaMeInp) {
+    aliquotaMeInp.value = isEdit ? (orc.aliquota_me || 4.0) : 4.0;
+  }
+
+  const statusDocEl = document.querySelector('#orc_cli_doc_status');
+  if (statusDocEl) {
+    statusDocEl.style.color = 'var(--muted)';
+    statusDocEl.textContent = 'Digite o CNPJ para preencher os dados cadastrais da empresa';
+  }
+
+  // Popula itens com Custo de Fábrica e Margem de Ganho Prado
   const tbody = document.querySelector('#orcItensBody');
   tbody.innerHTML = '';
 
   if (isEdit && Array.isArray(orc.itens) && orc.itens.length > 0) {
-    orc.itens.forEach(it => adicionarLinhaItemOrcamento(it.produto, it.unidade, it.quantidade, it.valor_unitario));
+    orc.itens.forEach(it => {
+      const custo = it.custo_fabrica !== undefined ? it.custo_fabrica : (it.valor_unitario ? (it.valor_unitario / 1.35) : 0);
+      const margem = it.margem_pct !== undefined ? it.margem_pct : (custo > 0 ? (((it.valor_unitario - custo) / custo) * 100) : 35);
+      adicionarLinhaItemOrcamento(it.produto, it.unidade, it.quantidade, it.valor_unitario, custo, margem);
+    });
   } else {
-    adicionarLinhaItemOrcamento('', '1', 1, 0);
+    adicionarLinhaItemOrcamento('', '1', 1, 0, 0, 35);
   }
 
   recalcularTotaisOrcamento();
   modal.showModal();
 }
 window.abrirModalNovoOrcamento = abrirModalNovoOrcamento;
+
+// Consulta e preenchimento automático por CNPJ no formulário de orçamento
+let lastConsultedOrcCnpj = '';
+async function attachOrcamentoCnpjAutofill(val) {
+  const digits = String(val || '').replace(/\D/g, '');
+  const statusEl = document.querySelector('#orc_cli_doc_status');
+  const docInput = document.querySelector('#orc_cli_doc');
+  if (docInput && digits.length === 14 && typeof formatCnpj === 'function') {
+    docInput.value = formatCnpj(digits);
+  }
+
+  if (digits.length === 14 && digits !== lastConsultedOrcCnpj) {
+    lastConsultedOrcCnpj = digits;
+    if (statusEl) {
+      statusEl.style.color = '#0284c7';
+      statusEl.innerHTML = '⏳ <span>Consultando Receita Federal...</span>';
+    }
+
+    try {
+      let dados = null;
+      try {
+        const resA = await fetch(`/api/analise-risco?doc=${digits}`);
+        if (resA.ok) {
+          const j = await resA.json();
+          if (j.sucesso && j.dados) dados = j.dados;
+        }
+      } catch {}
+
+      if (!dados) {
+        try {
+          const resB = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${digits}`);
+          if (resB.ok) dados = await resB.json();
+        } catch {}
+      }
+
+      if (dados) {
+        const razao = dados.razao_social || dados.nome || '';
+        const fantasia = (dados.nome_fantasia && dados.nome_fantasia !== 'Não informado') ? ` (${dados.nome_fantasia})` : '';
+        const nomeFinal = (razao + fantasia).trim();
+
+        const nomeInp = document.querySelector('#orc_cli_nome');
+        if (nomeInp && nomeFinal) nomeInp.value = nomeFinal;
+
+        const emailInp = document.querySelector('#orc_cli_email');
+        if (emailInp && dados.email) emailInp.value = dados.email.toLowerCase();
+
+        const telInp = document.querySelector('#orc_cli_telefone');
+        const telBruto = dados.ddd_telefone_1 || dados.telefone || '';
+        const tDigits = String(telBruto).replace(/\D/g, '');
+        if (telInp && tDigits.length >= 10) {
+          telInp.value = tDigits.length === 11 ? `(${tDigits.slice(0, 2)}) ${tDigits.slice(2, 7)}-${tDigits.slice(7)}` : `(${tDigits.slice(0, 2)}) ${tDigits.slice(2, 6)}-${tDigits.slice(6)}`;
+        }
+
+        const endInp = document.querySelector('#orc_cli_endereco');
+        if (endInp) {
+          const partes = [
+            dados.logradouro,
+            dados.numero ? `nº ${dados.numero}` : '',
+            dados.complemento,
+            dados.bairro,
+            dados.municipio ? `${dados.municipio} - ${dados.uf}` : '',
+            dados.cep ? `CEP ${dados.cep}` : ''
+          ].filter(Boolean);
+          endInp.value = partes.join(', ');
+        }
+
+        if (statusEl) {
+          statusEl.style.color = '#16a34a';
+          statusEl.innerHTML = `✓ <span><b>${escapeHtml(razao)}</b> preenchido automaticamente da Receita!</span>`;
+        }
+        toast(`✓ Dados de ${razao.slice(0, 26)} preenchidos da Receita Federal!`);
+      } else {
+        if (statusEl) {
+          statusEl.style.color = 'var(--muted)';
+          statusEl.textContent = 'CNPJ formatado. Preencha os dados restantes se necessário.';
+        }
+      }
+    } catch {
+      if (statusEl) {
+        statusEl.style.color = 'var(--muted)';
+        statusEl.textContent = 'CNPJ formatado. Preencha os campos adicionais.';
+      }
+    }
+  }
+}
+window.attachOrcamentoCnpjAutofill = attachOrcamentoCnpjAutofill;
 
 function selecionarClienteParaOrcamento(idxVal) {
   if (idxVal === '' || !db.clientes[idxVal]) return;
@@ -1558,38 +2421,133 @@ function selecionarClienteParaOrcamento(idxVal) {
 }
 window.selecionarClienteParaOrcamento = selecionarClienteParaOrcamento;
 
-function adicionarLinhaItemOrcamento(produto = '', unidade = '1', quantidade = 1, valorUnit = 0) {
+function adicionarLinhaItemOrcamento(produto = '', unidade = '1', quantidade = 1, valorUnit = 0, custoFabrica = 0, margemPct = 35) {
   const tbody = document.querySelector('#orcItensBody');
   if (!tbody) return;
 
   const rowCount = tbody.querySelectorAll('tr').length + 1;
+  const qtdNum = parseFloat(quantidade || 1) || 1;
+  let custoNum = parseFloat(custoFabrica || 0) || 0;
+  let margemNum = parseFloat(margemPct !== undefined ? margemPct : 35) || 0;
+  let vendaNum = parseFloat(valorUnit || 0) || 0;
+
+  // Se tem venda mas não tem custo: deriva custo a partir da margem
+  if (vendaNum > 0 && custoNum === 0) {
+    custoNum = Number((vendaNum / (1 + (margemNum / 100))).toFixed(2));
+  } else if (custoNum > 0 && vendaNum === 0) {
+    vendaNum = Number((custoNum * (1 + (margemNum / 100))).toFixed(2));
+  }
+
+  const totalVenda = Number((qtdNum * vendaNum).toFixed(2));
+  const totalCusto = Number((qtdNum * custoNum).toFixed(2));
+  const lucroBruto = Number((totalVenda - totalCusto).toFixed(2));
+
   const tr = document.createElement('tr');
   tr.className = 'orc-item-row';
   tr.innerHTML = `
     <td style="text-align:center;font-weight:700" class="row-num">${rowCount}</td>
     <td>
-      <input class="item-prod" value="${escapeHtml(produto)}" placeholder="Descrição completa do produto e especificação" required>
+      <input class="item-prod" value="${escapeHtml(produto)}" placeholder="Descrição completa do produto e especificação técnica" required style="width:100%;font-size:12.5px;padding:6px 8px">
     </td>
     <td>
-      <input class="item-un" value="${escapeHtml(unidade || '1')}" placeholder="UN" style="text-align:center">
+      <input class="item-un" value="${escapeHtml(unidade || '1')}" placeholder="UN" style="text-align:center;width:100%;font-size:12px;padding:6px 4px">
     </td>
     <td>
-      <input type="number" min="1" step="1" class="item-qtd" value="${quantidade || 1}" oninput="recalcularTotaisOrcamento()" required style="text-align:center">
+      <input type="number" min="1" step="1" class="item-qtd" value="${qtdNum}" oninput="calcularLinhaItemOrcamento(this)" required style="text-align:center;width:100%;font-size:12.5px;padding:6px 4px">
     </td>
     <td>
-      <input type="number" min="0" step="0.01" class="item-vlr" value="${valorUnit || 0}" oninput="recalcularTotaisOrcamento()" required style="text-align:right">
+      <input type="number" min="0" step="0.01" class="item-custo-fab" value="${custoNum ? custoNum.toFixed(2) : ''}" placeholder="0,00" oninput="calcularLinhaPorCustoOuMargem(this)" style="text-align:right;width:100%;font-size:12.5px;padding:6px 4px;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;font-weight:700">
     </td>
-    <td style="text-align:right;font-weight:700" class="item-total-display">
-      ${money((quantidade || 1) * (valorUnit || 0))}
+    <td>
+      <div style="display:flex;align-items:center;gap:2px">
+        <input type="number" min="0" step="0.5" class="item-margem-pct" value="${margemNum ? margemNum.toFixed(1) : '35.0'}" oninput="calcularLinhaPorCustoOuMargem(this)" style="text-align:center;width:100%;font-size:12px;padding:6px 2px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;font-weight:800">
+        <span style="font-size:11px;font-weight:800;color:#166534">%</span>
+      </div>
+    </td>
+    <td>
+      <input type="number" min="0" step="0.01" class="item-vlr" value="${vendaNum ? vendaNum.toFixed(2) : ''}" placeholder="0,00" oninput="calcularLinhaPorPrecoVenda(this)" required style="text-align:right;width:100%;font-size:12.5px;padding:6px 4px;font-weight:800;color:#073863">
+    </td>
+    <td style="text-align:right;font-weight:800;font-size:13px;color:#073863" class="item-total-display">
+      ${money(totalVenda)}
+    </td>
+    <td style="text-align:right;font-weight:800;font-size:12px;color:#059669" class="item-lucro-display" title="Lucro Bruto deste item">
+      ${money(lucroBruto)}
     </td>
     <td style="text-align:center">
-      <button type="button" class="link" style="color:var(--red);font-size:16px;cursor:pointer" onclick="removerLinhaItemOrcamento(this)">✕</button>
+      <button type="button" class="link" style="color:var(--red);font-size:16px;cursor:pointer;padding:2px 6px" onclick="removerLinhaItemOrcamento(this)" title="Remover item">✕</button>
     </td>
   `;
   tbody.appendChild(tr);
   recalcularTotaisOrcamento();
 }
 window.adicionarLinhaItemOrcamento = adicionarLinhaItemOrcamento;
+
+// Calcula a linha quando o usuário altera o Custo de Fábrica ou a Porcentagem de Margem
+function calcularLinhaPorCustoOuMargem(el) {
+  const tr = el.closest('tr');
+  if (!tr) return;
+  const qtd = parseFloat(tr.querySelector('.item-qtd')?.value || 1) || 1;
+  const custo = parseFloat(tr.querySelector('.item-custo-fab')?.value || 0) || 0;
+  const margem = parseFloat(tr.querySelector('.item-margem-pct')?.value || 0) || 0;
+
+  let venda = 0;
+  if (custo > 0) {
+    venda = Number((custo * (1 + (margem / 100))).toFixed(2));
+  } else {
+    venda = parseFloat(tr.querySelector('.item-vlr')?.value || 0) || 0;
+  }
+
+  const vlrInp = tr.querySelector('.item-vlr');
+  if (vlrInp && custo > 0) {
+    vlrInp.value = venda.toFixed(2);
+  }
+
+  const totalVenda = Number((qtd * venda).toFixed(2));
+  const totalCusto = Number((qtd * custo).toFixed(2));
+  const lucro = Number((totalVenda - totalCusto).toFixed(2));
+
+  const totalDisplay = tr.querySelector('.item-total-display');
+  if (totalDisplay) totalDisplay.textContent = money(totalVenda);
+
+  const lucroDisplay = tr.querySelector('.item-lucro-display');
+  if (lucroDisplay) lucroDisplay.textContent = money(lucro);
+
+  recalcularTotaisOrcamento();
+}
+window.calcularLinhaPorCustoOuMargem = calcularLinhaPorCustoOuMargem;
+
+// Calcula a linha no sentido inverso quando o usuário digita o Preço de Venda
+function calcularLinhaPorPrecoVenda(el) {
+  const tr = el.closest('tr');
+  if (!tr) return;
+  const qtd = parseFloat(tr.querySelector('.item-qtd')?.value || 1) || 1;
+  const venda = parseFloat(tr.querySelector('.item-vlr')?.value || 0) || 0;
+  const custo = parseFloat(tr.querySelector('.item-custo-fab')?.value || 0) || 0;
+
+  const margemInp = tr.querySelector('.item-margem-pct');
+  if (margemInp && custo > 0 && venda >= custo) {
+    const margemReal = (((venda - custo) / custo) * 100);
+    margemInp.value = margemReal.toFixed(1);
+  }
+
+  const totalVenda = Number((qtd * venda).toFixed(2));
+  const totalCusto = Number((qtd * custo).toFixed(2));
+  const lucro = Number((totalVenda - totalCusto).toFixed(2));
+
+  const totalDisplay = tr.querySelector('.item-total-display');
+  if (totalDisplay) totalDisplay.textContent = money(totalVenda);
+
+  const lucroDisplay = tr.querySelector('.item-lucro-display');
+  if (lucroDisplay) lucroDisplay.textContent = money(lucro);
+
+  recalcularTotaisOrcamento();
+}
+window.calcularLinhaPorPrecoVenda = calcularLinhaPorPrecoVenda;
+
+function calcularLinhaItemOrcamento(el) {
+  calcularLinhaPorCustoOuMargem(el);
+}
+window.calcularLinhaItemOrcamento = calcularLinhaItemOrcamento;
 
 function removerLinhaItemOrcamento(btn) {
   const tr = btn.closest('tr');
@@ -1607,26 +2565,89 @@ window.removerLinhaItemOrcamento = removerLinhaItemOrcamento;
 
 function recalcularTotaisOrcamento() {
   const rows = document.querySelectorAll('#orcItensBody tr');
-  let subtotal = 0;
+  let subtotalVenda = 0;
+  let custoFabricaTotal = 0;
 
   rows.forEach(r => {
     const qtd = parseFloat(r.querySelector('.item-qtd')?.value || 0) || 0;
     const vlr = parseFloat(r.querySelector('.item-vlr')?.value || 0) || 0;
+    const custo = parseFloat(r.querySelector('.item-custo-fab')?.value || 0) || 0;
+
     const itemTotal = Number((qtd * vlr).toFixed(2));
-    subtotal += itemTotal;
+    const itemCustoTotal = Number((qtd * custo).toFixed(2));
+    const itemLucro = Number((itemTotal - itemCustoTotal).toFixed(2));
+
+    subtotalVenda += itemTotal;
+    custoFabricaTotal += itemCustoTotal;
+
     const totalDisplay = r.querySelector('.item-total-display');
     if (totalDisplay) totalDisplay.textContent = money(itemTotal);
+
+    const lucroDisplay = r.querySelector('.item-lucro-display');
+    if (lucroDisplay) lucroDisplay.textContent = money(itemLucro);
   });
 
   const desconto = parseFloat(document.querySelector('#orc_desconto')?.value || 0) || 0;
   const frete = parseFloat(document.querySelector('#orc_frete')?.value || 0) || 0;
-  const totalFinal = Math.max(0, subtotal - desconto + frete);
+  const totalFinalVenda = Math.max(0, subtotalVenda - desconto + frete);
 
   const subPrev = document.querySelector('#orc_subtotal_preview');
-  if (subPrev) subPrev.textContent = money(subtotal);
+  if (subPrev) subPrev.textContent = money(subtotalVenda);
 
   const totPrev = document.querySelector('#orc_total_preview');
-  if (totPrev) totPrev.textContent = money(totalFinal);
+  if (totPrev) totPrev.textContent = money(totalFinalVenda);
+
+  // Inteligência Tributária (MEI vs ME)
+  const regimeChecked = document.querySelector('input[name="orc_regime_tributario"]:checked')?.value || 'MEI';
+  const blocoMe = document.querySelector('#orc_bloco_aliquota_me');
+  const badgeRegime = document.querySelector('#orc_badge_regime');
+
+  let impostoProvisao = 0;
+  if (regimeChecked === 'ME') {
+    if (blocoMe) blocoMe.style.display = 'flex';
+    if (badgeRegime) {
+      badgeRegime.textContent = 'ME Simples Nacional Ativo';
+      badgeRegime.style.background = '#eff6ff';
+      badgeRegime.style.color = '#1e40af';
+    }
+    const aliq = parseFloat(document.querySelector('#orc_aliquota_me')?.value || 4.0) || 4.0;
+    impostoProvisao = Number((totalFinalVenda * (aliq / 100)).toFixed(2));
+  } else {
+    if (blocoMe) blocoMe.style.display = 'none';
+    if (badgeRegime) {
+      badgeRegime.textContent = 'MEI Ativo (0% s/ NF)';
+      badgeRegime.style.background = '#dbeafe';
+      badgeRegime.style.color = '#1e40af';
+    }
+    impostoProvisao = 0.00;
+  }
+
+  const lucroBruto = Math.max(0, totalFinalVenda - custoFabricaTotal);
+  const lucroBrutoPct = totalFinalVenda > 0 ? ((lucroBruto / totalFinalVenda) * 100).toFixed(1) : 0;
+  const lucroLiquidoReal = Math.max(0, lucroBruto - impostoProvisao);
+
+  // Fluxo Real 50% / 50% com a fábrica
+  const fluxoEntradaFab = Number((custoFabricaTotal * 0.50).toFixed(2));
+  const fluxoSaldoFab = Number((custoFabricaTotal * 0.50).toFixed(2));
+
+  // Atualização visual dos painéis
+  const custoFabEl = document.querySelector('#orc_custo_fabrica_total');
+  if (custoFabEl) custoFabEl.textContent = money(custoFabricaTotal);
+
+  const lucroBrutoEl = document.querySelector('#orc_lucro_bruto_total');
+  if (lucroBrutoEl) lucroBrutoEl.textContent = `${money(lucroBruto)} (${lucroBrutoPct}%)`;
+
+  const impostoEl = document.querySelector('#orc_imposto_provisao');
+  if (impostoEl) impostoEl.textContent = money(impostoProvisao);
+
+  const lucroLiqEl = document.querySelector('#orc_lucro_liquido_real');
+  if (lucroLiqEl) lucroLiqEl.textContent = money(lucroLiquidoReal);
+
+  const entradaFabEl = document.querySelector('#orc_fluxo_entrada_fab');
+  if (entradaFabEl) entradaFabEl.textContent = money(fluxoEntradaFab);
+
+  const saldoFabEl = document.querySelector('#orc_fluxo_saldo_fab');
+  if (saldoFabEl) saldoFabEl.textContent = money(fluxoSaldoFab);
 }
 window.recalcularTotaisOrcamento = recalcularTotaisOrcamento;
 
@@ -1639,26 +2660,44 @@ async function salvarOrcamento(e) {
 
   const itens = [];
   let subtotal = 0;
+  let custoFabricaTotal = 0;
+
   rows.forEach((r, i) => {
     const prod = (r.querySelector('.item-prod')?.value || '').trim();
     const un = (r.querySelector('.item-un')?.value || '1').trim();
     const qtd = parseFloat(r.querySelector('.item-qtd')?.value || 1) || 1;
+    const custo = parseFloat(r.querySelector('.item-custo-fab')?.value || 0) || 0;
+    const margem = parseFloat(r.querySelector('.item-margem-pct')?.value || 0) || 0;
     const vlr = parseFloat(r.querySelector('.item-vlr')?.value || 0) || 0;
     const tot = Number((qtd * vlr).toFixed(2));
+    const totCusto = Number((qtd * custo).toFixed(2));
+    const lucroItem = Number((tot - totCusto).toFixed(2));
+
     subtotal += tot;
+    custoFabricaTotal += totCusto;
+
     itens.push({
       item: i + 1,
       produto: prod,
       unidade: un,
       quantidade: qtd,
+      custo_fabrica: custo,
+      margem_pct: margem,
       valor_unitario: vlr,
-      total: tot
+      total: tot,
+      lucro_bruto: lucroItem
     });
   });
 
   const desconto = parseFloat(document.querySelector('#orc_desconto')?.value || 0) || 0;
   const frete = parseFloat(document.querySelector('#orc_frete')?.value || 0) || 0;
   const valorTotal = Math.max(0, subtotal - desconto + frete);
+
+  const regimeChecked = document.querySelector('input[name="orc_regime_tributario"]:checked')?.value || 'MEI';
+  const aliqMe = parseFloat(document.querySelector('#orc_aliquota_me')?.value || 4.0) || 4.0;
+  const impostoProvisao = regimeChecked === 'ME' ? Number((valorTotal * (aliqMe / 100)).toFixed(2)) : 0.00;
+  const lucroBruto = Math.max(0, valorTotal - custoFabricaTotal);
+  const lucroLiquidoReal = Math.max(0, lucroBruto - impostoProvisao);
 
   const novoOrc = {
     id: editIndex >= 0 ? db.orcamentos[editIndex].id : `orc-${Date.now()}`,
@@ -1677,7 +2716,15 @@ async function salvarOrcamento(e) {
     desconto: desconto,
     frete: frete,
     valor_total: valorTotal,
-    pagamento: document.querySelector('#orc_pagamento').value.trim() || 'À vista.',
+    custo_fabrica_total: custoFabricaTotal,
+    lucro_bruto_total: lucroBruto,
+    regime_tributario: regimeChecked,
+    aliquota_me: aliqMe,
+    imposto_provisao: impostoProvisao,
+    lucro_liquido_real: lucroLiquidoReal,
+    fluxo_entrada_fab: Number((custoFabricaTotal * 0.50).toFixed(2)),
+    fluxo_saldo_fab: Number((custoFabricaTotal * 0.50).toFixed(2)),
+    pagamento: document.querySelector('#orc_pagamento').value.trim() || 'À vista (100% na aprovação da proposta).',
     entrega_frete: document.querySelector('#orc_entrega_frete').value.trim() || 'Prazo sujeito à disponibilidade. Frete incluso, salvo indicação expressa.',
     observacoes: document.querySelector('#orc_observacoes').value.trim(),
     status: document.querySelector('#orc_status').value,
@@ -1889,12 +2936,16 @@ function enviarPropostaWhatsApp(index) {
   const zapClean = zapRaw.length === 10 || zapRaw.length === 11 ? `55${zapRaw}` : zapRaw;
 
   const msg = `Olá! Segue a *Proposta Comercial Oficial Nº ${orc.numero}* emitida pela *Prado Comércio & Soluções*:%0A%0A` +
-    `*Cliente:* ${encodeURIComponent(orc.cliente_nome || orc.cliente)}%0A` +
-    `*Referência:* ${encodeURIComponent(orc.referencia)}%0A` +
-    `*Valor Total:* ${encodeURIComponent(money(orc.valor_total))}%0A` +
-    `*Validade:* ${encodeURIComponent(formatarDataBr(orc.data_validade))}%0A` +
-    `*Condições de Pagamento:* ${encodeURIComponent(orc.pagamento)}%0A%0A` +
-    `Estamos à inteira disposição para fechamento e faturamento direto com a fábrica. Obrigado!`;
+    `🏢 *Cliente:* ${encodeURIComponent(orc.cliente_nome || orc.cliente)}%0A` +
+    `📦 *Referência:* ${encodeURIComponent(orc.referencia)}%0A` +
+    `💰 *Valor Total:* ${encodeURIComponent(money(orc.valor_total))}%0A` +
+    `📅 *Validade:* ${encodeURIComponent(formatarDataBr(orc.data_validade))}%0A` +
+    `🤝 *Condições de Pagamento:* ${encodeURIComponent(orc.pagamento || 'À vista (100% na aprovação da proposta).')}%0A%0A` +
+    `🔑 *Dados Bancários para Liquidação:*%0A` +
+    `Chave PIX (CNPJ): *59.825.765/0001-03*%0A` +
+    `Favorecido: *59.825.765 Michel do Prado*%0A%0A` +
+    `🛡️ *Garantia Prado:* Acompanhamento logístico integral da fábrica até o ateste de recebimento no seu endereço.%0A%0A` +
+    `Estamos à inteira disposição para fechamento e emissão de nota fiscal. Obrigado!`;
 
   if (zapClean && zapClean.length >= 10) {
     window.open(`https://wa.me/${zapClean}?text=${msg}`, '_blank');
