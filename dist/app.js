@@ -2211,6 +2211,46 @@ function cotacao_ia() {
               </button>
             </div>
           </div>
+
+          <!-- ÁREA PARA ARRASTAR ARQUIVOS PDF E COLAR PRINTS DE ORÇAMENTO DA FÁBRICA (CTRL+V / DRAG & DROP) -->
+          <div style="background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:16px 18px;margin-bottom:16px;box-shadow:0 2px 6px rgba(0,0,0,0.03)">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+              <div>
+                <b style="color:var(--navy);font-size:14.5px;display:inline-flex;align-items:center;gap:6px">
+                  📎 Anexos da Fábrica (Arraste PDFs ou Cole Prints com Ctrl+V)
+                </b>
+                <p style="margin:3px 0 0;font-size:12px;color:var(--muted)">
+                  Você pode arrastar orçamentos em <b>PDF</b> ou apenas <b>tirar print no WhatsApp e apertar Ctrl+V</b> aqui dentro!
+                </p>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <span id="badgeContadorAnexos" class="badge" style="background:#f1f5f9;color:var(--navy);font-weight:700">
+                  ${anexosCotacaoAtivos.length} anexo(s)
+                </span>
+                <button type="button" class="secondary" style="font-size:12px;padding:6px 12px;border-radius:6px;font-weight:700;background:#f8fafc" onclick="document.querySelector('#iaFileInputCotacao').click()">
+                  📂 Escolher Arquivo do Computador
+                </button>
+              </div>
+            </div>
+
+            <!-- DROPZONE -->
+            <div id="iaDropzoneCotacao" class="dropzone-cotacao" tabindex="0" title="Clique ou arraste um PDF/Imagem aqui, ou aperte Ctrl+V para colar um print da tela">
+              <input type="file" id="iaFileInputCotacao" multiple accept="application/pdf,image/png,image/jpeg,image/webp" style="display:none">
+              <div class="dropzone-icon-ring">📥</div>
+              <b style="font-size:14px;color:var(--navy);display:block;margin-bottom:4px">
+                Arraste o PDF de Orçamento aqui ou dê <kbd style="background:#e2e8f0;padding:2px 8px;border-radius:4px;font-size:12px;box-shadow:0 1px 2px rgba(0,0,0,0.1)">Ctrl + V</kbd> para colar o Print
+              </b>
+              <small style="color:var(--muted);font-size:12px">
+                Compatível com propostas em PDF, prints do WhatsApp Web, imagens de tabelas e fotos de catálogos (PNG, JPG, PDF)
+              </small>
+            </div>
+
+            <!-- GRADE DE ANEXOS SALVOS / PREVIEW -->
+            <div id="iaListaAnexosCotacao" class="anexos-preview-grid">
+              ${renderizarAnexosCotacao()}
+            </div>
+          </div>
+
         </div>
       </div>
       <div id="iaResultadosArea">
@@ -2218,6 +2258,230 @@ function cotacao_ia() {
       </div>
     </div>
   `;
+
+  setTimeout(inicializarDropzoneCotacao, 50);
+}
+
+// GESTÃO DE ANEXOS DE ORÇAMENTO DA FÁBRICA (DRAG & DROP, PASTE CTRL+V E PREVIEW)
+const ANEXOS_STORAGE_KEY = 'pradoAnexosCotacoes_v1';
+function carregarAnexosCotacaoSalvos() {
+  try {
+    const raw = localStorage.getItem(ANEXOS_STORAGE_KEY);
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (Array.isArray(p)) return p;
+    }
+  } catch {}
+  return [];
+}
+let anexosCotacaoAtivos = carregarAnexosCotacaoSalvos();
+
+function salvarAnexosCotacaoPersistentes() {
+  try {
+    localStorage.setItem(ANEXOS_STORAGE_KEY, JSON.stringify(anexosCotacaoAtivos));
+  } catch {}
+}
+
+function processarArquivosAnexados(files, labelOrigem = 'Arquivo Anexado') {
+  if (!files || !files.length) return;
+  let processados = 0;
+  Array.from(files).forEach(file => {
+    const isImage = file.type.startsWith('image/');
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (!isImage && !isPdf) {
+      toast(`Formato não suportado: ${file.name}. Envie imagens ou PDFs.`);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      const novoAnexo = {
+        id: 'anx-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+        nome: file.name || (isImage ? `Print_WhatsApp_${new Date().toISOString().slice(11, 19).replace(/:/g, '-')}.png` : 'orcamento_fabrica.pdf'),
+        tipo: isPdf ? 'pdf' : 'imagem',
+        mime: file.type,
+        data: e.target.result,
+        tamanho: (file.size / 1024).toFixed(1) + ' KB',
+        origem: labelOrigem,
+        criadoEm: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+      };
+      anexosCotacaoAtivos.unshift(novoAnexo);
+      salvarAnexosCotacaoPersistentes();
+      processados++;
+      atualizarListaAnexosDOM();
+      toast(`✓ ${novoAnexo.nome} anexado com sucesso!`);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderizarAnexosCotacao() {
+  if (!anexosCotacaoAtivos.length) {
+    return `
+      <div style="grid-column:1/-1;text-align:center;padding:14px;color:var(--muted);font-size:12.5px">
+        Nenhum orçamento anexado ainda. Arraste um PDF para a caixa acima ou copie um print da conversa com a fábrica e aperte <b>Ctrl + V</b>.
+      </div>
+    `;
+  }
+
+  return anexosCotacaoAtivos.map(a => `
+    <div class="anexo-card-item">
+      <div class="anexo-thumb-container" onclick="visualizarAnexoEmModal('${a.id}')" title="Clique para ampliar / ver em tela cheia">
+        ${a.tipo === 'imagem' 
+          ? `<img src="${a.data}" alt="${escapeHtml(a.nome)}" class="anexo-thumb-img">`
+          : `<div style="text-align:center;color:#dc2626"><span style="font-size:36px">📄</span><b style="display:block;font-size:11px;color:#991b1b">DOCUMENTO PDF</b></div>`
+        }
+      </div>
+      <div style="flex:1;overflow:hidden">
+        <b style="font-size:12px;color:var(--navy);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${escapeHtml(a.nome)}">
+          ${escapeHtml(a.nome)}
+        </b>
+        <small style="color:var(--muted);font-size:11px;display:block">
+          ${a.tamanho} · ${a.criadoEm} (${escapeHtml(a.origem)})
+        </small>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:8px;border-top:1px solid #f1f5f9;padding-top:6px">
+        <button type="button" class="link" style="font-size:11.5px;color:#0284c7;font-weight:700;cursor:pointer" onclick="visualizarAnexoEmModal('${a.id}')">
+          👁️ Ver
+        </button>
+        <button type="button" class="link" style="font-size:11.5px;color:var(--green);font-weight:700;cursor:pointer" onclick="baixarAnexoCotacao('${a.id}')">
+          📥 Baixar
+        </button>
+        <button type="button" class="link" style="font-size:11.5px;color:var(--red);font-weight:700;margin-left:auto;cursor:pointer" onclick="removerAnexoCotacao('${a.id}')">
+          🗑️
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function atualizarListaAnexosDOM() {
+  const container = document.querySelector('#iaListaAnexosCotacao');
+  const badge = document.querySelector('#badgeContadorAnexos');
+  if (container) container.innerHTML = renderizarAnexosCotacao();
+  if (badge) badge.textContent = `${anexosCotacaoAtivos.length} anexo(s)`;
+}
+
+function removerAnexoCotacao(id) {
+  anexosCotacaoAtivos = anexosCotacaoAtivos.filter(a => a.id !== id);
+  salvarAnexosCotacaoPersistentes();
+  atualizarListaAnexosDOM();
+  toast('Anexo removido.');
+}
+window.removerAnexoCotacao = removerAnexoCotacao;
+
+function baixarAnexoCotacao(id) {
+  const anexo = anexosCotacaoAtivos.find(a => a.id === id);
+  if (!anexo) return;
+  const link = document.createElement('a');
+  link.href = anexo.data;
+  link.download = anexo.nome;
+  link.click();
+}
+window.baixarAnexoCotacao = baixarAnexoCotacao;
+
+function visualizarAnexoEmModal(id) {
+  const anexo = anexosCotacaoAtivos.find(a => a.id === id);
+  if (!anexo) return;
+
+  const modalId = 'modalVisualizadorAnexo';
+  let modal = document.querySelector(`#${modalId}`);
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;max-width:900px;width:100%;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,0.4)">
+      <div style="padding:14px 20px;background:#f8fafc;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h3 style="margin:0;font-size:15px;color:var(--navy)">${escapeHtml(anexo.nome)}</h3>
+          <small style="color:var(--muted)">${anexo.tamanho} · Anexado às ${anexo.criadoEm}</small>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button type="button" class="secondary" style="font-size:12px;padding:5px 12px;border-radius:6px;font-weight:700" onclick="baixarAnexoCotacao('${anexo.id}')">
+            📥 Baixar Arquivo
+          </button>
+          <button type="button" onclick="document.querySelector('#${modalId}').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--muted)">&times;</button>
+        </div>
+      </div>
+      <div style="flex:1;overflow:auto;padding:16px;text-align:center;background:#1e293b;display:flex;align-items:center;justify-content:center">
+        ${anexo.tipo === 'imagem'
+          ? `<img src="${anexo.data}" style="max-width:100%;max-height:75vh;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,0.3)">`
+          : `<iframe src="${anexo.data}" style="width:100%;height:75vh;border:none;border-radius:6px;background:#fff"></iframe>`
+        }
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+window.visualizarAnexoEmModal = visualizarAnexoEmModal;
+
+function inicializarDropzoneCotacao() {
+  const dropzone = document.querySelector('#iaDropzoneCotacao');
+  const fileInput = document.querySelector('#iaFileInputCotacao');
+  if (!dropzone) return;
+
+  ['dragenter', 'dragover'].forEach(name => {
+    dropzone.addEventListener(name, e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add('dragover');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(name => {
+    dropzone.addEventListener(name, e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove('dragover');
+    }, false);
+  });
+
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    const files = e.dataTransfer?.files;
+    if (files && files.length) {
+      processarArquivosAnexados(files, 'Arrastado (Drag & Drop)');
+    }
+  });
+
+  dropzone.addEventListener('click', e => {
+    if (e.target.tagName !== 'INPUT' && !e.target.closest('button')) {
+      fileInput?.click();
+    }
+  });
+
+  fileInput?.addEventListener('change', e => {
+    if (e.target.files && e.target.files.length) {
+      processarArquivosAnexados(e.target.files, 'Upload Selecionado');
+      e.target.value = '';
+    }
+  });
+
+  // Listener global de Ctrl+V na janela
+  window.removeEventListener('paste', tratarPasteGlobalCotacao);
+  window.addEventListener('paste', tratarPasteGlobalCotacao);
+}
+
+function tratarPasteGlobalCotacao(e) {
+  if (page !== 'cotacao_ia') return;
+  const items = (e.clipboardData || window.clipboardData)?.items;
+  if (!items) return;
+
+  const arquivos = [];
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].kind === 'file') {
+      const file = items[i].getAsFile();
+      if (file) arquivos.push(file);
+    }
+  }
+
+  if (arquivos.length) {
+    e.preventDefault();
+    processarArquivosAnexados(arquivos, 'Colado com Ctrl+V');
+    toast('📋 Print do orçamento da fábrica colado com sucesso!');
+  }
 }
 
 async function executarCotacaoIA(isRotacao = false) {
@@ -2378,6 +2642,18 @@ function abrirModalAdicionarFabricaManual() {
         <div style="grid-column:1/-1">
           <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">Condição de Pagamento:</label>
           <input id="modalCondicoes" value="50% entrada e 50% na entrega e aceite" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px">
+        </div>
+        <div style="grid-column:1/-1;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;padding:12px;text-align:center">
+          <label style="display:block;font-size:11.5px;font-weight:700;color:var(--navy);margin-bottom:6px">
+            📎 Anexar Orçamento / Tabela da Fábrica (PDF ou Print):
+          </label>
+          <input type="file" id="modalAnexoFabrica" accept="application/pdf,image/*" style="display:none" onchange="if(this.files.length){processarArquivosAnexados(this.files, document.querySelector('#modalNome')?.value || 'Fábrica Manual');}">
+          <button type="button" class="secondary" style="font-size:12px;padding:6px 14px;border-radius:6px;background:#fff;font-weight:700;color:var(--navy)" onclick="document.querySelector('#modalAnexoFabrica').click()">
+            📄 Selecionar PDF ou Imagem do Orçamento
+          </button>
+          <small style="display:block;color:var(--muted);font-size:11px;margin-top:5px">
+            Dica: Você também pode apertar <b>Ctrl + V</b> ou arrastar o PDF direto na tela principal de Cotações!
+          </small>
         </div>
       </div>
       <div style="padding:14px 20px;background:#f8fafc;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px">
@@ -2625,7 +2901,13 @@ async function adicionarCotacaoAoBanco(idx) {
       if (refInp) refInp.value = f.produto_especificado || '';
 
       const obsInp = document.querySelector('#orc_observacoes');
-      if (obsInp) obsInp.value = `Indústria cotada: ${f.nome_empresa} (CNPJ: ${f.cnpj}). Condições da fábrica: ${f.condicoes_pagamento}. Frete e entrega negociados direto com fabricante.`;
+      if (obsInp) {
+        let obsTexto = `Indústria cotada: ${f.nome_empresa} (CNPJ: ${f.cnpj}). Condições da fábrica: ${f.condicoes_pagamento}. Frete e entrega negociados direto com fabricante.`;
+        if (anexosCotacaoAtivos && anexosCotacaoAtivos.length > 0) {
+          obsTexto += ` | Anexos de Orçamento vinculados: ${anexosCotacaoAtivos.map(a => a.nome).join(', ')}`;
+        }
+        obsInp.value = obsTexto;
+      }
 
       const tbody = document.querySelector('#orcItensBody');
       if (tbody) {

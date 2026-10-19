@@ -1145,3 +1145,75 @@ body.dark-mode .auth-btn-google:hover {
 
 
 
+
+/* DROPZONE MODERNA DE ORÇAMENTOS & PRINTS DA FÁBRICA (DRAG & DROP E CTRL+V) */
+.dropzone-cotacao {
+  border: 2px dashed #94a3b8;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 22px 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+.dropzone-cotacao:hover, .dropzone-cotacao.dragover {
+  border-color: var(--teal, #008299);
+  background: #eaf6fa;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 130, 153, 0.12);
+}
+.dropzone-icon-ring {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin: 0 auto 8px;
+  transition: all 0.2s ease;
+}
+.dropzone-cotacao:hover .dropzone-icon-ring, .dropzone-cotacao.dragover .dropzone-icon-ring {
+  background: var(--gold, #d4af37);
+  transform: scale(1.08);
+}
+.anexos-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.anexo-card-item {
+  background: #ffffff;
+  border: 1px solid var(--line, #e2e8f0);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+.anexo-card-item:hover {
+  border-color: var(--navy, #073863);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.anexo-thumb-container {
+  height: 105px;
+  width: 100%;
+  border-radius: 6px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.anexo-thumb-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
