@@ -2872,7 +2872,7 @@ function imprimirDocumentoTimbrado() {
       padding: 0 !important;
     }
     .timbrado-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-    .timbrado-logo { height: 60px; object-fit: contain; }
+    .timbrado-logo { height: 62px; max-width: 280px; object-fit: contain; }
     .timbrado-titulo-orc { text-align: right; }
     .timbrado-titulo-orc h2 { font-size: 18px; font-weight: 800; color: #0b3c66; margin: 0; letter-spacing: .5px; }
     .timbrado-titulo-orc .timbrado-num { font-size: 22px; font-weight: 800; color: #0b3c66; margin-top: 4px; }
