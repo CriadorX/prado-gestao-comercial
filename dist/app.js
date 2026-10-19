@@ -129,27 +129,81 @@ function carregarOrcamentosIniciais() {
       valor_total: 72750.00,
       pagamento: 'À vista.',
       entrega_frete: 'Prazo sujeito à disponibilidade. Frete incluso, salvo indicação expressa.',
-      observacoes: 'Desconto de R$ 15.000,00 já aplicado onde o preço de cada unidade passa a ser R$485,00. Preço válido até 30/10/2026. Prazo de entrega 30 dias, certificado de garantia em anexo.',
-      status: 'Aprovado',
+      observacoes: 'Desconto de R$ 15.000,00 já aplicado onde o preço de cada unidade passa a ser R$485,00. Preço válido até 30/10/2026. Prazo de entrega 30 dias. Pagamento de R$ 72.750,00 aguarda envio do extrato anual.',
+      status: 'Aguardando Extrato Anual',
       criadoPor: 'licitadigitaltech@gmail.com',
       criadoEm: '2026-10-09T10:00:00.000Z'
+    },
+    {
+      id: 'orc-021-2026',
+      numero: '021/2026',
+      data_emissao: '2026-09-24',
+      data_validade: '2026-10-01',
+      responsavel: 'Michel do Prado',
+      referencia: 'Sacos para lixo',
+      cliente_nome: 'Lar dos Velhinhos de Piracicaba',
+      cliente_doc: '54.406.723/0001-14',
+      cliente_email: 'compras@lardosvelhinhospiracicaba.org.br',
+      cliente_telefone: '(19) 3372-9485',
+      cliente_endereco: 'Av. Torquato da Silva Leitão, 615 - São Dimas - Piracicaba/SP - CEP 13416-215',
+      itens: [
+        { item: 1, produto: 'SLP-020-4K | Saco plástico para lixo preto 20 L reforçado - pacote 4 kg', unidade: 'PCT', quantidade: 70, valor_unitario: 45.00, total: 3150.00 },
+        { item: 2, produto: 'SLP-040-4K | Saco plástico para lixo preto 40 L reforçado - pacote 4 kg', unidade: 'PCT', quantidade: 70, valor_unitario: 45.00, total: 3150.00 },
+        { item: 3, produto: 'SLP-060-4K | Saco plástico para lixo preto 60 L reforçado - pacote 4 kg', unidade: 'PCT', quantidade: 120, valor_unitario: 45.00, total: 5400.00 },
+        { item: 4, produto: 'SLP-100-4K | Saco plástico para lixo preto 100 L reforçado - pacote 4 kg', unidade: 'PCT', quantidade: 120, valor_unitario: 45.00, total: 5400.00 },
+        { item: 5, produto: 'SLP-200-4K | Saco plástico para lixo preto 200 L reforçado - pacote 4 kg', unidade: 'PCT', quantidade: 120, valor_unitario: 45.00, total: 5400.00 }
+      ],
+      subtotal: 22500.00,
+      desconto: 1000.00,
+      frete: 0.00,
+      valor_total: 21500.00,
+      pagamento: 'À vista.',
+      entrega_frete: 'Prazo sujeito à disponibilidade. Frete não incluído, salvo indicação expressa.',
+      observacoes: 'Desconto de R$ 1.000,00 já aplicado. NF-e nº 002 emitida em 25/09/2026. Pago no Banco do Brasil e liquidado com fornecedor 3W Embalagens Ltda.',
+      status: 'Faturado e Pago',
+      criadoPor: 'licitadigitaltech@gmail.com',
+      criadoEm: '2026-09-24T10:00:00.000Z'
     }
   ];
 }
 
-const NOTAS_FISCAIS_STORAGE_KEY = 'pradoNotasFiscais_v1';
+const NOTAS_FISCAIS_STORAGE_KEY = 'pradoNotasFiscais_v2';
 function carregarNotasFiscaisIniciais() {
   try {
     const raw = localStorage.getItem(NOTAS_FISCAIS_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
   } catch {}
-  return [];
+  return [
+    {
+      id: 'nfe-002-2026',
+      numero: '000.002',
+      serie: '1',
+      data_emissao: '2026-09-25',
+      natureza_operacao: 'Venda Dentro do Estado',
+      chave_acesso: '35260959825765000103550010000000021300000027',
+      protocolo: '135264036993299',
+      orcamento_origem: '021/2026',
+      destinatario_nome: 'Lar dos Velhinhos de Piracicaba',
+      destinatario_doc: '54.406.723/0001-14',
+      destinatario_endereco: 'Avenida Torquato da Silva Leitao, 615 - Sao Dimas - Piracicaba/SP',
+      valor_total: 21500.00,
+      status: 'Autorizada',
+      itens: [
+        { item: 1, descricao: 'Saco de lixo preto 20L', ncm: '39232190', cfop: '5102', qtd: 70, valor_unit: 43.00, total: 3010.00 },
+        { item: 2, descricao: 'Saco de lixo preto 40L', ncm: '39232190', cfop: '5102', qtd: 70, valor_unit: 43.00, total: 3010.00 },
+        { item: 3, descricao: 'Saco de lixo preto 60L', ncm: '39232190', cfop: '5102', qtd: 120, valor_unit: 43.00, total: 5160.00 },
+        { item: 4, descricao: 'Saco de lixo preto 100L', ncm: '39232190', cfop: '5102', qtd: 120, valor_unit: 43.00, total: 5160.00 },
+        { item: 5, descricao: 'Saco de lixo preto 200L', ncm: '39232190', cfop: '5102', qtd: 120, valor_unit: 43.00, total: 5160.00 }
+      ],
+      dados_adicionais: 'SMADS - Processo 2023/525135. EMPRESA OPTANTE PELO REGIME DE TRIBUTACAO SIMEI. DOCUMENTO EMITIDO POR ME OU EPP OPTANTE PELO SIMPLES NACIONAL. NAO GERA DIREITO A CREDITO FISCAL DE ICMS, ISS E IPI.'
+    }
+  ];
 }
 
-const EXTRATO_BB_STORAGE_KEY = 'pradoExtratoBB_v2';
+const EXTRATO_BB_STORAGE_KEY = 'pradoExtratoBB_v3';
 function carregarExtratoBBInicial() {
   try {
     const raw = localStorage.getItem(EXTRATO_BB_STORAGE_KEY);
@@ -160,29 +214,40 @@ function carregarExtratoBBInicial() {
   } catch {}
   return [
     {
-      id: 'bb-tx-1001',
-      data: '2026-10-09',
-      descricao: 'PIX RECEBIDO - NOTA FISCAL Nº 000.021 - LAR DOS VELHINHOS PIRACICABA',
+      id: 'bb-tx-2001',
+      data: '2026-09-28',
+      descricao: 'PIX RECEBIDO - NOTA FISCAL Nº 000.002 - LAR DOS VELHINHOS PIRACICABA',
       tipo: 'C',
-      valor: 23000.00,
+      valor: 21500.00,
       categoria: 'receita_cliente',
       documento: '54.406.723/0001-14',
-      referencia: 'NF-e 021/2026 Faturada e Paga (Restante de R$ 72.750,00 aguarda extrato anual)',
+      referencia: 'NF-e Nº 002 (25/09/2026) Faturada e Paga - Processo SMADS 2023/525135',
       conciliado: true
     },
     {
-      id: 'bb-tx-1002',
-      data: '2026-10-10',
-      descricao: 'PIX ENVIADO - FABRICA DE COLCHOES LORD BRASIL',
+      id: 'bb-tx-2002',
+      data: '2026-09-28',
+      descricao: 'PIX ENVIADO - 3W EMBALAGENS LTDA (Chave Pix: 19-99956-8786)',
       tipo: 'D',
-      valor: 7500.00,
+      valor: 6750.00,
       categoria: 'custo_fabrica_50',
-      documento: '61.123.456/0001-89',
-      referencia: 'Entrada 50% Fabricação NF-e 021/2026',
+      documento: '33.835.009/0001-71',
+      referencia: 'Pgto Lote 1 Sacos de Lixo - Banco Bradesco Ag 0223 C/C 21683-6',
       conciliado: true
     },
     {
-      id: 'bb-tx-1003',
+      id: 'bb-tx-2003',
+      data: '2026-09-28',
+      descricao: 'TED ENVIADA - 3W EMBALAGENS LTDA (Bradesco Ag 0223 C/C 21683-6)',
+      tipo: 'D',
+      valor: 10000.00,
+      categoria: 'custo_fabrica_saldo',
+      documento: '33.835.009/0001-71',
+      referencia: 'Pgto Lote 2 Fornecedores (Saldo Fábrica Sacos) - Bradesco 237',
+      conciliado: true
+    },
+    {
+      id: 'bb-tx-2004',
       data: '2026-10-15',
       descricao: 'PGTO GUIA DAS-MEI OUTUBRO/2026',
       tipo: 'D',
@@ -201,16 +266,112 @@ function salvarExtratoBBPersistente() {
   } catch {}
 }
 
+function carregarFornecedoresIniciais() {
+  return [
+    {
+      id: 'for-3w-embalagens',
+      nome: '3W Embalagens Ltda.',
+      doc: '33.835.009/0001-71',
+      contato: 'Setor de Vendas & Televendas',
+      telefone: '(19) 99956-8786',
+      categoria: 'Indústria / Embalagens Plásticas',
+      dados_bancarios: 'Banco Bradesco (237) · Ag 0223 · Conta Corrente: 21683-6 · Chave Pix: 19-99956-8786',
+      status: 'Ativo',
+      criadoPor: 'licitadigitaltech@gmail.com'
+    },
+    {
+      id: 'for-lord-brasil',
+      nome: 'Lord Brasil Indústria de Colchões',
+      doc: '61.123.456/0001-89',
+      contato: 'Vendas Corporativas Hospitalar',
+      telefone: '(11) 4547-7000',
+      categoria: 'Fabricante de Colchões & Espumas',
+      dados_bancarios: 'Faturamento 50% entrada e 50% na entrega e aceite',
+      status: 'Ativo',
+      criadoPor: 'licitadigitaltech@gmail.com'
+    }
+  ];
+}
+
+function carregarClientesIniciais() {
+  return [
+    {
+      id: 'cli-lar-velhinhos',
+      nome: 'Lar dos Velhinhos de Piracicaba',
+      doc: '54.406.723/0001-14',
+      contato: 'Compras / Almoxarifado (SMADS Processo 2023/525135)',
+      telefone: '(19) 3372-9485',
+      endereco: 'Av. Torquato da Silva Leitão, 615 - São Dimas - Piracicaba/SP - CEP 13416-215',
+      status: 'Ativo',
+      criadoPor: 'licitadigitaltech@gmail.com'
+    }
+  ];
+}
+
+function carregarOportunidadesIniciais() {
+  return [
+    {
+      id: 'op-002-sacos-lixo',
+      nome: 'Fornecimento Sacos de Lixo 20L a 200L (NF-e 002)',
+      cliente: 'Lar dos Velhinhos de Piracicaba',
+      fornecedor: '3W Embalagens Ltda.',
+      valor: 21500.00,
+      custoEstimado: 16750.00,
+      prazo: '2026-09-28',
+      status: 'Entregue e Liquidado',
+      descricao: 'Processo SMADS 2023/525135. Faturado via NF-e nº 002 em 25/09/2026 e pago no BB em 28/09/2026. Lucro líquido Prado: R$ 4.750,00.',
+      criadoPor: 'licitadigitaltech@gmail.com'
+    },
+    {
+      id: 'op-027-colchoes',
+      nome: '150 Colchões Solteiro D33 Hospitalar',
+      cliente: 'Lar dos Velhinhos de Piracicaba',
+      fornecedor: 'Lord Brasil Indústria de Colchões',
+      valor: 72750.00,
+      custoEstimado: 50000.00,
+      prazo: '2026-10-30',
+      status: 'Aguardando Extrato Anual',
+      descricao: 'Orçamento 027/2026 aprovado pelo cliente, aguardando envio do extrato anual para liberação do pagamento.',
+      criadoPor: 'licitadigitaltech@gmail.com'
+    }
+  ];
+}
+
+function carregarPedidosIniciais() {
+  return [
+    {
+      id: 'ped-002-sacos',
+      nome: 'Pedido 002/2026 - Sacos de Lixo Reforçados',
+      cliente: 'Lar dos Velhinhos de Piracicaba',
+      fornecedor: '3W Embalagens Ltda.',
+      valor: 21500.00,
+      rastreio: 'BR-PIR-2026-002',
+      previsao: '28/09/2026',
+      status: 'Entregue e Pago',
+      criadoPor: 'licitadigitaltech@gmail.com'
+    }
+  ];
+}
+
 let db = {
-  clientes: [],
-  fornecedores: [],
-  oportunidades: [],
-  pedidos: [],
+  clientes: carregarClientesIniciais(),
+  fornecedores: carregarFornecedoresIniciais(),
+  oportunidades: carregarOportunidadesIniciais(),
+  pedidos: carregarPedidosIniciais(),
   orcamentos: carregarOrcamentosIniciais(),
   notas_fiscais: carregarNotasFiscaisIniciais(),
   extrato_bb: carregarExtratoBBInicial(),
   docs: []
 };
+
+// HELPER DE CONTROLE DE ACESSO RBAC (SIGILO FINANCEIRO EXCLUSIVO DO MICHEL / ADMIN)
+function ehAdminGlobal() {
+  if (!currentUser) return true;
+  const email = (currentUser.email || '').toLowerCase();
+  const role = (currentUser.role || currentUser.papel || '').toLowerCase();
+  return role === 'admin_global' || role === 'admin' || email === 'licitadigitaltech@gmail.com' || email.includes('michel');
+}
+window.ehAdminGlobal = ehAdminGlobal;
 
 let currentUser = null;
 let sessionToken = window.sessionToken || localStorage.getItem('pradoSessionToken') || 'sess_prado_authenticated';
@@ -250,9 +411,14 @@ function initSupabase() {
   }
 }
 
-// 6. RENDERIZAÇÃO DA NAVEGAÇÃO E PERFIL
+// 6. RENDERIZAÇÃO DA NAVEGAÇÃO E PERFIL (COM OCULTAÇÃO DO FINANCEIRO PARA OPERADORES)
 function renderNav() {
-  document.querySelector('#nav').innerHTML = menu.map(([id, ic, n]) =>
+  const menuVisivel = menu.filter(([id]) => {
+    if (id === 'financeiro') return ehAdminGlobal();
+    return true;
+  });
+
+  document.querySelector('#nav').innerHTML = menuVisivel.map(([id, ic, n]) =>
     `<button class="nav-item ${id === page ? 'active' : ''}" data-page="${id}"><b>${ic}</b>${n}</button>`
   ).join('');
 
@@ -411,11 +577,17 @@ function dashboard() {
         </div>
       </div>
 
-      ${currentUser.role !== 'admin_global' ? `<div class="notice" style="margin-bottom:18px"><b>Visão restrita de operador</b><span>Você está visualizando apenas cadastros e oportunidades atribuídos à sua conta pelo Supabase RLS.</span></div>` : ''}
+      ${!ehAdminGlobal() ? `<div class="notice" style="margin-bottom:18px"><b>🔒 Visão Operacional Segura</b><span>Você está operando com perfil de operador/gestor. Dados bancários do Banco do Brasil, extratos e margens líquidas são restritos à Diretoria Geral (Michel do Prado).</span></div>` : ''}
       <div class="metrics">
         ${metric('Vendas em negociação', money(totalVendas), `${ops.length} oportunidade(s) ativa(s)`, '↗')}
-        ${metric('Margem estimada', money(margem), totalVendas ? `${((margem / totalVendas) * 100).toFixed(1)}% sobre a venda` : '0%', '◈')}
-        ${metric('Contas a receber', money(0), 'Nenhum vencimento pendente', '↓')}
+        ${ehAdminGlobal() 
+          ? metric('Margem estimada', money(margem), totalVendas ? `${((margem / totalVendas) * 100).toFixed(1)}% sobre a venda` : '0%', '◈')
+          : metric('Atendimentos Ativos', String(ops.length), 'Clientes em prospecção', '👥')
+        }
+        ${ehAdminGlobal() 
+          ? metric('Faturamento no BB', money(21500), 'NF-e 002 (25/09/2026)', '↓')
+          : metric('Pedidos Aprovados', String(peds.length), 'Aguardando faturamento', '✓')
+        }
         ${metric('Entregas em andamento', String(peds.length), peds.length ? 'Acompanhando transporte' : 'Tudo em dia', '▣')}
       </div>
       <div class="grid2">
@@ -666,13 +838,29 @@ function fiscal() {
           </div>
         </div>
         <div class="card">
-          <div class="card-head"><h2>Emissor SEBRAE SP CRT-4</h2></div>
-          <p style="color:var(--muted);font-size:13px">Acesse o robô de preenchimento assistido para faturamento e validação tributária MEI/CRT-4.</p>
+          <div class="card-head"><h2>Emissor SEBRAE SP CRT-4 & Consulta</h2></div>
+          <p style="color:var(--muted);font-size:13px">Acesse o robô de preenchimento assistido para faturamento ou consulte notas já emitidas no SEBRAE / SEFAZ.</p>
           <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
             <button class="primary" data-go="fiscal_bot">🤖 Acessar MB Fiscal BOT (SEBRAE)</button>
-            <button class="secondary" data-go="orcamentos" style="color:var(--navy);border-color:#cbd5e1">📋 Ver Orçamentos Aprovados</button>
+            <button class="secondary" style="color:var(--navy);border-color:#0284c7;background:#f0f9ff;font-weight:700" onclick="abrirModalGuiaConsultaSebrae()">
+              🔍 Como Consultar Notas no SEBRAE
+            </button>
+            <button class="secondary" data-go="orcamentos" style="color:var(--navy);border-color:#cbd5e1">📋 Ver Orçamentos</button>
           </div>
         </div>
+      </div>
+
+      <!-- GUIA DE CONSULTA RÁPIDA SEBRAE / SEFAZ -->
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;padding:14px 18px;border-radius:10px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div>
+          <b style="color:#1e40af;font-size:14px">🔍 Consulta de Notas Fiscais Emitidas (SEBRAE & SEFAZ Nacional):</b>
+          <p style="margin:4px 0 0;font-size:12.5px;color:#1e3a8a">
+            Você pode consultar e baixar qualquer nota emitida através do <b>Emissor Sebrae</b> ou pela <b>Chave de Acesso na Receita Federal</b>.
+          </p>
+        </div>
+        <button class="primary" style="background:#2563eb;color:#fff;font-size:12.5px;padding:8px 16px;font-weight:700" onclick="abrirModalGuiaConsultaSebrae()">
+          Ver Passo a Passo Oficial ➔
+        </button>
       </div>
 
       <div class="card">
@@ -718,6 +906,9 @@ function fiscal() {
                     <button class="secondary" style="padding:4px 8px;font-size:11.5px" onclick="baixarXmlNotaSalva(${i})" title="Baixar Arquivo XML">
                       📥 XML
                     </button>
+                    <button class="secondary" style="padding:4px 8px;font-size:11.5px;color:#2563eb;border-color:#93c5fd" onclick="consultarChaveNaSefaz('${escapeHtml(n.chave_acesso || '')}')" title="Consultar Autenticidade na SEFAZ Nacional">
+                      🔍 SEFAZ
+                    </button>
                     <button class="secondary" style="padding:4px 8px;font-size:11.5px;color:var(--green);border-color:#86efac" onclick="enviarNfeWhatsAppNotaSalva(${i})" title="Enviar pelo WhatsApp">
                       💬 WhatsApp
                     </button>
@@ -740,6 +931,100 @@ function fiscal() {
   `;
 }
 
+function consultarChaveNaSefaz(chave) {
+  if (!chave) chave = '35260959825765000103550010000000021300000027';
+  navigator.clipboard?.writeText(chave).catch(() => {});
+  toast(`Chave ${chave.slice(0, 15)}... copiada para a área de transferência!`);
+  window.open(`https://www.nfe.fazenda.gov.br/portal/consultaRecibo.aspx`, '_blank');
+}
+window.consultarChaveNaSefaz = consultarChaveNaSefaz;
+
+function abrirModalGuiaConsultaSebrae() {
+  const modalId = 'modalGuiaConsultaSebrae';
+  let modal = document.querySelector(`#${modalId}`);
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,0.3);border-top:5px solid #2563eb">
+      <div style="padding:18px 22px;background:#f8fafc;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h3 style="margin:0;font-size:17px;color:var(--navy)">🔍 Como Consultar Notas Já Emitidas no SEBRAE e SEFAZ</h3>
+          <small style="color:var(--muted)">Passo a passo oficial para localizar suas notas fiscais de venda e intermediação</small>
+        </div>
+        <button type="button" onclick="document.querySelector('#${modalId}').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--muted)">&times;</button>
+      </div>
+
+      <div style="padding:22px;display:flex;flex-direction:column;gap:18px;font-size:13.5px;color:var(--ink);line-height:1.6">
+        
+        <!-- MÉTODO 1: EMISSOR SEBRAE -->
+        <div style="background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:10px;padding:16px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="background:#0284c7;color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px">1</span>
+            <b style="color:#0369a1;font-size:15px">Consulta Direta no Portal do Emissor Sebrae:</b>
+          </div>
+          <ol style="margin:4px 0 10px 20px;padding:0">
+            <li>Acesse o portal do Emissor Sebrae em: <a href="https://nfe.sebrae.com.br" target="_blank" style="color:#0284c7;font-weight:700;text-decoration:underline">https://nfe.sebrae.com.br</a>.</li>
+            <li>Faça login com seu <b>Certificado Digital</b> ou com a conta <b>Gov.br</b> vinculada ao seu CNPJ <code>59.825.765/0001-03</code>.</li>
+            <li>No menu lateral esquerdo, clique em <b>"Notas Fiscais"</b> ➔ <b>"Gerenciar NF-e"</b> (ou <b>"Notas Emitidas"</b>).</li>
+            <li>Selecione o período de emissão (ex: <b>Setembro/2026</b>) e clique em <b>"Filtrar / Pesquisar"</b>.</li>
+            <li>Todas as notas fiscais emitidas aparecerão na listagem. Basta clicar no ícone de <b>Lupa (Visualizar)</b>, <b>PDF (Imprimir DANFE)</b> ou <b>XML</b> para baixar para o seu computador.</li>
+          </ol>
+          <a href="https://nfe.sebrae.com.br" target="_blank" class="primary" style="display:inline-block;padding:8px 16px;background:#0284c7;text-decoration:none;border-radius:6px;font-weight:700;font-size:12.5px">
+            🌐 Abrir Portal do Emissor Sebrae ➔
+          </a>
+        </div>
+
+        <!-- MÉTODO 2: PORTAL NACIONAL DA RECEITA / SEFAZ PELA CHAVE DE ACESSO -->
+        <div style="background:#fefce8;border:1.5px solid #fef08a;border-radius:10px;padding:16px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="background:#ca8a04;color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px">2</span>
+            <b style="color:#854d0e;font-size:15px">Consulta Pública pela Chave de Acesso (Receita Federal / SEFAZ):</b>
+          </div>
+          <p style="margin:4px 0 8px">
+            Qualquer nota fiscal emitida possui uma Chave de Acesso única de 44 dígitos no topo do DANFE. Você pode consultá-la publicamente a qualquer momento no Portal Nacional da NF-e:
+          </p>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin-bottom:12px">
+            <small style="color:var(--muted);display:block;margin-bottom:4px;font-weight:700">Chave da sua NF-e Nº 002 (Lar dos Velhinhos - R$ 21.500,00):</small>
+            <code style="font-size:13px;font-weight:800;color:var(--navy);word-break:break-all">35260959825765000103550010000000021300000027</code>
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button type="button" class="secondary" style="font-size:12px;padding:5px 12px;border-radius:6px;font-weight:700" onclick="navigator.clipboard.writeText('35260959825765000103550010000000021300000027');toast('Chave de 44 dígitos copiada!');">
+                📋 Copiar Chave
+              </button>
+              <a href="https://www.nfe.fazenda.gov.br/portal/consultaRecibo.aspx" target="_blank" class="primary" style="font-size:12px;padding:5px 12px;border-radius:6px;background:#ca8a04;color:#fff;text-decoration:none;font-weight:700">
+                🔍 Consultar no Portal da SEFAZ ➔
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- MÉTODO 3: NO PRÓPRIO SISTEMA PRADO -->
+        <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:16px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="background:#16a34a;color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px">3</span>
+            <b style="color:#166534;font-size:15px">Consulta Direta no seu Sistema Prado Gestão:</b>
+          </div>
+          <p style="margin:4px 0">
+            A sua NF-e Nº 002 já está cadastrada na tabela abaixo com todos os itens, protocolo oficial de autorização (<code>135264036993299</code>) e o código de barras oficial.
+            Basta clicar no botão <b>"📄 DANFE"</b> para abrir e imprimir o espelho oficial com seu logotipo!
+          </p>
+        </div>
+
+      </div>
+
+      <div style="padding:14px 22px;background:#f8fafc;border-top:1px solid var(--line);display:flex;justify-content:flex-end">
+        <button type="button" class="primary" onclick="document.querySelector('#${modalId}').remove()" style="padding:8px 20px;border-radius:6px">
+          Entendi, Fechar
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+window.abrirModalGuiaConsultaSebrae = abrirModalGuiaConsultaSebrae;
+
 // -------------------------------------------------------------------------
 // BANCO DO BRASIL — COCKPIT FINANCEIRO, EXTRATO OFX/CSV, TETO MEI ➔ ME E LIVRO CAIXA
 // -------------------------------------------------------------------------
@@ -757,6 +1042,26 @@ const CATEGORIAS_BB = {
 };
 
 function financeiro() {
+  if (!ehAdminGlobal()) {
+    head('Acesso Restrito', 'Área de Confidencialidade Financeira & Balanço da Diretoria');
+    app.innerHTML = `
+      <div class="content">
+        <div class="card" style="text-align:center;padding:50px 24px;border-top:4px solid var(--gold);max-width:620px;margin:40px auto;box-shadow:0 10px 25px rgba(0,0,0,0.06)">
+          <div style="font-size:52px;margin-bottom:14px">🔒</div>
+          <h2 style="font-size:20px;color:var(--navy);margin-bottom:10px">Módulo Financeiro Restrito</h2>
+          <p style="color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:24px">
+            Este módulo contém dados bancários sigilosos do <b>Banco do Brasil S.A.</b>, conciliação de pagamentos a indústrias, controle do teto MEI e balanço contábil.<br><br>
+            O acesso é <b>exclusivo do Administrador Geral / Titular (Michel do Prado)</b> ou profissional contábil / auditor devidamente autorizado.
+          </p>
+          <button class="primary" onclick="page='dashboard';render();" style="padding:10px 26px;font-weight:700">
+            ← Voltar para o Painel Operacional
+          </button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
   head('Gestão Financeira & Banco do Brasil', 'Extratos oficiais, conciliação 50/50 de indústrias, teto MEI e balanço para declaração');
   
   const txs = db.extrato_bb || [];
