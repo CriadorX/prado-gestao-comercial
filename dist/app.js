@@ -149,7 +149,7 @@ function carregarNotasFiscaisIniciais() {
   return [];
 }
 
-const EXTRATO_BB_STORAGE_KEY = 'pradoExtratoBB_v1';
+const EXTRATO_BB_STORAGE_KEY = 'pradoExtratoBB_v2';
 function carregarExtratoBBInicial() {
   try {
     const raw = localStorage.getItem(EXTRATO_BB_STORAGE_KEY);
@@ -162,23 +162,23 @@ function carregarExtratoBBInicial() {
     {
       id: 'bb-tx-1001',
       data: '2026-10-09',
-      descricao: 'PIX RECEBIDO - LAR DOS VELHINHOS PIRACICABA',
+      descricao: 'PIX RECEBIDO - NOTA FISCAL Nº 000.021 - LAR DOS VELHINHOS PIRACICABA',
       tipo: 'C',
-      valor: 72750.00,
+      valor: 23000.00,
       categoria: 'receita_cliente',
       documento: '54.406.723/0001-14',
-      referencia: 'Orçamento 027/2026 (100% à vista aprovado)',
+      referencia: 'NF-e 021/2026 Faturada e Paga (Restante de R$ 72.750,00 aguarda extrato anual)',
       conciliado: true
     },
     {
       id: 'bb-tx-1002',
       data: '2026-10-10',
-      descricao: 'PIX ENVIADO - INDUSTRIA DE COLCHOES LORD BRASIL',
+      descricao: 'PIX ENVIADO - FABRICA DE COLCHOES LORD BRASIL',
       tipo: 'D',
-      valor: 25000.00,
+      valor: 7500.00,
       categoria: 'custo_fabrica_50',
       documento: '61.123.456/0001-89',
-      referencia: 'Entrada 50% Fabricação Pedido 027/2026',
+      referencia: 'Entrada 50% Fabricação NF-e 021/2026',
       conciliado: true
     },
     {
@@ -835,22 +835,22 @@ function financeiro() {
       </div>
 
       <!-- TERMÔMETRO DO TETO MEI ➔ ME (MONITORAMENTO EM TEMPO REAL) -->
-      <div style="background:#fff;border:1.5px solid ${estourouLimite ? '#ef4444' : (estaPertoDoLimite ? '#f59e0b' : '#cbd5e1')};border-radius:14px;padding:18px 22px;margin-bottom:20px;box-shadow:0 4px 16px rgba(0,0,0,.04)">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:10px">
+      <div style="background:#fff;border:1.5px solid ${estourouLimite ? '#ef4444' : (estaPertoDoLimite ? '#f59e0b' : '#cbd5e1')};border-radius:14px;padding:20px 24px;margin-bottom:20px;box-shadow:0 4px 16px rgba(0,0,0,.04)">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:12px">
           <div>
             <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:18px">${estourouLimite ? '🚨' : (estaPertoDoLimite ? '⚠️' : '📊')}</span>
-              <b style="font-size:14.5px;color:var(--navy)">Termômetro do Teto Anual MEI ➔ Transição para ME (Simples Nacional)</b>
+              <span style="font-size:20px">${estourouLimite ? '🚨' : (estaPertoDoLimite ? '⚠️' : '📊')}</span>
+              <b style="font-size:15px;color:var(--navy)">Termômetro do Teto Anual MEI ➔ Transição para ME (Simples Nacional)</b>
             </div>
-            <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">
-              Limite legal do MEI em 2026: <b>R$ 81.000,00/ano</b> (~R$ 6.750,00/mês). Entradas computadas via Banco do Brasil: <b>${money(totalEntradas)}</b>.
+            <p style="margin:4px 0 0;font-size:12.5px;color:var(--muted)">
+              Limite legal do MEI em 2026: <b>R$ 81.000,00/ano</b> (~R$ 6.750,00/mês). Entradas pagas no Banco do Brasil: <b>${money(totalEntradas)}</b>.
             </p>
           </div>
           <div style="text-align:right">
-            <span style="font-size:18px;font-weight:900;color:${estourouLimite ? '#dc2626' : (estaPertoDoLimite ? '#d97706' : '#16a34a')}">
+            <span style="font-size:19px;font-weight:900;color:${estourouLimite ? '#dc2626' : (estaPertoDoLimite ? '#d97706' : '#16a34a')}">
               ${pctTetoMei.toFixed(1)}% do Teto Atingido
             </span>
-            <div style="font-size:11.5px;color:var(--muted)">
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">
               Margem restante MEI: <b style="color:var(--ink)">${money(saldoRestanteMei)}</b>
             </div>
           </div>
@@ -861,115 +861,119 @@ function financeiro() {
           <div style="width:${pctTetoMei}%;height:100%;background:${estourouLimite ? '#ef4444' : (estaPertoDoLimite ? 'linear-gradient(90deg, #10b981 0%, #f59e0b 80%, #ef4444 100%)' : '#10b981')};border-radius:10px;transition:width .4s ease"></div>
         </div>
 
-        ${estaPertoDoLimite ? `
-          <div style="margin-top:12px;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:12px;color:#92400e;display:flex;align-items:center;gap:10px">
-            <span style="font-size:20px">💡</span>
-            <div>
-              <b>Orientação Estratégica Prado:</b> O faturamento acumulado no BB atingiu <b>${money(totalEntradas)}</b> (${pctTetoMei.toFixed(1)}% do teto). 
-              Ao fechar o próximo pedido ou ultrapassar R$ 81.000,00, a Prado migrará com tranquilidade para <b>Microempresa (ME - Simples Nacional)</b>. 
-              A alíquota inicial no Anexo I (Comércio) é de apenas <b>4,0%</b>, elevando seu teto para até <b>R$ 360.000,00/ano</b>!
+        <div style="margin-top:14px;padding:12px 16px;background:${estourouLimite ? '#fef2f2' : (estaPertoDoLimite ? '#fffbeb' : '#f0fdf4')};border:1px solid ${estourouLimite ? '#fecaca' : (estaPertoDoLimite ? '#fde68a' : '#bbf7d0')};border-radius:10px;font-size:12.5px;color:${estourouLimite ? '#991b1b' : (estaPertoDoLimite ? '#92400e' : '#166534')};display:flex;align-items:flex-start;gap:12px">
+          <span style="font-size:22px;line-height:1">💡</span>
+          <div>
+            <b>Posição Fiscal da Prado (Exercício 2026):</b> 
+            Faturamento acumulado recebido no Banco do Brasil: <b>${money(totalEntradas)}</b> (${pctTetoMei.toFixed(1)}% do teto). 
+            Margem disponível no MEI: <b>${money(saldoRestanteMei)}</b>.
+            <div style="margin-top:4px;color:${estaPertoDoLimite ? '#92400e' : '#15803d'}">
+              Nota fiscal de <b>R$ 23.000,00</b> faturada e paga com sucesso. Os pedidos complementares (como o de <b>R$ 72.750,00</b> do Lar dos Velhinhos) aguardam o envio do extrato anual para liberação do faturamento, momento em que a Prado efetuará com tranquilidade a transição para <b>Microempresa (ME - Simples Nacional 4,0%)</b> com teto de até <b>R$ 360.000,00/ano</b>!
             </div>
           </div>
-        ` : ''}
+        </div>
       </div>
 
       <!-- MÉTRICAS FINANCEIRAS DO BANCO DO BRASIL -->
       <div class="metrics">
-        ${metric('Entradas BB (Clientes)', money(totalEntradas), `${txs.filter(t=>t.tipo==='C').length} recebimentos à vista`, '🏦')}
+        ${metric('Entradas BB (Clientes)', money(totalEntradas), `${txs.filter(t=>t.tipo==='C').length} recebimentos computados`, '🏦')}
         ${metric('Saídas Fábricas (50/50)', money(totalFabricas), `${txs.filter(t=>t.categoria.includes('fabrica')).length} pagamentos realizados`, '🏭')}
         ${metric('Lucro Bruto Comercial', money(lucroBrutoComercial), totalEntradas ? `${((lucroBrutoComercial / totalEntradas) * 100).toFixed(1)}% de margem real` : '0%', '★')}
         ${metric('Saldo Líquido / IRPF', money(saldoLiquidoReal), 'Disponível / Livro Caixa Isento', '💎')}
       </div>
 
-      <!-- TABELA DO EXTRATO BANCÁRIO OFICIAL BANCO DO BRASIL -->
-      <div class="card" style="margin-top:20px">
-        <div class="card-head" style="flex-wrap:wrap;gap:12px">
+      <!-- TABELA DO EXTRATO BANCÁRIO OFICIAL BANCO DO BRASIL (COM ESPAÇAMENTO GENEROSO E SEM SOBREPOSIÇÃO) -->
+      <div class="card" style="margin-top:20px;overflow:hidden">
+        <div class="card-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding:18px 20px;border-bottom:1px solid var(--line)">
           <div>
-            <h2>Extrato Oficial — Banco do Brasil S.A.</h2>
-            <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">
+            <h2 style="font-size:17px;font-weight:800;color:var(--navy);margin:0">Extrato Oficial — Banco do Brasil S.A.</h2>
+            <p style="margin:4px 0 0;font-size:12.5px;color:var(--muted)">
               Movimentações bancárias, conferência de créditos recebidos e saídas pagas às indústrias
             </p>
           </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-            <!-- Filtro rápido por categoria -->
-            <select id="selFiltroExtratoBB" style="padding:6px 10px;border-radius:8px;border:1px solid var(--line);font-size:12.5px;color:var(--ink);background:var(--cardBg, #fff)" onchange="filtrarCategoriaExtratoBB(this.value)">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+            <!-- Filtro rápido por categoria com largura ampla -->
+            <select id="selFiltroExtratoBB" style="min-width:260px;padding:9px 14px;border-radius:8px;border:1.5px solid var(--line);font-size:13px;font-weight:600;color:var(--ink);background:var(--cardBg, #fff);box-shadow:0 1px 3px rgba(0,0,0,.05)" onchange="filtrarCategoriaExtratoBB(this.value)">
               <option value="todas" ${filtroExtratoBBCategoria === 'todas' ? 'selected' : ''}>🔍 Todas as Movimentações (${txs.length})</option>
               <option value="entradas" ${filtroExtratoBBCategoria === 'entradas' ? 'selected' : ''}>🟢 Apenas Recebimentos de Clientes</option>
               <option value="fabricas" ${filtroExtratoBBCategoria === 'fabricas' ? 'selected' : ''}>🔴 Apenas Pagamentos a Fábricas</option>
               <option value="impostos" ${filtroExtratoBBCategoria === 'impostos' ? 'selected' : ''}>🟡 Apenas Tributos / DAS</option>
             </select>
-            <button class="secondary" style="padding:6px 12px;font-size:12.5px;font-weight:700" onclick="novoLancamentoManualBB()">
+            <button class="secondary" style="padding:9px 16px;font-size:13px;font-weight:700;white-space:nowrap;border-radius:8px" onclick="novoLancamentoManualBB()">
               ➕ Lançamento Avulso
             </button>
           </div>
         </div>
 
-        <table class="table" style="font-size:12.5px">
-          <thead>
-            <tr>
-              <th style="width:100px;text-align:center">Data</th>
-              <th style="width:70px;text-align:center">Tipo</th>
-              <th>Descrição no Extrato BB</th>
-              <th style="width:230px">Classificação Contábil</th>
-              <th style="text-align:right;width:130px">Valor (R$)</th>
-              <th style="text-align:center;width:100px">Conciliação</th>
-              <th style="text-align:center;width:60px">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${txsFiltradas.length ? txsFiltradas.map(t => {
-              const isCredito = t.tipo === 'C';
-              const catCfg = CATEGORIAS_BB[t.categoria] || { rotulo: 'Outros Lançamentos', cor: '#334155', bg: '#f1f5f9' };
-              return `
+        <!-- CONTÊINER COM ROLAGEM HORIZONTAL E ESPAÇAMENTO AMPLO -->
+        <div style="overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch">
+          <table class="table" style="width:100%;min-width:980px;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="background:#f8fafc;border-bottom:2px solid var(--line)">
+                <th style="width:110px;text-align:center;padding:12px 10px;white-space:nowrap">Data</th>
+                <th style="width:85px;text-align:center;padding:12px 8px;white-space:nowrap">Tipo</th>
+                <th style="padding:12px 16px;min-width:280px">Descrição no Extrato BB</th>
+                <th style="width:260px;padding:12px 12px">Classificação Contábil</th>
+                <th style="text-align:right;width:140px;padding:12px 16px;white-space:nowrap">Valor (R$)</th>
+                <th style="text-align:center;width:150px;padding:12px 10px;white-space:nowrap">Conciliação</th>
+                <th style="text-align:center;width:75px;padding:12px 8px;white-space:nowrap">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${txsFiltradas.length ? txsFiltradas.map(t => {
+                const isCredito = t.tipo === 'C';
+                const catCfg = CATEGORIAS_BB[t.categoria] || { rotulo: 'Outros Lançamentos', cor: '#334155', bg: '#f1f5f9' };
+                return `
+                  <tr style="border-bottom:1px solid #f1f5f9">
+                    <td style="text-align:center;padding:12px 10px;white-space:nowrap"><code>${formatarDataBr(t.data)}</code></td>
+                    <td style="text-align:center;padding:12px 8px;white-space:nowrap">
+                      <span class="badge" style="background:${isCredito ? '#e8fdf0' : '#fee2e2'};color:${isCredito ? '#166534' : '#991b1b'};font-weight:800;padding:4px 8px">
+                        ${isCredito ? 'CRÉDITO' : 'DÉBITO'}
+                      </span>
+                    </td>
+                    <td style="padding:12px 16px">
+                      <b>${escapeHtml(t.descricao)}</b>
+                      ${t.referencia ? `<br><small style="color:var(--muted)">🔗 ${escapeHtml(t.referencia)}</small>` : ''}
+                      ${t.documento ? `<small style="color:var(--muted)"> · CNPJ/CPF: ${escapeHtml(t.documento)}</small>` : ''}
+                    </td>
+                    <td style="padding:12px 12px">
+                      <select style="width:100%;min-width:240px;padding:7px 10px;border-radius:8px;border:1.5px solid #cbd5e1;font-size:12px;background:${catCfg.bg};color:${catCfg.cor};font-weight:700" onchange="alterarCategoriaBB('${t.id}', this.value)">
+                        <option value="receita_cliente" ${t.categoria === 'receita_cliente' ? 'selected' : ''}>🟢 Recebimento Cliente (À vista)</option>
+                        <option value="custo_fabrica_50" ${t.categoria === 'custo_fabrica_50' ? 'selected' : ''}>🔴 Pgto Fábrica (Entrada 50%)</option>
+                        <option value="custo_fabrica_saldo" ${t.categoria === 'custo_fabrica_saldo' ? 'selected' : ''}>🔴 Pgto Fábrica (Saldo 50%)</option>
+                        <option value="despesas_operacionais" ${t.categoria === 'despesas_operacionais' ? 'selected' : ''}>⚪ Despesas Operacionais</option>
+                        <option value="tarifas_bancarias" ${t.categoria === 'tarifas_bancarias' ? 'selected' : ''}>⚪ Tarifas Banco do Brasil</option>
+                        <option value="impostos_das" ${t.categoria === 'impostos_das' ? 'selected' : ''}>🟡 Tributos (DAS-MEI / ME)</option>
+                        <option value="pro_labore_titular" ${t.categoria === 'pro_labore_titular' ? 'selected' : ''}>🔵 Retirada / Lucro Titular</option>
+                      </select>
+                    </td>
+                    <td style="text-align:right;padding:12px 16px;font-weight:800;font-size:14px;white-space:nowrap;color:${isCredito ? 'var(--green)' : '#dc2626'}">
+                      ${isCredito ? '+' : '-'} ${money(t.valor)}
+                    </td>
+                    <td style="text-align:center;padding:12px 10px;white-space:nowrap">
+                      <span class="badge" style="background:#e0f2fe;color:#073863;font-size:11.5px;font-weight:700;white-space:nowrap;padding:5px 12px;display:inline-block">
+                        ✓ Conciliado BB
+                      </span>
+                    </td>
+                    <td style="text-align:center;padding:12px 8px;white-space:nowrap">
+                      <button type="button" class="link" style="color:#ef4444;font-size:16px;padding:4px 8px;cursor:pointer" onclick="excluirTransacaoBB('${t.id}')" title="Excluir lançamento">
+                        🗑️
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              }).join('') : `
                 <tr>
-                  <td style="text-align:center"><code>${formatarDataBr(t.data)}</code></td>
-                  <td style="text-align:center">
-                    <span class="badge" style="background:${isCredito ? '#e8fdf0' : '#fee2e2'};color:${isCredito ? '#166534' : '#991b1b'};font-weight:800">
-                      ${isCredito ? 'CRÉDITO' : 'DÉBITO'}
-                    </span>
-                  </td>
-                  <td>
-                    <b>${escapeHtml(t.descricao)}</b>
-                    ${t.referencia ? `<br><small style="color:var(--muted)">🔗 ${escapeHtml(t.referencia)}</small>` : ''}
-                    ${t.documento ? `<small style="color:var(--muted)"> · CNPJ/CPF: ${escapeHtml(t.documento)}</small>` : ''}
-                  </td>
-                  <td>
-                    <select style="width:100%;padding:4px 6px;border-radius:6px;border:1px solid #cbd5e1;font-size:11.5px;background:${catCfg.bg};color:${catCfg.cor};font-weight:700" onchange="alterarCategoriaBB('${t.id}', this.value)">
-                      <option value="receita_cliente" ${t.categoria === 'receita_cliente' ? 'selected' : ''}>🟢 Recebimento Cliente (À vista)</option>
-                      <option value="custo_fabrica_50" ${t.categoria === 'custo_fabrica_50' ? 'selected' : ''}>🔴 Pgto Fábrica (Entrada 50%)</option>
-                      <option value="custo_fabrica_saldo" ${t.categoria === 'custo_fabrica_saldo' ? 'selected' : ''}>🔴 Pgto Fábrica (Saldo 50%)</option>
-                      <option value="despesas_operacionais" ${t.categoria === 'despesas_operacionais' ? 'selected' : ''}>⚪ Despesas Operacionais</option>
-                      <option value="tarifas_bancarias" ${t.categoria === 'tarifas_bancarias' ? 'selected' : ''}>⚪ Tarifas Banco do Brasil</option>
-                      <option value="impostos_das" ${t.categoria === 'impostos_das' ? 'selected' : ''}>🟡 Tributos (DAS-MEI / ME)</option>
-                      <option value="pro_labore_titular" ${t.categoria === 'pro_labore_titular' ? 'selected' : ''}>🔵 Retirada / Lucro Titular</option>
-                    </select>
-                  </td>
-                  <td style="text-align:right;font-weight:800;color:${isCredito ? 'var(--green)' : '#dc2626'}">
-                    ${isCredito ? '+' : '-'} ${money(t.valor)}
-                  </td>
-                  <td style="text-align:center">
-                    <span class="badge" style="background:#e0f2fe;color:#073863;font-size:11px">
-                      ✓ Conciliado BB
-                    </span>
-                  </td>
-                  <td style="text-align:center">
-                    <button type="button" class="link" style="color:#ef4444;font-size:14px;padding:2px 6px" onclick="excluirTransacaoBB('${t.id}')" title="Excluir lançamento">
-                      🗑️
-                    </button>
+                  <td colspan="7" style="text-align:center;padding:42px 20px;color:var(--muted)">
+                    <div style="font-size:36px;margin-bottom:10px">🏦</div>
+                    <b style="font-size:15px;color:var(--navy);display:block;margin-bottom:6px">Nenhuma transação do Banco do Brasil encontrada para este filtro.</b>
+                    Clique em <b>"📥 Importar Extrato OFX/CSV BB"</b> ou <b>"📋 Colar Extrato do Internet Banking"</b> no topo para sincronizar!
                   </td>
                 </tr>
-              `;
-            }).join('') : `
-              <tr>
-                <td colspan="7" style="text-align:center;padding:36px;color:var(--muted)">
-                  <div style="font-size:32px;margin-bottom:8px">🏦</div>
-                  <b>Nenhuma transação do Banco do Brasil encontrada para este filtro.</b><br>
-                  Clique em <b>"📥 Importar Extrato OFX/CSV BB"</b> ou <b>"📋 Colar Extrato do Internet Banking"</b> no topo para sincronizar!
-                </td>
-              </tr>
-            `}
-          </tbody>
-        </table>
+              `}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- DETALHAMENTO POR INTERMEDIAÇÃO COMERCIAL -->
@@ -1680,8 +1684,90 @@ function relatorios() {
   `;
 }
 
-// 8. COTAÇÕES IA & FÁBRICAS (COM FILTROS REGIONAIS, ROTAÇÃO DE FÁBRICAS E VALIDAÇÃO DE AUTENTICAÇÃO)
+// 8. COTAÇÕES IA & FÁBRICAS (COM FILTROS REGIONAIS, MODO HÍBRIDO E ADIÇÃO MANUAL)
 let cotacaoOffsetRotacao = 0;
+window.modoCotacaoAtual = window.modoCotacaoAtual || 'ia';
+
+function alternarModoCotacao(modo) {
+  window.modoCotacaoAtual = modo;
+  const painel = document.querySelector('#painelModoHibrido');
+  const btnIa = document.querySelector('#tabModoIa');
+  const btnHibrido = document.querySelector('#tabModoHibrido');
+  const btnBuscar = document.querySelector('#btnBuscarFabricantes');
+
+  if (modo === 'hibrido') {
+    if (painel) painel.style.display = 'block';
+    if (btnIa) {
+      btnIa.style.background = '#f1f5f9';
+      btnIa.style.color = 'var(--ink)';
+      btnIa.style.borderColor = 'var(--line)';
+    }
+    if (btnHibrido) {
+      btnHibrido.style.background = 'var(--navy)';
+      btnHibrido.style.color = '#fff';
+      btnHibrido.style.borderColor = 'var(--navy)';
+    }
+    if (btnBuscar) {
+      btnBuscar.innerHTML = '⚡ Gerar Cotação (1 Minha + 2 Mais Próximas)';
+      btnBuscar.style.background = 'var(--gold)';
+    }
+  } else {
+    if (painel) painel.style.display = 'none';
+    if (btnIa) {
+      btnIa.style.background = 'var(--navy)';
+      btnIa.style.color = '#fff';
+      btnIa.style.borderColor = 'var(--navy)';
+    }
+    if (btnHibrido) {
+      btnHibrido.style.background = '#f1f5f9';
+      btnHibrido.style.color = 'var(--ink)';
+      btnHibrido.style.borderColor = 'var(--line)';
+    }
+    if (btnBuscar) {
+      btnBuscar.innerHTML = '⚡ Localizar 3 Fabricantes Mais Próximos';
+      btnBuscar.style.background = 'var(--gold)';
+    }
+  }
+}
+window.alternarModoCotacao = alternarModoCotacao;
+
+async function consultarCnpjFabricaManual(targetPrefix = 'fm') {
+  const cnpjInput = document.querySelector(`#${targetPrefix}Cnpj`);
+  if (!cnpjInput || !cnpjInput.value) {
+    return toast('Digite o CNPJ da fábrica para pesquisar na Receita.');
+  }
+  const clean = cnpjInput.value.replace(/\D/g, '');
+  if (clean.length !== 14) {
+    return toast('CNPJ inválido. Digite os 14 dígitos.');
+  }
+
+  showLoader('Consultando Receita Federal...', 'Localizando razão social, cidade e contatos oficiais...', 50);
+  try {
+    const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${clean}`);
+    if (res.ok) {
+      const d = await res.json();
+      const nomeInput = document.querySelector(`#${targetPrefix}Nome`);
+      const cidadeInput = document.querySelector(`#${targetPrefix}Cidade`);
+      const estadoInput = document.querySelector(`#${targetPrefix}Estado`);
+      const telInput = document.querySelector(`#${targetPrefix}Telefone`);
+
+      if (nomeInput) nomeInput.value = d.nome_fantasia || d.razao_social || '';
+      if (cidadeInput) cidadeInput.value = d.municipio || '';
+      if (estadoInput) estadoInput.value = d.uf || '';
+      if (telInput && d.ddd_telefone_1) {
+        telInput.value = `(${d.ddd_telefone_1.slice(0, 2)}) ${d.ddd_telefone_1.slice(2)}`;
+      }
+      toast('Dados da fábrica preenchidos automaticamente via Receita Federal!');
+    } else {
+      toast('Não foi possível obter os dados pelo CNPJ. Preencha manualmente.');
+    }
+  } catch (e) {
+    toast('Serviço da Receita indisponível no momento. Preencha os campos à mão.');
+  } finally {
+    hideLoader();
+  }
+}
+window.consultarCnpjFabricaManual = consultarCnpjFabricaManual;
 
 function cotacao_ia() {
   head('Cotações IA & Fábricas Nacionais', 'Pesquisa de indústrias reais com telefone válido, WhatsApp oficial e margem garantida');
@@ -1696,21 +1782,95 @@ function cotacao_ia() {
           <span id="iaMotorBadge" class="badge" style="background:#e8f4fc;color:var(--navy2);font-weight:700">⚡ Inteligência Comercial B2B Prado</span>
         </div>
         <div style="margin-top:16px">
+          
+          <!-- SELEÇÃO DE MODO: 100% IA OU HÍBRIDO (1 MANUAL + 2 IA) -->
+          <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+            <button id="tabModoIa" type="button" onclick="alternarModoCotacao('ia')" style="flex:1;min-width:240px;padding:10px 14px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;border:2px solid ${window.modoCotacaoAtual === 'ia' ? 'var(--navy)' : 'var(--line)'};background:${window.modoCotacaoAtual === 'ia' ? 'var(--navy)' : '#f8fafc'};color:${window.modoCotacaoAtual === 'ia' ? '#fff' : 'var(--ink)'}">
+              ⚡ MODO 100% IA (3 Fábricas Mais Próximas do Cliente)
+            </button>
+            <button id="tabModoHibrido" type="button" onclick="alternarModoCotacao('hibrido')" style="flex:1;min-width:240px;padding:10px 14px;border-radius:8px;font-weight:800;font-size:13px;cursor:pointer;border:2px solid ${window.modoCotacaoAtual === 'hibrido' ? 'var(--navy)' : 'var(--line)'};background:${window.modoCotacaoAtual === 'hibrido' ? 'var(--navy)' : '#f8fafc'};color:${window.modoCotacaoAtual === 'hibrido' ? '#fff' : 'var(--ink)'}">
+              ✍️ MODO HÍBRIDO (1 Fábrica Minha Conhecida + 2 Mais Próximas por IA)
+            </button>
+          </div>
+
           <!-- CAMPO PRINCIPAL DE DEMANDA -->
-          <label for="iaDemandaInput" style="font-weight:700;display:block;margin-bottom:6px">O que você precisa cotar?</label>
           <div style="margin-bottom:12px">
+            <label for="iaDemandaInput" style="font-weight:700;display:block;margin-bottom:6px">O que você precisa cotar?</label>
             <input id="iaDemandaInput" placeholder="Ex: Colchão D33 hospitalar, Saco de lixo 100L reforçado, 1000 canetas, tinta acrílica 18L..." onkeydown="if(event.key==='Enter'){event.preventDefault();executarCotacaoIA(false);}" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:8px;font-size:14px">
           </div>
 
-          <!-- FILTROS REGIONAIS: ESTADO E CIDADE -->
+          <!-- LOCALIZAÇÃO DA EMPRESA CLIENTE (DESTINO DA ENTREGA) -->
+          <div style="background:#eaf4fc;border:1px solid #c0dcf2;padding:12px 14px;border-radius:8px;margin-bottom:14px">
+            <label for="iaClienteLocalizacao" style="display:block;font-size:12px;font-weight:800;color:var(--navy);margin-bottom:4px">
+              📍 Endereço / Cidade da Empresa Cliente (Destino da Entrega para buscar indústrias mais próximas e baratear o frete):
+            </label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input id="iaClienteLocalizacao" value="Piracicaba - SP (Lar dos Velhinhos de Piracicaba)" placeholder="Ex: Piracicaba - SP, Campinas - SP, Curitiba - PR..." style="flex:1;padding:10px 12px;border:1px solid #abcde4;border-radius:6px;background:#fff;font-size:13px;font-weight:600">
+              <span style="font-size:11px;color:var(--teal);font-weight:700;white-space:nowrap">🚚 Otimização de Frete</span>
+            </div>
+          </div>
+
+          <!-- PAINEL EXCLUSIVO DO MODO HÍBRIDO: 1 FÁBRICA CONHECIDA PREENCHIDA À MÃO -->
+          <div id="painelModoHibrido" style="display:${window.modoCotacaoAtual === 'hibrido' ? 'block' : 'none'};background:#fffdf6;border:2px solid var(--gold);padding:16px;border-radius:10px;margin-bottom:16px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;border-bottom:1px solid #f0e2bf;padding-bottom:8px">
+              <div>
+                <b style="color:#854d0e;font-size:14px">🏢 1ª Fábrica — Sua Indústria Conhecida (Opção #1 Garantida)</b>
+                <p style="margin:2px 0 0;font-size:12px;color:#a16207">Preencha os dados da fábrica que você já conhece. O sistema manterá ela como Opção 1 e buscará automaticamente outras 2 indústrias mais próximas do cliente para você comparar!</p>
+              </div>
+              <span class="badge" style="background:#fef08a;color:#854d0e;font-weight:800">★ Fornecedor de Confiança</span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:10px;margin-bottom:10px">
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:3px">CNPJ da Fábrica (Opcional):</label>
+                <div style="display:flex;gap:6px">
+                  <input id="fmCnpj" placeholder="00.000.000/0001-00" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px">
+                  <button type="button" onclick="consultarCnpjFabricaManual('fm')" style="padding:0 10px;background:var(--navy);color:#fff;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">🔍 Puxar Receita</button>
+                </div>
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:3px">Nome / Razão Social da Fábrica: *</label>
+                <input id="fmNome" placeholder="Ex: Indústria de Colchões Lord Brasil Ltda" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-weight:700">
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:3px">Cidade da Fábrica:</label>
+                <input id="fmCidade" placeholder="Ex: Mauá, Ourinhos, Maringá..." style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px">
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:3px">Estado (UF):</label>
+                <input id="fmEstado" placeholder="Ex: SP, PR, MG..." maxlength="2" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;text-transform:uppercase">
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;margin-bottom:10px">
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:3px">Telefone Comercial:</label>
+                <input id="fmTelefone" placeholder="(11) 4547-7000" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px">
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:3px">WhatsApp de Televendas:</label>
+                <input id="fmWhatsapp" placeholder="5511999999999" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px">
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:3px">Custo de Fábrica Unitário (R$): *</label>
+                <input id="fmCustoUnitario" type="number" step="0.01" placeholder="Ex: 250.00" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-weight:700">
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:3px">Condição de Pagamento:</label>
+                <input id="fmCondicoes" value="50% entrada e 50% na entrega e aceite" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px">
+              </div>
+            </div>
+          </div>
+
+          <!-- FILTROS REGIONAIS ADICIONAIS: ESTADO E CIDADE -->
           <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;background:#f8fafc;padding:12px 14px;border-radius:8px;border:1px solid var(--line)">
             <div style="flex:1;min-width:180px">
               <label for="iaFiltroEstado" style="display:block;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px">
-                📍 Filtrar por Estado (UF):
+                📍 Filtrar Fábricas por Estado (UF):
               </label>
               <select id="iaFiltroEstado" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;font-size:13px;font-weight:600">
-                <option value="">Brasil Inteiro (Todos os Estados)</option>
-                <option value="SP">São Paulo (SP)</option>
+                <option value="">Brasil Inteiro (Todas as Regiões)</option>
+                <option value="SP" selected>São Paulo (SP)</option>
                 <option value="PR">Paraná (PR)</option>
                 <option value="MG">Minas Gerais (MG)</option>
                 <option value="RJ">Rio de Janeiro (RJ)</option>
@@ -1724,35 +1884,25 @@ function cotacao_ia() {
                 <option value="DF">Distrito Federal (DF)</option>
                 <option value="MT">Mato Grosso (MT)</option>
                 <option value="MS">Mato Grosso do Sul (MS)</option>
-                <option value="AM">Amazonas (AM)</option>
-                <option value="PA">Pará (PA)</option>
-                <option value="MA">Maranhão (MA)</option>
-                <option value="PB">Paraíba (PB)</option>
-                <option value="RN">Rio Grande do Norte (RN)</option>
-                <option value="AL">Alagoas (AL)</option>
-                <option value="SE">Sergipe (SE)</option>
-                <option value="PI">Piauí (PI)</option>
-                <option value="TO">Tocantins (TO)</option>
-                <option value="RO">Rondônia (RO)</option>
-                <option value="AC">Acre (AC)</option>
-                <option value="AP">Amapá (AP)</option>
-                <option value="RR">Roraima (RR)</option>
               </select>
             </div>
 
             <div style="flex:1.5;min-width:200px">
               <label for="iaFiltroCidade" style="display:block;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px">
-                🏙️ Cidade / Polo Industrial (Opcional):
+                🏙️ Polo Industrial Específico (Opcional):
               </label>
-              <input id="iaFiltroCidade" placeholder="Ex: Ourinhos, Maringá, São Paulo, Anápolis..." style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;font-size:13px">
+              <input id="iaFiltroCidade" placeholder="Ex: Piracicaba, Mauá, Ourinhos, Maringá..." style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;font-size:13px">
             </div>
 
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <button id="btnBuscarFabricantes" class="primary" style="background:var(--gold);color:#151515;font-weight:800;height:42px;padding:0 18px" onclick="executarCotacaoIA(false)">
-                ⚡ Localizar Fabricantes
+                ${window.modoCotacaoAtual === 'hibrido' ? '⚡ Gerar Cotação (1 Minha + 2 Mais Próximas)' : '⚡ Localizar 3 Fabricantes Mais Próximos'}
               </button>
-              <button id="btnRotacionarFabricantes" class="secondary" style="border:1px solid var(--teal);color:var(--teal);background:#fff;font-weight:700;height:42px;padding:0 16px" onclick="executarCotacaoIA(true)" title="Atualiza o catálogo buscando outras 3 indústrias da mesma área">
+              <button id="btnRotacionarFabricantes" class="secondary" style="border:1px solid var(--teal);color:var(--teal);background:#fff;font-weight:700;height:42px;padding:0 16px" onclick="executarCotacaoIA(true)" title="Atualiza o catálogo buscando outras indústrias">
                 🔄 Atualizar / Buscar Outras Fábricas
+              </button>
+              <button type="button" class="secondary" style="border:1px solid #16a34a;color:#16a34a;background:#f0fdf4;font-weight:800;height:42px;padding:0 16px" onclick="abrirModalAdicionarFabricaManual()">
+                ＋ Adicionar Fábrica Manual
               </button>
             </div>
           </div>
@@ -1767,14 +1917,36 @@ function cotacao_ia() {
 
 async function executarCotacaoIA(isRotacao = false) {
   const input = document.querySelector('#iaDemandaInput');
+  const clienteLocInput = document.querySelector('#iaClienteLocalizacao');
   const estadoSelect = document.querySelector('#iaFiltroEstado');
   const cidadeInput = document.querySelector('#iaFiltroCidade');
 
   const texto = input ? input.value.trim() : '';
+  const clienteLoc = clienteLocInput ? clienteLocInput.value.trim() : 'Piracicaba - SP';
   const estado = estadoSelect ? estadoSelect.value.trim() : '';
   const cidade = cidadeInput ? cidadeInput.value.trim() : '';
 
   if (!texto) return toast('Digite o produto ou demanda para cotação.');
+
+  let fabricaManualObj = null;
+  if (window.modoCotacaoAtual === 'hibrido') {
+    const fmNome = document.querySelector('#fmNome')?.value.trim();
+    if (!fmNome) {
+      return toast('No modo híbrido, digite pelo menos o nome da sua fábrica conhecida.');
+    }
+    const fmCusto = parseFloat(document.querySelector('#fmCustoUnitario')?.value) || 0;
+    fabricaManualObj = {
+      nome_empresa: fmNome,
+      cnpj: document.querySelector('#fmCnpj')?.value.trim() || '',
+      cidade: document.querySelector('#fmCidade')?.value.trim() || '',
+      estado: document.querySelector('#fmEstado')?.value.trim().toUpperCase() || '',
+      telefone: document.querySelector('#fmTelefone')?.value.trim() || '',
+      whatsapp: document.querySelector('#fmWhatsapp')?.value.trim() || '',
+      preco_custo_unitario: fmCusto || 150.0,
+      condicoes_pagamento: document.querySelector('#fmCondicoes')?.value.trim() || '50% entrada e 50% na entrega e aceite',
+      destaque_comercial: 'Fábrica de confiança indicada pelo Michel Prado.'
+    };
+  }
 
   if (!sessionToken && (!supabaseClient || !(await supabaseClient.auth.getSession()).data.session)) {
     toast('Faça login para utilizar o gerador de cotações com IA.');
@@ -1788,10 +1960,12 @@ async function executarCotacaoIA(isRotacao = false) {
     cotacaoOffsetRotacao = 0;
   }
 
-  const regiaoMsg = [cidade, estado].filter(Boolean).join(', ');
-  const loadingTxt = regiaoMsg ? `Filtrando indústrias em ${regiaoMsg}...` : 'Consultando base nacional de indústrias e inteligência de mercado...';
+  const regiaoMsg = [cidade, estado].filter(Boolean).join(', ') || clienteLoc;
+  const loadingTxt = fabricaManualObj 
+    ? `Registrando "${fabricaManualObj.nome_empresa}" e localizando 2 fábricas mais próximas de ${clienteLoc}...`
+    : `Filtrando indústrias mais próximas de ${regiaoMsg}...`;
 
-  showLoader(isRotacao ? 'Buscando Outras Indústrias...' : 'Pesquisando Indústrias Nacionais...', loadingTxt, 45, 'Localizando fornecedores homologados...');
+  showLoader(isRotacao ? 'Buscando Outras Indústrias...' : 'Pesquisando Indústrias Mais Próximas...', loadingTxt, 45, 'Localizando fornecedores homologados...');
 
   try {
     let token = sessionToken;
@@ -1813,6 +1987,8 @@ async function executarCotacaoIA(isRotacao = false) {
         necessidade: texto,
         estado: estado,
         cidade: cidade,
+        cliente_localizacao: clienteLoc,
+        fabrica_manual: fabricaManualObj,
         offset: cotacaoOffsetRotacao
       })
     });
@@ -1824,7 +2000,7 @@ async function executarCotacaoIA(isRotacao = false) {
       if (badge && data.fonte) {
         badge.textContent = data.fonte;
       }
-      toast(isRotacao ? 'Próximas indústrias carregadas com sucesso!' : '3 Indústrias nacionais reais localizadas com sucesso!');
+      toast(fabricaManualObj ? '1 Fábrica Manual + 2 Mais Próximas Carregadas!' : 'Indústrias nacionais mais próximas localizadas!');
     } else {
       const errData = await res.json().catch(() => ({}));
       toast(errData.error || 'Não foi possível gerar a cotação no momento.');
@@ -1840,6 +2016,124 @@ async function executarCotacaoIA(isRotacao = false) {
   }
 }
 window.executarCotacaoIA = executarCotacaoIA;
+
+function abrirModalAdicionarFabricaManual() {
+  const modalId = 'modalFabricaManualAvulsa';
+  let modal = document.querySelector(`#${modalId}`);
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;max-width:550px;width:100%;box-shadow:0 20px 40px rgba(0,0,0,0.3);overflow:hidden;border-top:5px solid var(--gold)">
+      <div style="padding:16px 20px;background:#f8fafc;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h3 style="margin:0;font-size:16px;color:var(--navy)">＋ Adicionar Fornecedor / Fábrica Manualmente</h3>
+          <small style="color:var(--muted)">Inclua uma empresa que você já conhece diretamente nesta cotação</small>
+        </div>
+        <button type="button" onclick="document.querySelector('#${modalId}').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">&times;</button>
+      </div>
+      <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="grid-column:1/-1">
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">CNPJ da Fábrica:</label>
+          <div style="display:flex;gap:6px">
+            <input id="modalCnpj" placeholder="00.000.000/0001-00" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px">
+            <button type="button" onclick="consultarCnpjFabricaManual('modal')" style="padding:0 12px;background:var(--navy);color:#fff;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">🔍 Puxar Receita</button>
+          </div>
+        </div>
+        <div style="grid-column:1/-1">
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">Nome da Fábrica / Razão Social: *</label>
+          <input id="modalNome" placeholder="Ex: Indústria Brasileira de Colchões" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-weight:700">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">Cidade:</label>
+          <input id="modalCidade" placeholder="Ex: Piracicaba, São Paulo..." style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">Estado (UF):</label>
+          <input id="modalEstado" placeholder="SP" maxlength="2" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;text-transform:uppercase">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">Telefone:</label>
+          <input id="modalTelefone" placeholder="(19) 3400-0000" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">WhatsApp:</label>
+          <input id="modalWhatsapp" placeholder="5519999999999" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">Custo Unitário da Fábrica (R$): *</label>
+          <input id="modalCusto" type="number" step="0.01" placeholder="250.00" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-weight:700">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">Venda Sugerida Prado (R$):</label>
+          <input id="modalVenda" type="number" step="0.01" placeholder="350.00" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-weight:700;color:var(--navy)">
+        </div>
+        <div style="grid-column:1/-1">
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:4px">Condição de Pagamento:</label>
+          <input id="modalCondicoes" value="50% entrada e 50% na entrega e aceite" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px">
+        </div>
+      </div>
+      <div style="padding:14px 20px;background:#f8fafc;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="secondary" onclick="document.querySelector('#${modalId}').remove()" style="padding:8px 14px;border-radius:6px">Cancelar</button>
+        <button type="button" class="primary" onclick="salvarFabricaManualAvulsa()" style="padding:8px 18px;border-radius:6px;background:var(--gold);color:#151515;font-weight:800">＋ Adicionar à Cotação</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+window.abrirModalAdicionarFabricaManual = abrirModalAdicionarFabricaManual;
+
+function salvarFabricaManualAvulsa() {
+  const nome = document.querySelector('#modalNome')?.value.trim();
+  if (!nome) return toast('Digite o nome da fábrica.');
+  const custo = parseFloat(document.querySelector('#modalCusto')?.value) || 100.0;
+  let venda = parseFloat(document.querySelector('#modalVenda')?.value);
+  if (!venda || venda <= custo) venda = Number((custo * 1.35).toFixed(2));
+  const lucro = Number((venda - custo).toFixed(2));
+  const margemPct = Number(((lucro / venda) * 100).toFixed(1));
+
+  const novaFab = {
+    nome_empresa: nome,
+    cnpj: document.querySelector('#modalCnpj')?.value.trim() || 'Sob consulta',
+    localizacao: [document.querySelector('#modalCidade')?.value.trim(), document.querySelector('#modalEstado')?.value.trim().toUpperCase()].filter(Boolean).join(' - ') || 'Brasil',
+    telefone: document.querySelector('#modalTelefone')?.value.trim() || '(11) 3000-0000',
+    whatsapp: document.querySelector('#modalWhatsapp')?.value.trim() || '',
+    contato_setor: 'Fornecedor de Confiança (Adicionado Manualmente)',
+    produto_especificado: (document.querySelector('#iaDemandaInput')?.value.trim() || 'Produto Comercial') + ' — Fornecimento Direto Homologado',
+    preco_custo_unitario: custo,
+    preco_custo_total: custo,
+    preco_venda_sugerido_unitario: venda,
+    preco_venda_sugerido_total: venda,
+    margem_estimada_valor: lucro,
+    margem_estimada_pct: margemPct,
+    prazo_entrega: '5 a 8 dias úteis',
+    condicoes_pagamento: document.querySelector('#modalCondicoes')?.value.trim() || '50% entrada e 50% na entrega e aceite',
+    destaque_comercial: 'Fábrica cadastrada e homologada manualmente pela Prado.',
+    origem_manual: true
+  };
+
+  if (!ultimosOrcamentosIA) {
+    ultimosOrcamentosIA = {
+      demanda_interpretada: novaFab.produto_especificado,
+      quantidade_estimada: 'Lote comercial',
+      fabricantes: [],
+      orientacao_negociacao: 'Fornecedor adicionado manualmente à sua grade de cotações.'
+    };
+  }
+
+  // Adiciona no topo ou lista
+  ultimosOrcamentosIA.fabricantes.unshift(novaFab);
+  document.querySelector('#modalFabricaManualAvulsa')?.remove();
+  toast(`Fábrica "${nome}" adicionada com sucesso à cotação!`);
+
+  const container = document.querySelector('#iaResultadosArea');
+  if (container) {
+    container.innerHTML = renderizarResultadosIACards(ultimosOrcamentosIA);
+  }
+}
+window.salvarFabricaManualAvulsa = salvarFabricaManualAvulsa;
 
 function abrirConsultaReceitaOficial(cnpj) {
   if (!cnpj) return;
@@ -1863,36 +2157,59 @@ function renderizarResultadosIACards(data) {
       <div class="empty">
         <span style="font-size:42px">🏭</span>
         <h3>Nenhuma cotação realizada ainda</h3>
-        <p>Digite o produto no campo acima e clique em 'Localizar 3 Fabricantes' para a IA pesquisar as indústrias e telefones.</p>
+        <p>Digite o produto no campo acima e escolha se quer localizar 3 fábricas pela IA ou preencher 1 à mão e buscar 2 mais próximas.</p>
+        <div style="margin-top:14px">
+          <button type="button" class="secondary" style="border:1px solid #16a34a;color:#16a34a;background:#f0fdf4;font-weight:800;padding:10px 18px" onclick="abrirModalAdicionarFabricaManual()">
+            ＋ Adicionar Fábrica Manualmente Agora
+          </button>
+        </div>
       </div>
     `;
   }
 
   const fabs = data.fabricantes;
+  const clienteLoc = document.querySelector('#iaClienteLocalizacao')?.value.trim() || 'Cliente';
 
   return `
     <div style="background:#eef6fa;border:1px solid #c9e0ed;border-left:4px solid var(--teal);padding:14px;border-radius:10px;margin-bottom:18px">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <b style="color:var(--navy);font-size:14px">🎯 Estratégia Comercial Prado:</b>
-        <span class="badge" style="background:#134433;color:#4ade80;font-size:11px">● FABRICANTES 100% REAIS E HOMOLOGADOS</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <b style="color:var(--navy);font-size:14px">🎯 Estratégia Comercial Prado:</b>
+          <span class="badge" style="background:#134433;color:#4ade80;font-size:11px">● FABRICANTES HOMOLOGADOS & COMPARATIVO ATIVO</span>
+        </div>
+        <button type="button" class="secondary" style="border:1px solid #16a34a;color:#16a34a;background:#fff;font-size:12px;font-weight:800;padding:6px 12px;border-radius:6px;cursor:pointer" onclick="abrirModalAdicionarFabricaManual()">
+          ＋ Adicionar Outra Fábrica Manualmente
+        </button>
       </div>
       <p style="margin:6px 0 0;font-size:13px;color:#24445c">${escapeHtml(data.orientacao_negociacao || '')}</p>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(290px, 1fr));gap:16px">
       ${fabs.map((f, idx) => {
-        const isBest = idx === 0;
+        const isManual = f.origem_manual === true;
+        const isBest = idx === 0 && !isManual;
         const cleanZap = String(f.whatsapp || '').replace(/\D/g, '');
         const cleanTel = String(f.telefone || '').replace(/\D/g, '');
 
+        let badgeTopo = '';
+        if (isManual) {
+          badgeTopo = `<div style="position:absolute;top:-11px;right:16px;background:var(--gold);color:#1a1a1a;font-size:11px;font-weight:800;padding:3px 12px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,0.15)">★ SUA FÁBRICA DE CONFIANÇA (MANUAL)</div>`;
+        } else if (isBest) {
+          badgeTopo = `<div style="position:absolute;top:-11px;right:16px;background:var(--navy);color:#fff;font-size:11px;font-weight:800;padding:3px 12px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,0.15)">★ RECOMENDADO / MAIOR MARGEM</div>`;
+        } else {
+          badgeTopo = `<div style="position:absolute;top:-11px;right:16px;background:#0284c7;color:#fff;font-size:10.5px;font-weight:800;padding:2px 10px;border-radius:999px">📍 MAIS PRÓXIMA DO CLIENTE</div>`;
+        }
+
         return `
-          <div class="card" style="display:flex;flex-direction:column;border:${isBest ? '2px solid var(--gold)' : '1px solid var(--line)'};position:relative;padding:18px">
-            ${isBest ? `<div style="position:absolute;top:-11px;right:16px;background:var(--gold);color:#1a1a1a;font-size:11px;font-weight:800;padding:2px 10px;border-radius:999px">★ RECOMENDADO / MAIOR MARGEM</div>` : ''}
+          <div class="card" style="display:flex;flex-direction:column;border:${isManual ? '2px solid var(--gold)' : (isBest ? '2px solid var(--navy)' : '1px solid var(--line)')};background:${isManual ? '#fffdf7' : '#fff'};position:relative;padding:18px">
+            ${badgeTopo}
 
             <div style="border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:12px">
-              <span class="badge" style="background:#edf3f6;color:var(--navy)">Opção ${idx + 1}</span>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span class="badge" style="background:${isManual ? '#fef08a' : '#edf3f6'};color:${isManual ? '#854d0e' : 'var(--navy)'};font-weight:700">Opção ${idx + 1} ${isManual ? '• Indicada por Você' : '• IA Mais Próxima'}</span>
+              </div>
               <h3 style="margin:8px 0 4px;font-size:16px;color:var(--navy)">${escapeHtml(f.nome_empresa)}</h3>
-              <small style="color:var(--muted);display:block">CNPJ: <b>${escapeHtml(f.cnpj || '—')}</b> · ${escapeHtml(f.localizacao || '')}</small>
+              <small style="color:var(--muted);display:block">CNPJ: <b>${escapeHtml(f.cnpj || '—')}</b> · 📍 <b>${escapeHtml(f.localizacao || '')}</b></small>
               <div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
                 <span class="badge" style="background:#e8fdf0;color:#166534;font-size:10.5px">✓ Empresa Ativa</span>
                 <button type="button" class="link" style="font-size:11px;color:var(--navy);font-weight:700;cursor:pointer;text-decoration:underline" onclick="abrirConsultaReceitaOficial('${escapeHtml(f.cnpj || '')}')">
@@ -1905,7 +2222,7 @@ function renderizarResultadosIACards(data) {
               <small style="text-transform:uppercase;font-size:10px;font-weight:700;color:var(--teal);display:block;margin-bottom:4px">Contatos Oficiais para Ligar:</small>
               <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
                 <span>📞</span>
-                <b style="font-size:13px"><a href="tel:${cleanTel}" style="color:var(--ink);text-decoration:none">${escapeHtml(f.telefone)}</a></b>
+                <b style="font-size:13px"><a href="tel:${cleanTel}" style="color:var(--ink);text-decoration:none">${escapeHtml(f.telefone || 'A consultar')}</a></b>
               </div>
               ${cleanZap ? `
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
@@ -1921,7 +2238,7 @@ function renderizarResultadosIACards(data) {
             <div style="flex:1;margin-bottom:14px">
               <small style="color:var(--muted);font-size:11px">Produto Cotado:</small>
               <p style="margin:2px 0 8px;font-size:12px;line-height:1.4"><b>${escapeHtml(f.produto_especificado)}</b></p>
-              <small style="color:var(--muted);font-size:11px">Diferencial:</small>
+              <small style="color:var(--muted);font-size:11px">Diferencial / Frete:</small>
               <p style="margin:2px 0;font-size:12px;color:var(--teal)">✓ ${escapeHtml(f.destaque_comercial)}</p>
             </div>
 
@@ -1941,7 +2258,7 @@ function renderizarResultadosIACards(data) {
             </div>
 
             <div style="font-size:11px;color:var(--muted);margin-bottom:14px">
-              Prazo: <b>${escapeHtml(f.prazo_entrega)}</b> · Faturamento: <b>${escapeHtml(f.condicoes_pagamento)}</b>
+              Prazo: <b>${escapeHtml(f.prazo_entrega)}</b> · Condição: <b>${escapeHtml(f.condicoes_pagamento)}</b>
             </div>
 
             <button class="primary" style="width:100%" onclick="adicionarCotacaoAoBanco(${idx})">

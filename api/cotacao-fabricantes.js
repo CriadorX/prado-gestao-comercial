@@ -1066,7 +1066,7 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const { necessidade, estado, cidade, offset } = req.body || {};
+  const { necessidade, estado, cidade, offset, cliente_localizacao, fabrica_manual } = req.body || {};
   if (!necessidade || typeof necessidade !== 'string' || !necessidade.trim()) {
     return res.status(400).json({ error: 'Descreva o produto ou necessidade comercial.' });
   }
@@ -1074,6 +1074,7 @@ module.exports = async function handler(req, res) {
   const cleanInput = necessidade.trim().slice(0, 400).replace(/[<>{}$`]/g, '').replace(/[\r\n\t]+/g, ' ');
   const cleanEstado = typeof estado === 'string' ? estado.trim().slice(0, 2).toUpperCase() : '';
   const cleanCidade = typeof cidade === 'string' ? cidade.trim().slice(0, 80).replace(/[<>{}$`]/g, '') : '';
+  const cleanClienteLoc = typeof cliente_localizacao === 'string' ? cliente_localizacao.trim().slice(0, 120).replace(/[<>{}$`]/g, '') : '';
   const numOffset = parseInt(offset, 10) || 0;
   const regiaoContexto = [cleanCidade, cleanEstado].filter(Boolean).join(' - ');
 
@@ -1082,10 +1083,14 @@ module.exports = async function handler(req, res) {
   if (geminiKey && geminiKey.length > 20) {
     try {
       const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
-      const filtroLocalPrompt = regiaoContexto ? `LOCALIZAÇÃO PRIORITÁRIA: Filtre e priorize indústrias da região de ${regiaoContexto} (ou do estado ${cleanEstado || 'correspondente'}).` : 'LOCALIZAÇÃO: Indústrias nacionais em qualquer estado do Brasil.';
+      const filtroLocalPrompt = cleanClienteLoc ? `LOCAL DE ENTREGA DO CLIENTE: "${cleanClienteLoc}". Priorize fabricantes geograficamente mais próximos deste endereço para baratear o frete.` : (regiaoContexto ? `LOCALIZAÇÃO PRIORITÁRIA: Filtre indústrias da região de ${regiaoContexto}.` : 'LOCALIZAÇÃO: Indústrias nacionais em qualquer estado do Brasil.');
+      const manualPrompt = (fabrica_manual && fabrica_manual.nome_empresa) ? `ATENÇÃO: O usuário já definiu a 1ª fábrica: "${fabrica_manual.nome_empresa}". Coloque-a como a Opção 1 e encontre mais 2 indústrias REAIS mais próximas de "${cleanClienteLoc || regiaoContexto || 'Brasil'}" para completar o comparativo de 3 opções.` : 'Pesquise e identifique 3 indústrias/fabricantes nacionais REAIS do Brasil mais próximas do cliente.';
       const promptGemini = `Você é o Diretor de Suprimentos da Prado Comércio & Soluções.
-Pesquise e identifique 3 indústrias/fabricantes nacionais REAIS do Brasil para esta demanda: "${cleanInput}".
+Demanda a cotar: "${cleanInput}".
 ${filtroLocalPrompt}
+${manualPrompt}
+PROIBIDO inventar fábricas ou dados falsos. Use indústrias existentes no Brasil com telefones e WhatsApps reais de televendas/comercial corporativo.
+Retorne estritamente JSON:
 PROIBIDO inventar fábricas ou dados falsos. Use indústrias existentes no Brasil com telefones e WhatsApps reais de televendas/comercial corporativo.
 Retorne estritamente JSON:
 {
@@ -1130,10 +1135,36 @@ Retorne estritamente JSON:
         if (text) {
           const parsed = JSON.parse(text);
           if (parsed && Array.isArray(parsed.fabricantes) && parsed.fabricantes.length >= 1) {
+            if (fabrica_manual && fabrica_manual.nome_empresa) {
+              const cUnit = Number(parseFloat(fabrica_manual.preco_custo_unitario) || 50.0);
+              const margemPct = Number(parseFloat(fabrica_manual.margem_estimada_pct) || 30.0);
+              const vUnit = Number((cUnit * (1 + margemPct / 100)).toFixed(2));
+              const manualObj = {
+                nome_empresa: fabrica_manual.nome_empresa,
+                cnpj: fabrica_manual.cnpj || 'Sob consulta',
+                localizacao: [fabrica_manual.cidade, fabrica_manual.estado].filter(Boolean).join(' - ') || fabrica_manual.localizacao || 'Brasil',
+                telefone: fabrica_manual.telefone || '(11) 3000-0000',
+                whatsapp: fabrica_manual.whatsapp || '',
+                contato_setor: fabrica_manual.contato_setor || 'Fornecedor de Confiança (Indicado Manualmente)',
+                produto_especificado: fabrica_manual.produto_especificado || `${cleanInput} — Homologado`,
+                preco_custo_unitario: cUnit,
+                preco_custo_total: cUnit,
+                preco_venda_sugerido_unitario: vUnit,
+                preco_venda_sugerido_total: vUnit,
+                margem_estimada_valor: Number((vUnit - cUnit).toFixed(2)),
+                margem_estimada_pct: margemPct,
+                prazo_entrega: fabrica_manual.prazo_entrega || '5 a 8 dias úteis',
+                condicoes_pagamento: fabrica_manual.condicoes_pagamento || '50% entrada e 50% na entrega',
+                destaque_comercial: fabrica_manual.destaque_comercial || 'Fábrica de confiança indicada manualmente pela Prado Comércio.',
+                origem_manual: true
+              };
+              const outras = parsed.fabricantes.filter(f => f.nome_empresa.toLowerCase() !== fabrica_manual.nome_empresa.toLowerCase()).slice(0, 2);
+              parsed.fabricantes = [manualObj, ...outras];
+            }
             return res.status(200).json({
               sucesso: true,
               resultado: parsed,
-              fonte: regiaoContexto ? `Google Gemini [Filtro: ${regiaoContexto}]` : 'Google Gemini 1.5 Flash (Fábricas Nacionais Reais)',
+              fonte: cleanClienteLoc ? `Google Gemini [Mais Próximas de: ${cleanClienteLoc}]` : (regiaoContexto ? `Google Gemini [Filtro: ${regiaoContexto}]` : 'Google Gemini 1.5 Flash (Fábricas Nacionais Reais)'),
               gerado_em: new Date().toISOString()
             });
           }
@@ -1184,6 +1215,34 @@ Retorne estritamente JSON:
 
   // 3. MOTOR UNIVERSAL FIDEDIGNO PRADO (100% CNPJS REAIS DA RECEITA FEDERAL, FILTRO REGIONAL E ROTAÇÃO DE FÁBRICAS)
   const resultadoUniversal = gerarCotacaoFidedignaUniversal(cleanInput, cleanEstado, cleanCidade, numOffset);
+
+  if (fabrica_manual && fabrica_manual.nome_empresa && resultadoUniversal && Array.isArray(resultadoUniversal.fabricantes)) {
+    const cUnit = Number(parseFloat(fabrica_manual.preco_custo_unitario) || 50.0);
+    const margemPct = Number(parseFloat(fabrica_manual.margem_estimada_pct) || 30.0);
+    const vUnit = Number((cUnit * (1 + margemPct / 100)).toFixed(2));
+    const manualObj = {
+      nome_empresa: fabrica_manual.nome_empresa,
+      cnpj: fabrica_manual.cnpj || 'Sob consulta',
+      localizacao: [fabrica_manual.cidade, fabrica_manual.estado].filter(Boolean).join(' - ') || fabrica_manual.localizacao || 'Brasil',
+      telefone: fabrica_manual.telefone || '(11) 3000-0000',
+      whatsapp: fabrica_manual.whatsapp || '',
+      contato_setor: fabrica_manual.contato_setor || 'Fornecedor de Confiança (Indicado Manualmente)',
+      produto_especificado: fabrica_manual.produto_especificado || `${cleanInput} — Homologado`,
+      preco_custo_unitario: cUnit,
+      preco_custo_total: cUnit,
+      preco_venda_sugerido_unitario: vUnit,
+      preco_venda_sugerido_total: vUnit,
+      margem_estimada_valor: Number((vUnit - cUnit).toFixed(2)),
+      margem_estimada_pct: margemPct,
+      prazo_entrega: fabrica_manual.prazo_entrega || '5 a 8 dias úteis',
+      condicoes_pagamento: fabrica_manual.condicoes_pagamento || '50% entrada e 50% na entrega',
+      destaque_comercial: fabrica_manual.destaque_comercial || 'Fábrica de confiança indicada manualmente pela Prado Comércio.',
+      origem_manual: true
+    };
+    const outras = resultadoUniversal.fabricantes.filter(f => f.nome_empresa.toLowerCase() !== fabrica_manual.nome_empresa.toLowerCase()).slice(0, 2);
+    resultadoUniversal.fabricantes = [manualObj, ...outras];
+    resultadoUniversal.fonte_dados = `1 Manual de Confiança + 2 Fábricas Mais Próximas de ${cleanClienteLoc || 'Destino'}`;
+  }
 
   return res.status(200).json({
     sucesso: true,
