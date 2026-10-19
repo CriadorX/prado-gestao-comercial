@@ -95,7 +95,19 @@ function carregarOrcamentosIniciais() {
     const raw = localStorage.getItem(ORCAMENTOS_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        parsed.forEach(o => {
+          if (o.observacoes && o.observacoes.includes('3W Embalagens')) {
+            o.observacoes = 'Desconto de R$ 1.000,00 já aplicado. NF-e nº 002 emitida em 25/09/2026. Faturamento direto e acompanhamento logístico integral Prado Comércio & Soluções.';
+            o.observacoes_internas = 'Pago no Banco do Brasil e liquidado com fornecedor 3W Embalagens Ltda.';
+            o.nfe_numero = '000.002';
+          }
+          if (o.numero === '027/2026' && !o.nfe_numero) {
+            o.nfe_numero = '000.027';
+          }
+        });
+        return parsed;
+      }
     }
   } catch {}
 
@@ -104,6 +116,7 @@ function carregarOrcamentosIniciais() {
     {
       id: 'orc-027-2026',
       numero: '027/2026',
+      nfe_numero: '000.027',
       data_emissao: '2026-10-09',
       data_validade: '2026-10-30',
       responsavel: 'Michel do Prado',
@@ -130,6 +143,7 @@ function carregarOrcamentosIniciais() {
       pagamento: 'À vista.',
       entrega_frete: 'Prazo sujeito à disponibilidade. Frete incluso, salvo indicação expressa.',
       observacoes: 'Desconto de R$ 15.000,00 já aplicado onde o preço de cada unidade passa a ser R$485,00. Preço válido até 30/10/2026. Prazo de entrega 30 dias. Pagamento de R$ 72.750,00 aguarda envio do extrato anual.',
+      observacoes_internas: 'Cotação CBP Sul e indústrias homologadas.',
       status: 'Aguardando Extrato Anual',
       criadoPor: 'licitadigitaltech@gmail.com',
       criadoEm: '2026-10-09T10:00:00.000Z'
@@ -137,6 +151,7 @@ function carregarOrcamentosIniciais() {
     {
       id: 'orc-021-2026',
       numero: '021/2026',
+      nfe_numero: '000.002',
       data_emissao: '2026-09-24',
       data_validade: '2026-10-01',
       responsavel: 'Michel do Prado',
@@ -159,7 +174,8 @@ function carregarOrcamentosIniciais() {
       valor_total: 21500.00,
       pagamento: 'À vista.',
       entrega_frete: 'Prazo sujeito à disponibilidade. Frete não incluído, salvo indicação expressa.',
-      observacoes: 'Desconto de R$ 1.000,00 já aplicado. NF-e nº 002 emitida em 25/09/2026. Pago no Banco do Brasil e liquidado com fornecedor 3W Embalagens Ltda.',
+      observacoes: 'Desconto de R$ 1.000,00 já aplicado. NF-e nº 002 emitida em 25/09/2026. Faturamento direto e acompanhamento logístico integral Prado Comércio & Soluções.',
+      observacoes_internas: 'Pago no Banco do Brasil e liquidado com fornecedor 3W Embalagens Ltda.',
       status: 'Faturado e Pago',
       criadoPor: 'licitadigitaltech@gmail.com',
       criadoEm: '2026-09-24T10:00:00.000Z'
@@ -708,6 +724,38 @@ function oportunidades() {
   });
 }
 
+function renderizarBadgeStatusOrcamento(status) {
+  const s = String(status || 'Em cotação').trim();
+  let bg = '#f1f5f9';
+  let color = '#475569';
+  let border = '#cbd5e1';
+
+  if (s === 'Aguardando Extrato Anual') {
+    bg = '#fffbeb';
+    color = '#b45309';
+    border = '#fde68a';
+  } else if (s === 'Faturado e Pago' || s === 'Pago') {
+    bg = '#f0fdf4';
+    color = '#15803d';
+    border = '#bbf7d0';
+  } else if (s === 'Aprovado' || s === 'Faturado') {
+    bg = '#f0f9ff';
+    color = '#0369a1';
+    border = '#bae6fd';
+  } else if (s === 'Cancelado') {
+    bg = '#fef2f2';
+    color = '#b91c1c';
+    border = '#fca5a5';
+  }
+
+  return `
+    <span style="display:inline-block;white-space:nowrap;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;line-height:1.2;background:${bg};color:${color};border:1px solid ${border};box-shadow:0 1px 2px rgba(0,0,0,0.03);text-align:center">
+      ${escapeHtml(s)}
+    </span>
+  `;
+}
+window.renderizarBadgeStatusOrcamento = renderizarBadgeStatusOrcamento;
+
 function orcamentos() {
   head('Orçamentos e propostas', 'Lançamento de cotações, geração de propostas oficiais e impressão em PDF timbrado');
   const orcs = db.orcamentos || [];
@@ -722,9 +770,7 @@ function orcamentos() {
       <td>${formatarDataBr(o.data_emissao)}</td>
       <td><strong style="color:var(--navy);font-size:14px">${money(o.valor_total || o.valor)}</strong></td>
       <td>
-        <span class="badge ${o.status === 'Aprovado' ? 'ok' : (o.status === 'Cancelado' ? 'error' : 'warn')}" style="${o.status === 'Aprovado' ? 'background:#e8fdf0;color:#166534' : ''}">
-          ${escapeHtml(o.status || 'Em cotação')}
-        </span>
+        ${renderizarBadgeStatusOrcamento(o.status)}
       </td>
       <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
@@ -773,7 +819,7 @@ function orcamentos() {
               <th>Cliente</th>
               <th style="width:110px">Emissão</th>
               <th style="width:130px">Valor Total</th>
-              <th style="width:120px">Status</th>
+              <th style="width:185px;min-width:185px">Status</th>
               <th style="width:280px">Ações</th>
             </tr>
           </thead>
@@ -3913,6 +3959,18 @@ async function salvarOrcamento(e) {
 }
 window.salvarOrcamento = salvarOrcamento;
 
+function sanitizarObservacaoCliente(texto) {
+  if (!texto) return 'Sem observações adicionais.';
+  let t = String(texto);
+  // Remove menções confidenciais a fornecedores, pagamentos a terceiros ou liquidações internas
+  t = t.replace(/(?:liquidado com|comprado d[aeo]|fornecedor|f[aá]brica cotada|ind[uú]stria cotada|condi[cç][õo]es da f[aá]brica|anexos de or[cç]amento).*?(?:\.|$)/gi, '');
+  t = t.replace(/3W Embalagens[^\.]*\.?/gi, '');
+  t = t.replace(/CBP Sul[^\.]*\.?/gi, '');
+  t = t.trim().replace(/\s{2,}/g, ' ');
+  return t || 'Faturamento direto e acompanhamento logístico integral Prado Comércio & Soluções.';
+}
+window.sanitizarObservacaoCliente = sanitizarObservacaoCliente;
+
 function visualizarPropostaTimbrada(index) {
   const orc = db.orcamentos[index] || db.orcamentos[0];
   if (!orc) return toast('Orçamento não encontrado.');
@@ -3950,7 +4008,7 @@ function visualizarPropostaTimbrada(index) {
 
   document.querySelector('#propCondPagamento').textContent = orc.pagamento || 'À vista.';
   document.querySelector('#propCondEntrega').textContent = orc.entrega_frete || 'Prazo sujeito à disponibilidade. Frete incluso, salvo indicação expressa.';
-  document.querySelector('#propCondObs').textContent = orc.observacoes || 'Sem observações adicionais.';
+  document.querySelector('#propCondObs').textContent = sanitizarObservacaoCliente(orc.observacoes);
 
   const badge = document.querySelector('#propStatusBadge');
   if (badge) {
@@ -4515,11 +4573,21 @@ function abrirEmissaoNotaOrcamento(index) {
   const modal = document.querySelector('#modalEmissaoNota');
   if (!modal) return;
 
-  const numLimpoOrc = String(orc.numero || (index + 1)).replace(/\D/g, '').slice(-3) || '027';
-  const proximoNumNfe = `000.${numLimpoOrc.padStart(3, '0')}`;
+  // Determina o número respectivo exato de cada nota fiscal
+  let proximoNumNfe = '000.027';
+  if (orc.nfe_numero) {
+    const limpo = String(orc.nfe_numero).replace(/\D/g, '');
+    proximoNumNfe = `000.${limpo.padStart(3, '0')}`;
+  } else if (orc.observacoes && /NF-e\s*n[ºo°]?\s*(\d+)/i.test(orc.observacoes)) {
+    const matchNfe = orc.observacoes.match(/NF-e\s*n[ºo°]?\s*(\d+)/i);
+    proximoNumNfe = `000.${matchNfe[1].padStart(3, '0')}`;
+  } else {
+    const numBase = String(orc.numero || (index + 1)).split('/')[0].replace(/\D/g, '');
+    proximoNumNfe = `000.${(numBase || String(index + 1)).padStart(3, '0')}`;
+  }
 
   document.querySelector('#nfe_orc_index').value = index;
-  document.querySelector('#nfe_badge_orc_num').textContent = orc.numero || `${numLimpoOrc}/2026`;
+  document.querySelector('#nfe_badge_orc_num').textContent = orc.numero || `${proximoNumNfe}/2026`;
   document.querySelector('#nfe_numero').value = proximoNumNfe;
 
   // Preenche dados do cliente

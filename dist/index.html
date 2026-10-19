@@ -783,12 +783,15 @@
           <div class="item">
             <div class="lbl">Observações</div>
             <div class="val" id="propCondObs">Desconto de R$ 15.000,00 já aplicado onde o preço de cada unidade passa a ser R$485,00. Preço válido até 30/10/2026. Prazo de entrega 30 dias, certificado de garantia em anexo.</div>
+          </div>
+        </div>
+
         <!-- 6b. DADOS BANCÁRIOS & LIQUIDAÇÃO OFICIAL PIX -->
-        <div style="font-weight:800;color:#0b3c66;font-size:12.5px;margin:12px 0 4px;text-transform:uppercase">DADOS BANCÁRIOS PARA LIQUIDAÇÃO COMERCIAL</div>
-        <div style="background:#f8fafc;border:1px solid #b0c4de;border-radius:4px;padding:8px 12px;font-size:11.5px;line-height:1.45;margin-bottom:12px">
-          <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="font-weight:800;color:#0b3c66;font-size:12.5px;margin:16px 0 6px;text-transform:uppercase;clear:both">DADOS BANCÁRIOS PARA LIQUIDAÇÃO COMERCIAL</div>
+        <div style="background:#f8fafc;border:1px solid #b0c4de;border-radius:6px;padding:10px 14px;font-size:12px;line-height:1.5;margin-bottom:14px;clear:both">
+          <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
             <div>
-              <b>Chave PIX Oficial (CNPJ):</b> <code style="font-size:12.5px;font-weight:800;color:#073863;background:#eef6fa;padding:1px 6px;border-radius:4px">59.825.765/0001-03</code><br>
+              <b>Chave PIX Oficial (CNPJ):</b> <code style="font-size:13px;font-weight:800;color:#073863;background:#eef6fa;padding:2px 8px;border-radius:4px">59.825.765/0001-03</code><br>
               <b>Favorecido:</b> 59.825.765 Michel do Prado (Prado Comércio &amp; Soluções)<br>
               <span style="color:#059669;font-weight:700">✓ Faturamento direto e acompanhamento logístico integral até o destino</span>
             </div>
@@ -1064,42 +1067,44 @@
         </div>
 
         <!-- CABEÇALHO DO DANFE -->
-        <div style="display:flex;border:1px solid #000;margin-bottom:8px">
-          <!-- Bloco do Emitente -->
-          <div style="flex:1.2;padding:8px;border-right:1px solid #000;display:flex;gap:12px;align-items:center">
-            <img src="logo-prado-horizontal.png" alt="Prado Comércio & Soluções" style="height:52px;max-width:180px;object-fit:contain">
-            <div>
-              <b style="font-size:12.5px;display:block">59.825.765 MICHEL DO PRADO</b>
-              <span style="font-size:10px;font-weight:bold;color:#073863">PRADO COMÉRCIO & SOLUÇÕES</span><br>
-              <span style="font-size:9px">RUA PRINCIPAL, 100 - CENTRO - MONTE MOR - SP</span><br>
-              <span style="font-size:9px">CEP: 13190-000 | FONE: (19) 98814-6164</span><br>
-              <span style="font-size:9px">licitadigitaltech@gmail.com</span>
+        <div style="display:flex;border:1px solid #000;margin-bottom:8px;min-height:96px">
+          <!-- Bloco do Emitente (Logotipo Oficial + Dados Cadastrais Prado) -->
+          <div style="flex:1.2;padding:6px 8px;border-right:1px solid #000;display:flex;gap:10px;align-items:center">
+            <div style="width:130px;flex-shrink:0;text-align:center">
+              <img src="logo-prado-horizontal.png" alt="Prado Comércio &amp; Soluções" style="max-height:46px;max-width:125px;object-fit:contain;display:block;margin:0 auto">
+            </div>
+            <div style="flex:1;line-height:1.2">
+              <b style="font-size:11.5px;display:block;color:#000">59.825.765 MICHEL DO PRADO</b>
+              <span style="font-size:9.5px;font-weight:bold;color:#073863;display:block">PRADO COMÉRCIO &amp; SOLUÇÕES</span>
+              <span style="font-size:8.5px;color:#222;display:block">RUA PRINCIPAL, 100 - CENTRO - MONTE MOR - SP</span>
+              <span style="font-size:8.5px;color:#222;display:block">CEP: 13190-000 | FONE: (19) 98814-6164</span>
+              <span style="font-size:8px;color:#444;display:block">licitadigitaltech@gmail.com</span>
             </div>
           </div>
 
           <!-- Bloco Central: DANFE -->
-          <div style="width:140px;padding:6px;border-right:1px solid #000;text-align:center">
-            <b style="font-size:15px;display:block">DANFE</b>
-            <span style="font-size:8.5px;display:block">DOCUMENTO AUXILIAR DA NOTA FISCAL ELETRÔNICA</span>
-            <div style="margin:4px 0;font-size:9.5px">
+          <div style="width:130px;flex-shrink:0;padding:4px;border-right:1px solid #000;text-align:center;display:flex;flex-direction:column;justify-content:center">
+            <b style="font-size:14px;display:block;letter-spacing:1px">DANFE</b>
+            <span style="font-size:7.5px;display:block;line-height:1.1;margin-bottom:2px">DOCUMENTO AUXILIAR DA NOTA FISCAL ELETRÔNICA</span>
+            <div style="font-size:8.5px;margin:2px 0">
               0 - ENTRADA<br>
-              1 - SAÍDA [ <b>1</b> ]
+              1 - SAÍDA &nbsp;[ <b>1</b> ]
             </div>
-            <b style="font-size:12px;display:block">Nº <span class="danfe-num-val">000.027</span></b>
-            <span style="font-size:9.5px">SÉRIE 1 - FOLHA 1/1</span>
+            <b style="font-size:11.5px;display:block;margin-top:2px">Nº <span class="danfe-num-val">000.027</span></b>
+            <span style="font-size:8.5px;color:#333">SÉRIE 1 · FOLHA 1/1</span>
           </div>
 
           <!-- Bloco Direito: Código de Barras Real e Chave de Acesso -->
-          <div style="flex:1.4;padding:6px;display:flex;flex-direction:column;justify-content:center;background:#fff">
+          <div style="flex:1.4;padding:4px 6px;display:flex;flex-direction:column;justify-content:center;background:#fff">
             <!-- Código de barras real Code 128C para leitura óptica e celular -->
-            <div style="width:100%;text-align:center;background:#fff;padding:2px 0">
-              <svg id="danfeBarcode" style="width:100%;max-width:330px;height:42px;display:block;margin:0 auto"></svg>
+            <div style="width:100%;text-align:center;background:#fff;padding:1px 0">
+              <svg id="danfeBarcode" style="width:100%;max-width:320px;height:38px;display:block;margin:0 auto"></svg>
             </div>
-            <div style="font-size:9px;margin-top:2px;text-align:center;width:100%">
+            <div style="font-size:8.5px;margin-top:2px;text-align:center;width:100%">
               <b>CHAVE DE ACESSO:</b><br>
-              <code id="danfeChaveAcesso" style="font-size:9.5px;font-weight:bold;letter-spacing:1px;display:block;margin-top:1px">3526 1059 8257 6500 0103 5500 1000 0000 2712 3456 7890</code>
+              <code id="danfeChaveAcesso" style="font-size:9px;font-weight:bold;letter-spacing:.5px;display:block;margin-top:1px">3526 1059 8257 6500 0103 5500 1000 0000 2712 3456 7890</code>
             </div>
-            <div style="font-size:8px;color:#333;margin-top:2px;border-top:1px dashed #666;padding-top:2px;text-align:center;width:100%">
+            <div style="font-size:7.5px;color:#444;margin-top:2px;border-top:1px dashed #777;padding-top:2px;text-align:center;width:100%">
               Consulta de autenticidade no portal nacional da NF-e www.nfe.fazenda.gov.br ou no site da Sefaz Autorizadora.
             </div>
           </div>
