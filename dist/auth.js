@@ -915,6 +915,13 @@ async function finishLogin() {
   window.currentUser = currentUser;
   window.sessionToken = sessionToken || 'sess_prado_authenticated';
 
+  // Persiste a sessão no navegador para que a tecla F5 / Atualizar página NÃO deslogue o usuário
+  try {
+    localStorage.setItem('pradoCurrentUser', JSON.stringify(currentUser));
+    localStorage.setItem('pradoSessionToken', window.sessionToken);
+    document.documentElement.classList.add('usuario-ja-logado');
+  } catch {}
+
   // Registrar auditoria de login
   if (typeof window.registrarAuditoria === 'function') {
     window.registrarAuditoria('Login no sistema', 'Autenticação', `Usuário ${currentUser.nome} (${currentUser.cargo}) efetuou login com sucesso`);
@@ -970,6 +977,10 @@ async function fazerLogout() {
   // Limpa completamente usuário salvo para permitir entrada em outra conta
   localStorage.removeItem(LAST_USER_KEY);
   localStorage.removeItem('pradoLastEmail');
+  localStorage.removeItem('pradoCurrentUser');
+  localStorage.removeItem('pradoSessionToken');
+  localStorage.removeItem('pradoCurrentPage');
+  document.documentElement.classList.remove('usuario-ja-logado');
   
   const emailInp = $('#authEmail');
   if (emailInp) emailInp.value = '';
@@ -1027,6 +1038,13 @@ async function checarRetornoGoogleOAuth() {
 
       window.currentUser = currentUser;
       window.sessionToken = session.access_token || 'sess_auth_valid';
+
+      // Persiste a sessão no navegador para que a tecla F5 / Atualizar página NÃO deslogue o usuário
+      try {
+        localStorage.setItem('pradoCurrentUser', JSON.stringify(currentUser));
+        localStorage.setItem('pradoSessionToken', window.sessionToken);
+        document.documentElement.classList.add('usuario-ja-logado');
+      } catch {}
 
       closeLoginOverlay();
 
@@ -1103,13 +1121,36 @@ async function startApp() {
   initAuthCarousel();
   await loadSupabaseConfig();
 
-  // Verifica se veio de um redirecionamento do Google OAuth
+  // 1. Verifica se veio de um redirecionamento do Google OAuth
   const logadoGoogle = await checarRetornoGoogleOAuth();
-  if (!logadoGoogle) {
-    currentUser = null;
-    openLoginOverlay();
-    render();
+  if (logadoGoogle) return;
+
+  // 2. Verifica se já existe uma sessão ativa salva no navegador (evita deslogar no F5 / atualizar)
+  try {
+    const savedUserStr = localStorage.getItem('pradoCurrentUser');
+    if (savedUserStr) {
+      const savedUser = JSON.parse(savedUserStr);
+      if (savedUser && (savedUser.id || savedUser.email)) {
+        currentUser = savedUser;
+        window.currentUser = savedUser;
+        window.sessionToken = localStorage.getItem('pradoSessionToken') || 'sess_prado_authenticated';
+        document.documentElement.classList.add('usuario-ja-logado');
+        closeLoginOverlay();
+        await carregarDadosSupabase();
+        render();
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn('Erro ao restaurar sessão ativa:', err);
   }
+
+  // 3. Se não houver usuário salvo autenticado, exibe a tela de login
+  currentUser = null;
+  window.currentUser = null;
+  document.documentElement.classList.remove('usuario-ja-logado');
+  openLoginOverlay();
+  render();
 }
 
 startApp();

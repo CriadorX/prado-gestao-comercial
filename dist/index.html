@@ -19,6 +19,14 @@
       window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
   </script>
+  <script>
+    // Mantém a sessão do usuário ativa e previne flicker de login ao recarregar a tela (F5)
+    try {
+      if (localStorage.getItem('pradoCurrentUser')) {
+        document.documentElement.classList.add('usuario-ja-logado');
+      }
+    } catch (e) {}
+  </script>
 </head>
 <body>
   <!-- TELA DE LOGIN EM 3 ETAPAS ESTILO CORRETORA (MONTEBRAVO / PRADO) -->
@@ -362,7 +370,7 @@
 
   <aside class="sidebar">
     <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Fechar menu lateral">✕</button>
-    <div class="brand">
+    <div class="brand" onclick="irParaHome()" title="Ir para a Página Inicial (Home)">
       <img src="favicon-solid.png?v=3" alt="Prado Comércio & Soluções" style="width:58px;height:58px;object-fit:contain;background:#fff;border-radius:50%;padding:2px;box-shadow:0 4px 14px rgba(0,0,0,.25);border:2px solid var(--gold)">
       <div><strong>PRADO</strong><span>GESTÃO COMERCIAL</span></div>
     </div>
@@ -382,10 +390,12 @@
     <header>
       <div style="display:flex;align-items:center;gap:12px">
         <button class="mobile" id="menu">☰</button>
-        <img src="favicon-solid.png?v=3" alt="Prado Logo" style="width:48px;height:48px;object-fit:contain;border-radius:50%;background:#ffffff;box-shadow:0 4px 14px rgba(0,0,0,.18);border:2px solid var(--gold);padding:2px">
-        <div>
-          <h1 id="title">Visão geral</h1>
-          <p id="subtitle">Controle completo das suas intermediações</p>
+        <div class="header-brand-clickable" onclick="irParaHome()" title="Ir para a Página Inicial (Home)" style="display:flex;align-items:center;gap:12px">
+          <img src="favicon-solid.png?v=3" alt="Prado Logo" style="width:48px;height:48px;object-fit:contain;border-radius:50%;background:#ffffff;box-shadow:0 4px 14px rgba(0,0,0,.18);border:2px solid var(--gold);padding:2px">
+          <div>
+            <h1 id="title">Visão geral</h1>
+            <p id="subtitle">Controle completo das suas intermediações</p>
+          </div>
         </div>
       </div>
       <div class="head-actions">

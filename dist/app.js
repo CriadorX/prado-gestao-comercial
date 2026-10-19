@@ -390,10 +390,31 @@ function ehAdminGlobal() {
 window.ehAdminGlobal = ehAdminGlobal;
 
 let currentUser = null;
+try {
+  const savedUserStr = localStorage.getItem('pradoCurrentUser');
+  if (savedUserStr) {
+    currentUser = JSON.parse(savedUserStr);
+    window.currentUser = currentUser;
+  }
+} catch (e) {}
+
 let sessionToken = window.sessionToken || localStorage.getItem('pradoSessionToken') || 'sess_prado_authenticated';
-let page = 'dashboard';
+let page = localStorage.getItem('pradoCurrentPage') || 'dashboard';
 let ultimosOrcamentosIA = null;
 const app = document.querySelector('#app');
+
+// NAVEGAÇÃO IMEDIATA PARA A HOME (VISÃO GERAL / DASHBOARD) AO CLICAR NO LOGO
+function irParaHome() {
+  page = 'dashboard';
+  localStorage.setItem('pradoCurrentPage', 'dashboard');
+  document.querySelectorAll('.nav-item').forEach(x => {
+    x.classList.toggle('active', x.dataset.page === 'dashboard');
+  });
+  render();
+  fecharSidebarMobile();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.irParaHome = irParaHome;
 
 const money = n => Number(n || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 const formatCnpj = doc => {
@@ -469,6 +490,7 @@ document.querySelector('#nav').onclick = e => {
   const b = e.target.closest('[data-page]');
   if (!b) return;
   page = b.dataset.page;
+  localStorage.setItem('pradoCurrentPage', page);
   document.querySelectorAll('.nav-item').forEach(x => x.classList.toggle('active', x === b));
   render();
   fecharSidebarMobile();
@@ -4490,6 +4512,7 @@ function render() {
 
   document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => {
     page = b.dataset.go;
+    localStorage.setItem('pradoCurrentPage', page);
     document.querySelector(`[data-page="${page}"]`)?.click();
   });
   document.querySelectorAll('[data-new]').forEach(b => b.onclick = () => openModal(b.dataset.new));

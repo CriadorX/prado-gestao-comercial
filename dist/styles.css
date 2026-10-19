@@ -1266,3 +1266,28 @@ body.dark-mode .auth-btn-google:hover {
   line-height: 1.45 !important;
 }
 
+/* Previne que o overlay de login pisque ou apareça ao recarregar a tela (F5) para usuário autenticado */
+html.usuario-ja-logado #loginOverlay {
+  display: none !important;
+}
+
+/* Marca e Logos clicáveis que redirecionam para a Home */
+.brand {
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.brand:hover {
+  opacity: 0.94;
+  transform: scale(1.01);
+}
+.header-brand-clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease;
+}
+.header-brand-clickable:hover {
+  opacity: 0.92;
+}
+
+
