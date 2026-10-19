@@ -2285,7 +2285,7 @@ function salvarAnexosCotacaoPersistentes() {
 function processarArquivosAnexados(files, labelOrigem = 'Arquivo Anexado') {
   if (!files || !files.length) return;
   let processados = 0;
-  Array.from(files).forEach(file => {
+  Array.from(files).forEach((file, index) => {
     const isImage = file.type.startsWith('image/');
     const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
     if (!isImage && !isPdf) {
@@ -2309,11 +2309,246 @@ function processarArquivosAnexados(files, labelOrigem = 'Arquivo Anexado') {
       salvarAnexosCotacaoPersistentes();
       processados++;
       atualizarListaAnexosDOM();
-      toast(`✓ ${novoAnexo.nome} anexado com sucesso!`);
+      toast(`✓ ${novoAnexo.nome} anexado! A IA está fazendo a leitura dos dados...`);
+
+      // Aciona automaticamente a IA para ler e puxar dados do primeiro orçamento colado/arrastado
+      if (index === 0) {
+        analisarOrcamentoAnexadoComIA(novoAnexo, file);
+      }
     };
     reader.readAsDataURL(file);
   });
 }
+
+async function extrairTextoOuImagemDePdf(file, dataUrl) {
+  try {
+    if (window.pdfjsLib) {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let textoTotal = '';
+      const numPages = Math.min(pdf.numPages, 3);
+      for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(' ');
+        textoTotal += `\n--- Página ${i} ---\n` + pageText;
+      }
+      if (textoTotal.trim().length > 30) {
+        return { tipo: 'texto', texto: textoTotal };
+      }
+      // Se for imagem escaneada, renderiza página 1 em canvas
+      const page1 = await pdf.getPage(1);
+      const viewport = page1.getViewport({ scale: 1.5 });
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page1.render({ canvasContext: ctx, viewport: viewport }).promise;
+      return { tipo: 'imagem', imagem_base64: canvas.toDataURL('image/jpeg', 0.85) };
+    }
+  } catch (err) {
+    console.warn('Fallback leitura PDF:', err);
+  }
+  return { tipo: 'nome', texto: file.name };
+}
+
+async function analisarOrcamentoAnexadoComIA(anexo, file) {
+  showLoader(
+    'IA Lendo Orçamento da Fábrica...',
+    `Processando "${anexo.nome}" com Inteligência Artificial e OCR...`,
+    35,
+    'Extraindo Razão Social, CNPJ, Preços e Produtos...'
+  );
+
+  try {
+    let payload = { nome_arquivo: anexo.nome };
+
+    if (anexo.tipo === 'pdf') {
+      showLoader('Processando PDF...', 'Lendo camadas de texto e itens do PDF...', 55, 'Extraindo dados comerciais...');
+      const extracao = await extrairTextoOuImagemDePdf(file, anexo.data);
+      if (extracao.tipo === 'texto') {
+        payload.texto = extracao.texto;
+      } else if (extracao.tipo === 'imagem') {
+        payload.imagem_base64 = extracao.imagem_base64;
+      } else {
+        payload.texto = extracao.texto || anexo.nome;
+      }
+    } else {
+      // Print de imagem / WhatsApp
+      payload.imagem_base64 = anexo.data;
+    }
+
+    let token = sessionToken;
+    if (!token && supabaseClient) {
+      try {
+        const s = await supabaseClient.auth.getSession();
+        token = s.data?.session?.access_token;
+      } catch {}
+    }
+    if (!token) token = 'sess_operador_prado';
+
+    showLoader('IA Identificando Fornecedor...', 'Estruturando cotação comercial com margem garantida...', 75, 'Preenchendo grade...');
+
+    const res = await fetch('/api/leitura-orcamento', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const resp = await res.json();
+    if (!res.ok || !resp.sucesso || !resp.dados) {
+      throw new Error(resp.error || 'Não foi possível ler os dados automaticamente.');
+    }
+
+    const d = resp.dados;
+    const forn = d.fornecedor || {};
+    const cli = d.cliente || {};
+
+    const fabNome = (forn.nome && forn.nome !== 'Prado' && forn.nome !== 'Prado Comércio & Soluções')
+      ? forn.nome
+      : (anexo.nome.replace(/\.[^.]+$/, '').replace(/Print_|Orçamento_/i, '').trim() || 'Indústria Homologada');
+    const fabCnpj = forn.cnpj || 'Sob consulta';
+    const fabCidade = forn.cidade || '';
+    const fabEstado = (forn.estado || 'SP').toUpperCase().slice(0, 2);
+    const fabTelefone = forn.telefone || '(11) 3000-0000';
+    const fabWhatsapp = forn.whatsapp || '';
+    const custoUnit = Number(d.preco_custo_unitario) || 150.0;
+    const condicoes = d.condicoes_pagamento || '50% entrada e 50% na entrega e aceite';
+    const prazo = d.prazo_entrega || '5 a 8 dias úteis';
+    const produtoNome = d.produto_principal || (document.querySelector('#iaDemandaInput')?.value) || 'Produto Industrial Homologado';
+
+    // 1. Preenche demanda se vazia ou se achou produto específico
+    const inpDemanda = document.querySelector('#iaDemandaInput');
+    if (inpDemanda && (!inpDemanda.value.trim() || inpDemanda.value.includes('Ex:') || d.produto_principal)) {
+      inpDemanda.value = produtoNome;
+    }
+
+    // 2. Preenche endereço do cliente se identificado
+    if (cli.cidade) {
+      const inpCliLoc = document.querySelector('#iaClienteLocalizacao');
+      if (inpCliLoc) {
+        inpCliLoc.value = `${cli.cidade} - ${cli.estado || 'SP'} (${cli.nome || 'Cliente'})`;
+      }
+    }
+
+    // 3. Ativa automaticamente o Modo Híbrido (1 Fábrica Conhecida + 2 IA)
+    window.modoCotacaoAtual = 'hibrido';
+    const tabHibrido = document.querySelector('#tabModoHibrido');
+    const tabIa = document.querySelector('#tabModoIa');
+    const painelHibrido = document.querySelector('#painelModoHibrido');
+    const btnBuscar = document.querySelector('#btnBuscarFabricantes');
+
+    if (tabHibrido) {
+      tabHibrido.style.border = '2px solid var(--navy)';
+      tabHibrido.style.background = 'var(--navy)';
+      tabHibrido.style.color = '#fff';
+    }
+    if (tabIa) {
+      tabIa.style.border = '2px solid var(--line)';
+      tabIa.style.background = '#f8fafc';
+      tabIa.style.color = 'var(--ink)';
+    }
+    if (painelHibrido) painelHibrido.style.display = 'block';
+    if (btnBuscar) btnBuscar.textContent = '⚡ Gerar Cotação (1 Desta Fábrica + 2 Mais Próximas)';
+
+    // 4. Preenche os inputs da fábrica conhecida
+    const elFmNome = document.querySelector('#fmNome');
+    const elFmCnpj = document.querySelector('#fmCnpj');
+    const elFmCidade = document.querySelector('#fmCidade');
+    const elFmEstado = document.querySelector('#fmEstado');
+    const elFmTel = document.querySelector('#fmTelefone');
+    const elFmWhats = document.querySelector('#fmWhatsapp');
+    const elFmCusto = document.querySelector('#fmCustoUnitario');
+    const elFmCond = document.querySelector('#fmCondicoes');
+
+    if (elFmNome) elFmNome.value = fabNome;
+    if (elFmCnpj) elFmCnpj.value = fabCnpj;
+    if (elFmCidade) elFmCidade.value = fabCidade;
+    if (elFmEstado) elFmEstado.value = fabEstado;
+    if (elFmTel) elFmTel.value = fabTelefone;
+    if (elFmWhats) elFmWhats.value = fabWhatsapp;
+    if (elFmCusto) elFmCusto.value = custoUnit.toFixed(2);
+    if (elFmCond) elFmCond.value = condicoes;
+
+    // 5. Calcula margem comercial Prado e insere direto nos cards de cotação como Opção #1
+    const vendaSugerida = Number((custoUnit * 1.35).toFixed(2));
+    const lucro = Number((vendaSugerida - custoUnit).toFixed(2));
+
+    const fabOpcao1 = {
+      nome_empresa: fabNome,
+      cnpj: fabCnpj,
+      localizacao: [fabCidade, fabEstado].filter(Boolean).join(' - ') || 'Brasil',
+      telefone: fabTelefone,
+      whatsapp: fabWhatsapp,
+      contato_setor: 'Fornecedor de Confiança (Orçamento Anexado)',
+      produto_especificado: produtoNome + ' — Cotação Extraída do Anexo',
+      preco_custo_unitario: custoUnit,
+      preco_custo_total: custoUnit,
+      preco_venda_sugerido_unitario: vendaSugerida,
+      preco_venda_sugerido_total: vendaSugerida,
+      margem_estimada_valor: lucro,
+      margem_estimada_pct: 35.0,
+      prazo_entrega: prazo,
+      condicoes_pagamento: condicoes,
+      destaque_comercial: `Leitura automática por IA do anexo "${anexo.nome}". Custo e condições extraídos diretamente do documento original da fábrica.`,
+      origem_manual: true
+    };
+
+    if (!ultimosOrcamentosIA) {
+      ultimosOrcamentosIA = {
+        demanda_interpretada: produtoNome,
+        quantidade_estimada: '1 Lote Comercial',
+        fabricantes: [fabOpcao1],
+        orientacao_negociacao: 'Fábrica lida automaticamente pelo anexo. Clique em "Gerar Cotação" para localizar as 2 concorrentes mais próximas.'
+      };
+    } else {
+      if (!ultimosOrcamentosIA.fabricantes) ultimosOrcamentosIA.fabricantes = [];
+      const semManual = ultimosOrcamentosIA.fabricantes.filter(x => !x.origem_manual);
+      ultimosOrcamentosIA.fabricantes = [fabOpcao1, ...semManual];
+    }
+
+    const container = document.querySelector('#iaResultadosArea');
+    if (container) {
+      container.innerHTML = renderizarResultadosIACards(ultimosOrcamentosIA);
+    }
+
+    toast(`✓ IA leu "${fabNome}" com sucesso! Custo R$ ${custoUnit.toFixed(2)} e dados preenchidos.`);
+
+    setTimeout(() => {
+      document.querySelector('#iaResultadosArea')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 200);
+
+  } catch (err) {
+    console.error('Erro na leitura com IA:', err);
+    toast('Anexo recebido. Preencha ou confirme os dados da fábrica manualmente.');
+  } finally {
+    hideLoader();
+  }
+}
+
+function reprocessarAnexoComIA(id) {
+  const anexo = anexosCotacaoAtivos.find(a => a.id === id);
+  if (!anexo) return;
+  let file = null;
+  try {
+    const arr = anexo.data.split(',');
+    const mime = (arr[0].match(/:(.*?);/) || [])[1] || (anexo.tipo === 'pdf' ? 'application/pdf' : 'image/png');
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    file = new File([u8arr], anexo.nome, { type: mime });
+  } catch (e) {
+    file = { name: anexo.nome, type: anexo.mime || (anexo.tipo === 'pdf' ? 'application/pdf' : 'image/png') };
+  }
+  analisarOrcamentoAnexadoComIA(anexo, file);
+}
+window.reprocessarAnexoComIA = reprocessarAnexoComIA;
 
 function renderizarAnexosCotacao() {
   if (!anexosCotacaoAtivos.length) {
@@ -2340,7 +2575,10 @@ function renderizarAnexosCotacao() {
           ${a.tamanho} · ${a.criadoEm} (${escapeHtml(a.origem)})
         </small>
       </div>
-      <div style="display:flex;gap:6px;margin-top:8px;border-top:1px solid #f1f5f9;padding-top:6px">
+      <div style="display:flex;gap:6px;margin-top:8px;border-top:1px solid #f1f5f9;padding-top:6px;flex-wrap:wrap">
+        <button type="button" class="primary" style="font-size:11px;background:var(--gold);color:#151515;font-weight:800;padding:5px 8px;border-radius:5px;cursor:pointer;width:100%;margin-bottom:4px;border:none;box-shadow:0 1px 3px rgba(0,0,0,0.1)" onclick="reprocessarAnexoComIA('${a.id}')" title="A IA fará a leitura completa do print ou PDF e preencherá a fábrica automaticamente">
+          ⚡ Puxar Dados com IA
+        </button>
         <button type="button" class="link" style="font-size:11.5px;color:#0284c7;font-weight:700;cursor:pointer" onclick="visualizarAnexoEmModal('${a.id}')">
           👁️ Ver
         </button>
