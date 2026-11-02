@@ -31,24 +31,34 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Políticas de acesso para perfis
+-- Políticas de acesso para perfis (sem recursão de RLS)
 CREATE POLICY "Leitura de perfis" ON public.perfis
     FOR SELECT USING (
         public.is_admin() OR id = auth.uid()
     );
 
 CREATE POLICY "Atualização de próprio perfil ou por admin" ON public.perfis
-    FOR UPDATE 
-    USING (
+    FOR UPDATE USING (
         public.is_admin() OR id = auth.uid()
-    )
-    WITH CHECK (
-        public.is_admin() OR (
-            id = auth.uid() 
-            AND papel = (SELECT p.papel FROM public.perfis p WHERE p.id = auth.uid())
-            AND email = (SELECT p.email FROM public.perfis p WHERE p.id = auth.uid())
-        )
     );
+
+-- Trigger de proteção: impede que usuários comuns alterem papel ou email próprio
+CREATE OR REPLACE FUNCTION public.protect_perfil_update()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NOT public.is_admin() THEN
+        NEW.papel := OLD.papel;
+        NEW.email := OLD.email;
+    END IF;
+    NEW.updated_at := TIMEZONE('utc', NOW());
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS tr_protect_perfil_update ON public.perfis;
+CREATE TRIGGER tr_protect_perfil_update
+    BEFORE UPDATE ON public.perfis
+    FOR EACH ROW EXECUTE FUNCTION public.protect_perfil_update();
 
 -- Trigger para criar perfil automaticamente no cadastro pelo Supabase Auth (suporte a Google OAuth)
 CREATE OR REPLACE FUNCTION public.handle_new_user()
