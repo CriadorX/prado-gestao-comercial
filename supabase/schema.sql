@@ -26,7 +26,12 @@ RETURNS BOOLEAN AS $$
 BEGIN
     RETURN EXISTS (
         SELECT 1 FROM public.perfis
-        WHERE id = auth.uid() AND (papel = 'admin_global' OR email = 'licitadigitaltech@gmail.com')
+        WHERE id = auth.uid() AND (
+            papel = 'admin_global' OR 
+            email = 'licitadigitaltech@gmail.com' OR 
+            email = 'comercial@pradosolucoes.com.br' OR 
+            email = 'mdprado91@gmail.com'
+        )
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -66,7 +71,7 @@ RETURNS TRIGGER AS $$
 DECLARE
     papel_inicial TEXT;
 BEGIN
-    IF NEW.email = 'licitadigitaltech@gmail.com' OR NEW.email = 'comercial@pradosolucoes.com.br' THEN
+    IF NEW.email = 'licitadigitaltech@gmail.com' OR NEW.email = 'comercial@pradosolucoes.com.br' OR NEW.email = 'mdprado91@gmail.com' THEN
         papel_inicial := 'admin_global';
     ELSE
         papel_inicial := 'operador';

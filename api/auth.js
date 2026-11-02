@@ -497,12 +497,15 @@ module.exports = async function handler(req, res) {
 
       const adminEmail = String(process.env.PRADO_ADMIN_EMAIL || '').trim().toLowerCase();
       const adminAltEmail = 'comercial@pradosolucoes.com.br';
+      const michelPersonalEmail = 'mdprado91@gmail.com';
 
       // Autorização corporativa de acesso
       const isAuthorized =
         userEmail &&
         (userEmail === adminEmail ||
          userEmail === adminAltEmail ||
+         userEmail === michelPersonalEmail ||
+         userEmail === 'licitadigitaltech@gmail.com' ||
          (adminEmail === '' && userEmail.endsWith('@pradosolucoes.com.br')));
 
       if (!isAuthorized) {
