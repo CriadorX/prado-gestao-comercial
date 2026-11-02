@@ -1,4 +1,5 @@
 // Vercel Serverless Function — Extração inteligente e OCR de orçamentos da fábrica com OpenAI GPT-4o-mini Vision & Heurística
+const { requireMfaUser } = require('./_auth');
 const rateLimits = new Map();
 
 function isRateLimited(ip, limit = 20, windowMs = 60000) {
@@ -80,16 +81,34 @@ function extrairDadosHeuristicos(texto, nomeArquivo = '') {
     resumo: 'Dados extraídos do documento anexado.'
   };
 }
+function isAllowedOrigin(originHeader) {
+  if (!originHeader) return true;
+  try {
+    const parsed = new URL(originHeader);
+    const host = parsed.hostname.toLowerCase();
+    if (host === 'pradocomerciosolucoes.vercel.app') return true;
+    if (host === 'localhost' || host === '127.0.0.1') return true;
+    if (host.startsWith('pradocomerciosolucoes-') && host.endsWith('.vercel.app')) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
 
 module.exports = async function handler(req, res) {
   const origin = req.headers.origin || req.headers.referer || '';
-  const allowedHosts = ['pradocomerciosolucoes.vercel.app', 'localhost', '127.0.0.1'];
-  const isAllowed = !origin || allowedHosts.some(h => origin.includes(h));
 
-  if (isAllowed) {
-    res.setHeader('Access-Control-Allow-Origin', origin || 'https://pradocomerciosolucoes.vercel.app');
+  if (origin && isAllowedOrigin(origin)) {
+    try {
+      const u = new URL(origin);
+      res.setHeader('Access-Control-Allow-Origin', `${u.protocol}//${u.host}`);
+    } catch {
+      res.setHeader('Access-Control-Allow-Origin', 'https://pradocomerciosolucoes.vercel.app');
+    }
+  } else if (!origin) {
+    res.setHeader('Access-Control-Allow-Origin', 'https://pradocomerciosolucoes.vercel.app');
   } else {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    return res.status(403).json({ error: 'Acesso negado: origem não autorizada.' });
   }
 
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -104,14 +123,12 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Método não permitido.' });
   }
 
-  // 1. VERIFICAÇÃO DE AUTENTICAÇÃO (Suporta tokens de sessão do Supabase ou app Prado)
-  const authHeader = req.headers.authorization || '';
-  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
-
-  if (!token || token.length < 8) {
-    return res.status(401).json({
-      error: 'Não autorizado. Faça login no sistema para processar documentos comerciais.',
-      codigo: 'UNAUTHORIZED'
+  // 1. VERIFICAÇÃO DE AUTENTICAÇÃO CRIPTOGRÁFICA (JWT HMAC-SHA256 + MFA aal2)
+  const auth = await requireMfaUser(req);
+  if (!auth.ok) {
+    return res.status(auth.status).json({
+      error: auth.error,
+      codigo: auth.codigo
     });
   }
 

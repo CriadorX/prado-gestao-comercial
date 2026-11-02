@@ -1,7 +1,8 @@
 // Vercel Serverless Function — Consulta Cadastral de CNPJ via BrasilAPI (Hardened & Authenticated)
+const { requireMfaUser } = require('./_auth');
 const rateLimits = new Map();
 
-function isRateLimited(ip, limit = 20, windowMs = 60000) {
+function isRateLimited(ip, limit = 40, windowMs = 60000) {
   const now = Date.now();
   const userRecord = rateLimits.get(ip) || { count: 0, resetTime: now + windowMs };
   if (now > userRecord.resetTime) {
@@ -15,13 +16,32 @@ function isRateLimited(ip, limit = 20, windowMs = 60000) {
   return userRecord.count > limit;
 }
 
+function isAllowedOrigin(originHeader) {
+  if (!originHeader) return true;
+  try {
+    const parsed = new URL(originHeader);
+    const host = parsed.hostname.toLowerCase();
+    if (host === 'pradocomerciosolucoes.vercel.app') return true;
+    if (host === 'localhost' || host === '127.0.0.1') return true;
+    if (host.startsWith('pradocomerciosolucoes-') && host.endsWith('.vercel.app')) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 module.exports = async function handler(req, res) {
   const origin = req.headers.origin || req.headers.referer || '';
-  const allowedHosts = ['pradocomerciosolucoes.vercel.app', 'localhost', '127.0.0.1'];
-  const isAllowed = !origin || allowedHosts.some(h => origin.includes(h));
 
-  if (isAllowed) {
-    res.setHeader('Access-Control-Allow-Origin', origin || 'https://pradocomerciosolucoes.vercel.app');
+  if (origin && isAllowedOrigin(origin)) {
+    try {
+      const u = new URL(origin);
+      res.setHeader('Access-Control-Allow-Origin', `${u.protocol}//${u.host}`);
+    } catch {
+      res.setHeader('Access-Control-Allow-Origin', 'https://pradocomerciosolucoes.vercel.app');
+    }
+  } else if (!origin) {
+    res.setHeader('Access-Control-Allow-Origin', 'https://pradocomerciosolucoes.vercel.app');
   } else {
     return res.status(403).json({ error: 'Acesso negado: origem não autorizada.' });
   }
@@ -34,9 +54,18 @@ module.exports = async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // 1. RATE LIMITING
-  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
-  if (isRateLimited(clientIp, 60, 60000)) {
+  // 1. VERIFICAÇÃO DE AUTENTICAÇÃO CRIPTOGRÁFICA (JWT HMAC-SHA256 + MFA aal2)
+  const auth = await requireMfaUser(req);
+  if (!auth.ok) {
+    return res.status(auth.status).json({
+      error: auth.error,
+      codigo: auth.codigo
+    });
+  }
+
+  // 2. RATE LIMITING
+  const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1';
+  if (isRateLimited(clientIp, 40, 60000)) {
     return res.status(429).json({
       error: 'Muitas consultas consecutivas. Aguarde 1 minuto para nova consulta.',
       codigo: 'RATE_LIMIT_EXCEEDED'

@@ -1,6 +1,6 @@
 :root{--navy:#07355f;--navy2:#0b477c;--teal:#0794a6;--gold:#d79d21;--ink:#15283a;--muted:#6c7c89;--line:#dbe4ea;--bg:#f4f7f9;--white:#fff;--green:#15866d;--red:#bd4a4a;--orange:#c47419;--shadow:0 8px 28px rgba(18,45,67,.08)}
 html,body{max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
-*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}button,input,select,textarea{font:inherit}.sidebar{position:fixed;inset:0 auto 0 0;width:258px;background:linear-gradient(180deg,#072f54,#062641);color:#fff;padding:26px 18px;display:flex;flex-direction:column;z-index:10}.sidebar-backdrop{position:fixed;inset:0;background:rgba(3,19,36,.65);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:8999;opacity:0;pointer-events:none;transition:opacity .25s ease}.sidebar-backdrop.active{opacity:1;pointer-events:auto}.sidebar-close-btn{display:none}.brand{display:flex;align-items:center;gap:11px;padding:0 8px 28px}.mark{width:43px;height:43px;border:3px solid var(--gold);border-radius:13px 3px 13px 3px;display:grid;place-items:center;font-size:25px;font-weight:900;color:#fff;box-shadow:inset -5px -5px 0 var(--teal)}.brand strong{display:block;font-size:21px;letter-spacing:1.5px}.brand span{font-size:9px;letter-spacing:1.1px;color:#a8d8e0}.sidebar nav{display:grid;gap:5px}.nav-item{border:0;background:transparent;color:#bfd0dc;padding:12px 14px;border-radius:9px;display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer}.nav-item:hover,.nav-item.active{background:rgba(255,255,255,.1);color:#fff}.nav-item.active{box-shadow:inset 3px 0 0 var(--gold)}.nav-item b{font-size:18px;width:22px;text-align:center}.profile{margin-top:auto;border-top:1px solid rgba(255,255,255,.12);padding:18px 8px 0;display:flex;gap:10px;align-items:center}.profile small,.profile b{display:block}.profile small{color:#9db2c2;margin-top:2px}.avatar{background:var(--teal);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:800}main{margin-left:258px;min-height:100vh}main>header{height:94px;background:#fff;border-bottom:1px solid var(--line);padding:20px 34px;display:flex;align-items:center;justify-content:space-between}h1{margin:0;font-size:25px}header p{margin:5px 0 0;color:var(--muted);font-size:13px}.head-actions{display:flex;gap:10px;align-items:center}button{cursor:pointer;border:0}.primary{background:var(--navy2);color:#fff;padding:11px 17px;border-radius:8px;font-weight:700}.secondary{background:#edf2f5;color:var(--ink);padding:11px 17px;border-radius:8px}.icon{width:41px;height:41px;border-radius:9px;background:#edf3f6;position:relative}.icon i{position:absolute;width:7px;height:7px;background:#e85757;border-radius:50%;right:8px;top:7px}.notice{margin:22px 34px 0;background:#fff8e6;border:1px solid #ecd7a2;border-left:4px solid var(--gold);border-radius:8px;padding:11px 14px;display:flex;align-items:center;gap:12px;font-size:13px}.notice span{color:#6a5b36;flex:1}.notice button{background:transparent;color:#7a5b13;font-weight:700}.content{padding:24px 34px 42px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.metric,.card{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}.metric{padding:18px;display:flex;justify-content:space-between;align-items:flex-start}.metric small{color:var(--muted)}.metric strong{display:block;font-size:24px;margin:8px 0 3px}.metric em{font-style:normal;color:var(--green);font-size:12px}.metric .micon{font-size:23px;background:#edf5f7;padding:9px;border-radius:10px}.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:17px;margin-top:17px}.card{padding:20px}.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px}.card-head h2{font-size:16px;margin:0}.link{background:transparent;color:var(--teal);font-weight:700}.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}.stage{background:#f4f7f9;border-radius:9px;padding:12px}.stage span{font-size:11px;color:var(--muted);display:block}.stage b{font-size:19px;display:block;margin:7px 0}.stage i{height:4px;display:block;border-radius:4px;background:var(--teal)}.deal{padding:13px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:8px}.deal:last-child{border:0}.deal b{font-size:13px}.deal small{display:block;color:var(--muted);margin-top:4px}.badge{font-size:11px;border-radius:999px;padding:5px 9px;background:#e7f4ef;color:var(--green);height:max-content}.badge.warn{background:#fff0dd;color:var(--orange)}.badge.risk{background:#fdeaea;color:var(--red)}.quick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.quick button{background:#f6f9fa;border:1px solid var(--line);border-radius:9px;padding:15px;text-align:left;color:var(--ink)}.quick button b{display:block;margin-top:8px}.toolbar{display:flex;justify-content:space-between;gap:10px;margin-bottom:15px}.search{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 13px;min-width:310px}.table-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}.table{width:100%;border-collapse:collapse}.table th{text-align:left;background:#edf3f6;color:#456070;padding:12px;font-size:11px;text-transform:uppercase}.table td{padding:14px 12px;border-top:1px solid var(--line);font-size:13px}.table tr:hover td{background:#fafcfd}.empty{text-align:center;padding:65px 20px}.empty span{font-size:42px}.empty h3{margin:14px 0 7px}.empty p{color:var(--muted);margin:0 0 18px}.risk-search{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:26px;border-radius:13px}.risk-search h2{margin:0 0 6px}.risk-search p{color:#c7d7e2;margin:0 0 18px}.riskbar{display:flex;gap:8px}.riskbar input{flex:1;padding:13px;border:0;border-radius:8px}.riskbar button{background:var(--gold);color:#202020;padding:0 20px;border-radius:8px;font-weight:800}.check-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:17px}.check{padding:17px;background:#fff;border:1px solid var(--line);border-radius:10px}.check b{display:block;margin:8px 0}.check small{color:var(--muted)}.upload{border:2px dashed #b9cbd6;border-radius:12px;padding:35px;text-align:center;background:#fbfdfe}.upload input{display:none}.upload label{display:inline-block;margin-top:12px}.mobile{display:none}dialog{border:0;border-radius:14px;padding:0;width:min(720px,92vw);box-shadow:0 30px 90px rgba(0,0,0,.28)}dialog::backdrop{background:rgba(6,26,43,.62)}dialog form>header{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}dialog h2{margin:0}.close,#modalCloseBtn{width:36px;height:36px;border-radius:50%;background:#fee2e2;color:#dc2626;font-size:22px;font-weight:800;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1.5px solid #fca5a5;transition:all .2s ease;box-shadow:0 2px 8px rgba(220,38,38,.18)}.close:hover,#modalCloseBtn:hover{background:#dc2626;color:#ffffff;border-color:#b91c1c;transform:scale(1.1);box-shadow:0 4px 14px rgba(220,38,38,.38)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;padding:23px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:700}.field input,.field select,.field textarea{border:1px solid #cbd8df;border-radius:8px;padding:11px}.field textarea{min-height:70px}dialog footer{display:flex;justify-content:flex-end;gap:10px;padding:17px 24px;border-top:1px solid var(--line)}#toast{position:fixed;right:24px;bottom:24px;background:#16384f;color:#fff;padding:14px 18px;border-radius:9px;transform:translateY(120px);transition:.25s;z-index:100002;box-shadow:0 10px 30px rgba(0,0,0,.5)}#toast.show{transform:none}.chart{display:flex;align-items:end;height:170px;gap:12px;padding-top:20px}.bar{flex:1;background:linear-gradient(var(--teal),#7bcbd4);border-radius:6px 6px 0 0;min-height:8px;position:relative}.bar span{position:absolute;bottom:-22px;width:100%;text-align:center;font-size:10px;color:var(--muted)}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}button,input,select,textarea{font:inherit}.sidebar{position:fixed;inset:0 auto 0 0;width:258px;background:linear-gradient(180deg,#072f54,#062641);color:#fff;padding:26px 18px;display:flex;flex-direction:column;z-index:10;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}.sidebar::-webkit-scrollbar{width:5px}.sidebar::-webkit-scrollbar-track{background:transparent}.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px}.sidebar::-webkit-scrollbar-thumb:hover{background:rgba(215,157,33,.6)}.profile-clickable{display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;min-width:0;transition:opacity .15s ease,transform .15s ease}.profile-clickable:hover{opacity:.92}.profile-clickable:active{transform:scale(.98)}.profile-clickable:hover .avatar{transform:scale(1.08);box-shadow:0 0 12px rgba(215,157,33,.6)!important}.sidebar-backdrop{position:fixed;inset:0;background:rgba(3,19,36,.65);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:8999;opacity:0;pointer-events:none;transition:opacity .25s ease}.sidebar-backdrop.active{opacity:1;pointer-events:auto}.sidebar-close-btn{display:none}.brand{display:flex;align-items:center;gap:11px;padding:0 8px 28px}.mark{width:43px;height:43px;border:3px solid var(--gold);border-radius:13px 3px 13px 3px;display:grid;place-items:center;font-size:25px;font-weight:900;color:#fff;box-shadow:inset -5px -5px 0 var(--teal)}.brand strong{display:block;font-size:21px;letter-spacing:1.5px}.brand span{font-size:9px;letter-spacing:1.1px;color:#a8d8e0}.sidebar nav{display:grid;gap:5px}.nav-item{border:0;background:transparent;color:#bfd0dc;padding:12px 14px;border-radius:9px;display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer}.nav-item:hover,.nav-item.active{background:rgba(255,255,255,.1);color:#fff}.nav-item.active{box-shadow:inset 3px 0 0 var(--gold)}.nav-item b{font-size:18px;width:22px;text-align:center}.profile{margin-top:auto;border-top:1px solid rgba(255,255,255,.12);padding:18px 8px 0;display:flex;gap:10px;align-items:center}.profile small,.profile b{display:block}.profile small{color:#9db2c2;margin-top:2px}.avatar{background:var(--teal);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:800}main{margin-left:258px;min-height:100vh}main>header{height:94px;background:#fff;border-bottom:1px solid var(--line);padding:20px 34px;display:flex;align-items:center;justify-content:space-between}h1{margin:0;font-size:25px}header p{margin:5px 0 0;color:var(--muted);font-size:13px}.head-actions{display:flex;gap:10px;align-items:center}button{cursor:pointer;border:0}.primary{background:var(--navy2);color:#fff;padding:11px 17px;border-radius:8px;font-weight:700}.secondary{background:#edf2f5;color:var(--ink);padding:11px 17px;border-radius:8px}.icon{width:41px;height:41px;border-radius:9px;background:#edf3f6;position:relative}.icon i{position:absolute;width:7px;height:7px;background:#e85757;border-radius:50%;right:8px;top:7px}.notice{margin:22px 34px 0;background:#fff8e6;border:1px solid #ecd7a2;border-left:4px solid var(--gold);border-radius:8px;padding:11px 14px;display:flex;align-items:center;gap:12px;font-size:13px}.notice span{color:#6a5b36;flex:1}.notice button{background:transparent;color:#7a5b13;font-weight:700}.content{padding:24px 34px 42px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.metric,.card{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}.metric{padding:18px;display:flex;justify-content:space-between;align-items:flex-start}.metric small{color:var(--muted)}.metric strong{display:block;font-size:24px;margin:8px 0 3px}.metric em{font-style:normal;color:var(--green);font-size:12px}.metric .micon{font-size:23px;background:#edf5f7;padding:9px;border-radius:10px}.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:17px;margin-top:17px}.card{padding:20px}.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px}.card-head h2{font-size:16px;margin:0}.link{background:transparent;color:var(--teal);font-weight:700}.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}.stage{background:#f4f7f9;border-radius:9px;padding:12px}.stage span{font-size:11px;color:var(--muted);display:block}.stage b{font-size:19px;display:block;margin:7px 0}.stage i{height:4px;display:block;border-radius:4px;background:var(--teal)}.deal{padding:13px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:8px}.deal:last-child{border:0}.deal b{font-size:13px}.deal small{display:block;color:var(--muted);margin-top:4px}.badge{font-size:11px;border-radius:999px;padding:5px 9px;background:#e7f4ef;color:var(--green);height:max-content}.badge.warn{background:#fff0dd;color:var(--orange)}.badge.risk{background:#fdeaea;color:var(--red)}.quick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.quick button{background:#f6f9fa;border:1px solid var(--line);border-radius:9px;padding:15px;text-align:left;color:var(--ink)}.quick button b{display:block;margin-top:8px}.toolbar{display:flex;justify-content:space-between;gap:10px;margin-bottom:15px}.search{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 13px;min-width:310px}.table-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}.table{width:100%;border-collapse:collapse}.table th{text-align:left;background:#edf3f6;color:#456070;padding:12px;font-size:11px;text-transform:uppercase}.table td{padding:14px 12px;border-top:1px solid var(--line);font-size:13px}.table tr:hover td{background:#fafcfd}.empty{text-align:center;padding:65px 20px}.empty span{font-size:42px}.empty h3{margin:14px 0 7px}.empty p{color:var(--muted);margin:0 0 18px}.risk-search{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:26px;border-radius:13px}.risk-search h2{margin:0 0 6px}.risk-search p{color:#c7d7e2;margin:0 0 18px}.riskbar{display:flex;gap:8px}.riskbar input{flex:1;padding:13px;border:0;border-radius:8px}.riskbar button{background:var(--gold);color:#202020;padding:0 20px;border-radius:8px;font-weight:800}.check-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:17px}.check{padding:17px;background:#fff;border:1px solid var(--line);border-radius:10px}.check b{display:block;margin:8px 0}.check small{color:var(--muted)}.upload{border:2px dashed #b9cbd6;border-radius:12px;padding:35px;text-align:center;background:#fbfdfe}.upload input{display:none}.upload label{display:inline-block;margin-top:12px}.mobile{display:none}dialog{border:0;border-radius:14px;padding:0;width:min(720px,92vw);box-shadow:0 30px 90px rgba(0,0,0,.28)}dialog::backdrop{background:rgba(6,26,43,.62)}dialog form>header{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}dialog h2{margin:0}.close,#modalCloseBtn{width:36px;height:36px;border-radius:50%;background:#fee2e2;color:#dc2626;font-size:22px;font-weight:800;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1.5px solid #fca5a5;transition:all .2s ease;box-shadow:0 2px 8px rgba(220,38,38,.18)}.close:hover,#modalCloseBtn:hover{background:#dc2626;color:#ffffff;border-color:#b91c1c;transform:scale(1.1);box-shadow:0 4px 14px rgba(220,38,38,.38)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;padding:23px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:700}.field input,.field select,.field textarea{border:1px solid #cbd8df;border-radius:8px;padding:11px}.field textarea{min-height:70px}dialog footer{display:flex;justify-content:flex-end;gap:10px;padding:17px 24px;border-top:1px solid var(--line)}#toast{position:fixed;right:24px;bottom:24px;background:#16384f;color:#fff;padding:14px 18px;border-radius:9px;transform:translateY(120px);transition:.25s;z-index:100002;box-shadow:0 10px 30px rgba(0,0,0,.5)}#toast.show{transform:none}.chart{display:flex;align-items:end;height:170px;gap:12px;padding-top:20px}.bar{flex:1;background:linear-gradient(var(--teal),#7bcbd4);border-radius:6px 6px 0 0;min-height:8px;position:relative}.bar span{position:absolute;bottom:-22px;width:100%;text-align:center;font-size:10px;color:var(--muted)}
 @media(max-width:1050px){.metrics{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.check-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:760px){.sidebar{transform:translateX(-100%);transition:.2s}.sidebar.open{transform:none}.mobile{display:block;background:transparent;font-size:22px}main{margin-left:0}main>header{padding:16px;height:auto}.head-actions .icon{display:none}.head-actions .primary{font-size:0}.head-actions .primary:after{content:'＋';font-size:20px}.notice,.content{margin-left:15px;margin-right:15px}.content{padding:20px 0}.metrics{grid-template-columns:1fr}.pipeline{grid-template-columns:1fr 1fr}.check-grid{grid-template-columns:1fr}.toolbar{flex-wrap:wrap}.search{min-width:100%}.table-card{overflow:auto}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
 
@@ -765,8 +765,22 @@ body.dark-mode .auth-btn-google:hover {
     transform: translateX(-105%) !important;
     transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
     z-index: 9000 !important;
-    width: min(290px, 84vw) !important;
+    width: min(300px, 85vw) !important;
     box-shadow: 6px 0 35px rgba(0, 0, 0, 0.6) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-y !important;
+    max-height: calc(100vh - 42px) !important;
+    padding-bottom: 80px !important;
+  }
+  .sidebar nav {
+    flex-shrink: 0 !important;
+  }
+  .sidebar .profile {
+    flex-shrink: 0 !important;
+    margin-top: 20px !important;
   }
   .sidebar.open {
     transform: translateX(0) !important;
@@ -1289,5 +1303,1605 @@ html.usuario-ja-logado #loginOverlay {
 .header-brand-clickable:hover {
   opacity: 0.92;
 }
+
+/* ==========================================================================
+   CENTRAL DE NOTIFICAÇÕES (SINO 🔔) & CHAT CORPORATIVO / COPILOTO IA
+   ========================================================================== */
+.prado-badge-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 0 0 2px #fff;
+  pointer-events: none;
+}
+
+.prado-notif-panel {
+  position: fixed;
+  top: 60px;
+  right: 70px;
+  width: 380px;
+  max-width: 92vw;
+  max-height: 520px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: pradoFadeSlideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pradoFadeSlideDown {
+  from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.prado-notif-header {
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #073863, #0c4a7e);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.prado-notif-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.prado-notif-header-actions {
+  display: flex;
+  gap: 8px;
+}
+.prado-notif-header-actions button {
+  background: rgba(255, 255, 255, 0.16);
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.prado-notif-header-actions button:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.prado-notif-list {
+  overflow-y: auto;
+  max-height: 440px;
+  padding: 4px 0;
+}
+.prado-notif-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.15s;
+  align-items: flex-start;
+}
+.prado-notif-item:hover {
+  background: #f8fafc;
+}
+.prado-notif-item.unread {
+  background: #f0f7ff;
+}
+.prado-notif-item.unread:hover {
+  background: #e5f1fe;
+}
+.prado-notif-icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.prado-notif-body {
+  flex: 1;
+  min-width: 0;
+}
+.prado-notif-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.prado-notif-time {
+  font-size: 10.5px;
+  color: #94a3b8;
+  font-weight: normal;
+}
+.prado-notif-desc {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.4;
+}
+
+/* BALÃO TOAST FLUTUANTE NO CANTO INFERIOR (ESTILO WHATSAPP POPUP) */
+.prado-chat-toast-balloon {
+  position: fixed;
+  bottom: 84px;
+  right: 24px;
+  width: 320px;
+  max-width: 88vw;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(7, 56, 99, 0.25), 0 4px 10px rgba(0,0,0,0.08);
+  border: 1px solid #dbeafe;
+  z-index: 10001;
+  overflow: hidden;
+  cursor: pointer;
+  animation: pradoBalloonPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes pradoBalloonPop {
+  0% { opacity: 0; transform: translateY(25px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.prado-toast-header {
+  background: #25d366;
+  color: #fff;
+  padding: 8px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.prado-toast-content {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  align-items: center;
+}
+.prado-toast-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.prado-toast-texts {
+  flex: 1;
+  min-width: 0;
+}
+.prado-toast-author {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.prado-toast-msg {
+  font-size: 12px;
+  color: #475569;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   WHATSAPP CORPORATIVO (FIDEDIGNO & MINIMIZADO) & COPILOTO IA
+   ========================================================================== */
+
+/* Botão Flutuante Verde WhatsApp (Toque para abrir) */
+.prado-wa-float-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #008069;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 10px 25px rgba(0, 128, 105, 0.4), 0 4px 10px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+.prado-wa-float-btn:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 14px 30px rgba(0, 128, 105, 0.5);
+}
+.prado-wa-float-btn:active {
+  transform: scale(0.95);
+}
+.prado-wa-float-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  box-shadow: 0 0 0 2px #ffffff;
+  animation: pradoBadgePulse 2s infinite;
+}
+
+@keyframes pradoBadgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+/* Balãozinho Toast Instantâneo WhatsApp (quando fechado) */
+.prado-wa-toast {
+  position: fixed;
+  bottom: 92px;
+  right: 24px;
+  width: 330px;
+  max-width: calc(100vw - 40px);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22), 0 4px 12px rgba(0,0,0,0.08);
+  border: 1px solid #a7f3d0;
+  z-index: 10001;
+  display: none;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  animation: pradoToastSlide 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.prado-wa-toast.show {
+  display: flex !important;
+}
+.prado-wa-toast.dismissing {
+  opacity: 0 !important;
+  transform: translateY(24px) scale(0.88) !important;
+  pointer-events: none !important;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s ease !important;
+}
+
+@keyframes pradoToastSlide {
+  from { opacity: 0; transform: translateY(24px) scale(0.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.prado-wa-toast-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #005c4b;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  margin-top: 2px;
+}
+.prado-wa-toast-body {
+  flex: 1;
+  min-width: 0;
+}
+.prado-wa-toast-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.prado-wa-toast-header b {
+  font-size: 13px;
+  color: #111b21;
+}
+.prado-wa-toast-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: #25d366;
+  color: #ffffff;
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+.prado-wa-toast-text {
+  font-size: 12.5px;
+  color: #4b5563;
+  margin: 4px 0 0;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.prado-wa-toast-actions {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.prado-wa-toast-btn-action {
+  background: #008069;
+  color: #ffffff;
+  border: none;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+}
+.prado-wa-toast-btn-action:hover {
+  background: #006853;
+  transform: scale(1.03);
+}
+.prado-wa-toast-btn-dismiss {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.prado-wa-toast-btn-dismiss:hover {
+  background: #fee2e2;
+  color: #ef4444;
+  border-color: #fca5a5;
+}
+
+.prado-wa-toast-close {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  margin-top: -2px;
+}
+.prado-wa-toast-close:hover {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+  transform: scale(1.12);
+}
+
+/* ==========================================================================
+   JANELA DO CHAT MINIMIZADO / EXPANDIDO (ESTILO FIDEDIGNO AO PRINT)
+   ========================================================================== */
+.prado-wa-window[hidden],
+.prado-notif-panel[hidden] {
+  display: none !important;
+}
+
+.prado-wa-window {
+  position: fixed;
+  bottom: 92px;
+  right: 24px;
+  width: 360px;
+  height: 520px;
+  min-width: 310px;
+  min-height: 380px;
+  max-width: calc(100vw - 20px);
+  max-height: calc(100vh - 90px);
+  background: #efeae2;
+  background-image: 
+    radial-gradient(#cfc6b8 1px, transparent 1px),
+    radial-gradient(#cfc6b8 1px, #efeae2 1px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  border-radius: 20px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28), 0 4px 14px rgba(0,0,0,0.1);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: pradoWaPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  transform-origin: calc(100% - 20px) calc(100% + 40px);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, width 0.12s ease, height 0.12s ease;
+}
+
+.prado-wa-window.resizing {
+  transition: none !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.42) !important;
+}
+
+body.prado-resizing {
+  user-select: none !important;
+  cursor: nwse-resize !important;
+}
+
+/* Handles de redimensionamento pelas bordas */
+.prado-wa-resizer {
+  position: absolute;
+  z-index: 10005;
+  background: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Borda Superior */
+.prado-wa-resizer.resizer-t {
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 10px;
+  cursor: ns-resize;
+}
+.prado-wa-resizer.resizer-t:hover,
+.prado-wa-resizer.resizer-t:active {
+  background: rgba(0, 168, 132, 0.25);
+}
+
+/* Borda Esquerda */
+.prado-wa-resizer.resizer-l {
+  top: 24px;
+  bottom: 24px;
+  left: 0;
+  width: 10px;
+  cursor: ew-resize;
+}
+.prado-wa-resizer.resizer-l:hover,
+.prado-wa-resizer.resizer-l:active {
+  background: rgba(0, 168, 132, 0.25);
+}
+
+/* Canto Superior Esquerdo (Pegada principal de redimensionar) */
+.prado-wa-resizer.resizer-tl {
+  top: 0;
+  left: 0;
+  width: 26px;
+  height: 26px;
+  cursor: nwse-resize;
+  z-index: 10010;
+  border-top-left-radius: 20px;
+  transition: background 0.15s ease;
+}
+.prado-wa-resizer.resizer-tl::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 9px;
+  height: 9px;
+  border-top: 2px solid rgba(255, 255, 255, 0.85);
+  border-left: 2px solid rgba(255, 255, 255, 0.85);
+  border-top-left-radius: 4px;
+  pointer-events: none;
+}
+.prado-wa-resizer.resizer-tl:hover,
+.prado-wa-resizer.resizer-tl:active {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* Borda Direita */
+.prado-wa-resizer.resizer-r {
+  top: 24px;
+  bottom: 24px;
+  right: 0;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+/* Borda Inferior */
+.prado-wa-resizer.resizer-b {
+  bottom: 0;
+  left: 24px;
+  right: 24px;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+/* Seletor Compacto Menina (Mulher) e Menino (Homem) lado a lado */
+.prado-wa-voice-duo {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.24);
+  padding: 2px 3px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.prado-wa-voice-btn {
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  transition: all 0.16s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.prado-wa-voice-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.12);
+}
+
+.prado-wa-voice-btn.active.fem {
+  background: #db2777;
+  box-shadow: 0 0 10px rgba(219, 39, 119, 0.85);
+  transform: scale(1.12);
+}
+
+.prado-wa-voice-btn.active.masc {
+  background: #0284c7;
+  box-shadow: 0 0 10px rgba(2, 132, 199, 0.85);
+  transform: scale(1.12);
+}
+
+/* Botão Gravar Voz no Cabeçalho */
+.prado-wa-mic-studio-btn {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.prado-wa-mic-studio-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* Modal do Estúdio de Gravação de Voz */
+.prado-voice-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 100020;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.18s ease;
+}
+.prado-voice-modal-card {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  max-width: 460px;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.prado-voice-modal-header {
+  background: #005c4b;
+  color: #ffffff;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.prado-voice-modal-header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.prado-voice-modal-close {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.prado-voice-modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.prado-voice-modal-body {
+  padding: 16px 18px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.prado-voice-card-frase {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #00a884;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.prado-voice-card-frase small {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.prado-voice-card-frase p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #1e293b;
+  font-weight: 500;
+}
+.prado-voice-record-box {
+  background: #ffffff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.prado-voice-record-box.recording {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+.prado-voice-timer-big {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+.prado-voice-actions-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+.prado-voice-btn-rec {
+  flex: 1;
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+.prado-voice-btn-rec:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+.prado-voice-btn-stop {
+  flex: 1;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.prado-voice-btn-play {
+  flex: 1;
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.prado-voice-btn-save {
+  width: 100%;
+  background: #008069;
+  color: #ffffff;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 128, 105, 0.3);
+  transition: all 0.15s ease;
+}
+.prado-voice-btn-save:hover {
+  background: #006c59;
+}
+
+/* Barra de Voz do Copiloto IA */
+.prado-wa-voice-selector-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 7px 10px;
+  margin: 10px 12px 6px 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  flex-shrink: 0;
+}
+.prado-wa-voice-selector-bar .label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #334155;
+  white-space: nowrap;
+}
+.prado-wa-voice-selector-bar .btn-voice-opt {
+  flex: 1;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  padding: 5px 8px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.prado-wa-voice-selector-bar .btn-voice-opt:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+.prado-wa-voice-selector-bar .btn-voice-opt.active {
+  background: #005c4b;
+  color: #ffffff;
+  border-color: #005c4b;
+  box-shadow: 0 2px 6px rgba(0, 92, 75, 0.22);
+}
+
+/* Efeito de se esconder/recolher exatamente para dentro da bolinha do WhatsApp */
+.prado-wa-window.closing {
+  transform: scale(0.04) translate(120px, 120px) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.16s ease !important;
+}
+
+@keyframes pradoWaPop {
+  from { opacity: 0; transform: scale(0.08) translate(80px, 80px); }
+  to { opacity: 1; transform: scale(1) translate(0, 0); }
+}
+
+/* Header Verde do WhatsApp */
+.prado-wa-header {
+  background: #005c4b;
+  color: #ffffff;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  user-select: none;
+  flex-shrink: 0;
+}
+.prado-wa-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.prado-wa-back-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #ffffff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.prado-wa-back-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: scale(1.08);
+}
+.prado-wa-header-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #4a6962;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.prado-wa-header-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.prado-wa-header-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.prado-wa-header-sub {
+  font-size: 11px;
+  color: #c8f5d0;
+  font-weight: 400;
+}
+
+.prado-wa-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.prado-wa-head-icon {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #ffffff;
+  font-size: 15px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.prado-wa-head-icon:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: scale(1.08);
+}
+.prado-wa-head-icon.close-x:hover {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+/* Abas de Navegação (Conversa | Copiloto IA | Online) */
+.prado-wa-tabs {
+  background: #00725c;
+  display: flex;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+.prado-wa-tab {
+  flex: 1;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  text-align: center;
+}
+.prado-wa-tab:hover {
+  color: #ffffff;
+}
+.prado-wa-tab.active {
+  color: #ffffff;
+  border-bottom: 3px solid #ffffff;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* Corpo da Conversa */
+.prado-wa-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.prado-wa-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.prado-wa-pane[hidden] {
+  display: none !important;
+}
+.prado-wa-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Pílula de Data Centralizada (HOJE) */
+.prado-wa-date-pill {
+  align-self: center;
+  margin: 4px 0 8px;
+}
+.prado-wa-date-pill span {
+  background: #ffffff;
+  color: #54656f;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 1px rgba(11,20,26,.12);
+  letter-spacing: 0.3px;
+}
+
+/* Linha de Balão WhatsApp */
+.prado-wa-msg-row {
+  display: flex;
+  width: 100%;
+}
+.prado-wa-msg-row.mine {
+  justify-content: flex-end;
+}
+.prado-wa-msg-row.theirs {
+  justify-content: flex-start;
+}
+
+/* Balão WhatsApp Oficial */
+.prado-wa-bubble {
+  max-width: 82%;
+  padding: 7px 10px 5px 11px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: #111b21;
+  box-shadow: 0 1px 1px rgba(11,20,26,.13);
+  position: relative;
+  word-break: break-word;
+}
+.prado-wa-bubble.theirs {
+  background: #ffffff;
+  border-radius: 0 10px 10px 10px;
+}
+.prado-wa-bubble.theirs::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -7px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid #ffffff;
+  border-left: 8px solid transparent;
+}
+
+.prado-wa-bubble.mine {
+  background: #d9fdd3;
+  border-radius: 10px 0 10px 10px;
+}
+.prado-wa-bubble.mine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -7px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid #d9fdd3;
+  border-right: 8px solid transparent;
+}
+
+.prado-wa-author {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #008069;
+  margin-bottom: 2px;
+}
+.prado-wa-text {
+  font-size: 13px;
+  color: #111b21;
+}
+
+.prado-wa-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 2px;
+}
+.prado-wa-time {
+  font-size: 10.5px;
+  color: #667781;
+}
+.prado-wa-check {
+  font-size: 12px;
+  color: #53bdeb; /* Azul oficial de lido do WhatsApp */
+  font-weight: bold;
+  letter-spacing: -1px;
+}
+.prado-wa-check.single {
+  color: #8696a0; /* Cinza de enviado */
+}
+
+/* Indicador de Digitando... */
+.prado-wa-typing {
+  font-size: 11.5px;
+  color: #008069;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+}
+
+/* Player de Áudio Oficial WhatsApp */
+.prado-wa-audio-player {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  min-width: 190px;
+}
+.prado-wa-audio-play {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #008069;
+  color: #ffffff;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+.prado-wa-audio-play:hover {
+  transform: scale(1.06);
+}
+.prado-wa-audio-track {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.prado-wa-audio-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 16px;
+}
+.prado-wa-audio-bar span {
+  width: 3px;
+  height: 60%;
+  background: #54656f;
+  border-radius: 2px;
+  opacity: 0.7;
+}
+.prado-wa-audio-bar span:nth-child(even) {
+  height: 95%;
+}
+.prado-wa-audio-dur {
+  font-size: 10px;
+  color: #667781;
+}
+.prado-wa-audio-transcription {
+  margin-top: 5px;
+  font-size: 11.5px;
+  color: #2e3b43;
+  line-height: 1.35;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 6px;
+  border-left: 2.5px solid #00a884;
+}
+.prado-wa-audio-player.playing .prado-wa-audio-bar span {
+  animation: pradoWaWave 0.6s ease-in-out infinite alternate;
+}
+.prado-wa-audio-player.playing .prado-wa-audio-bar span:nth-child(2n) {
+  animation-delay: 0.15s;
+}
+.prado-wa-audio-player.playing .prado-wa-audio-bar span:nth-child(3n) {
+  animation-delay: 0.3s;
+}
+@keyframes pradoWaWave {
+  from { height: 25%; }
+  to { height: 100%; }
+}
+
+/* Rodapé de Digitação WhatsApp (Pílula Branca + Botão Verde Separado) */
+.prado-wa-footer {
+  padding: 8px 10px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  position: relative;
+  flex-shrink: 0;
+}
+.prado-wa-input-pill {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+.prado-wa-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13.5px;
+  color: #111b21;
+  padding: 6px 4px;
+}
+.prado-wa-input::placeholder {
+  color: #8696a0;
+}
+.prado-wa-btn-emoji, .prado-wa-btn-tool {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #54656f;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: transform 0.12s;
+}
+.prado-wa-btn-emoji:hover, .prado-wa-btn-tool:hover {
+  transform: scale(1.15);
+}
+
+/* Modo Gravação no Rodapé */
+.prado-wa-recording-pill {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 7px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  border: 1px solid #fee2e2;
+}
+.prado-wa-recording-pill[hidden],
+.prado-wa-input-pill[hidden] {
+  display: none !important;
+}
+.prado-wa-rec-indicator {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: #ef4444;
+}
+.prado-wa-rec-dot {
+  width: 10px;
+  height: 10px;
+  background: #ef4444;
+  border-radius: 50%;
+  animation: pradoRecPulse 1s infinite;
+  flex-shrink: 0;
+}
+.prado-wa-rec-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #ef4444;
+}
+.prado-wa-rec-timer {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #b91c1c;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+  min-width: 32px;
+}
+.prado-wa-rec-waves {
+  display: flex;
+  align-items: center;
+  gap: 2.5px;
+  height: 16px;
+  margin-left: 4px;
+}
+.prado-wa-rec-waves span {
+  width: 2.5px;
+  height: 6px;
+  background: #ef4444;
+  border-radius: 2px;
+  animation: pradoWaveAnim 0.7s ease-in-out infinite alternate;
+}
+.prado-wa-rec-waves span:nth-child(1) { animation-delay: 0.1s; height: 10px; }
+.prado-wa-rec-waves span:nth-child(2) { animation-delay: 0.3s; height: 14px; }
+.prado-wa-rec-waves span:nth-child(3) { animation-delay: 0.2s; height: 8px; }
+.prado-wa-rec-waves span:nth-child(4) { animation-delay: 0.5s; height: 16px; }
+.prado-wa-rec-waves span:nth-child(5) { animation-delay: 0.15s; height: 11px; }
+.prado-wa-rec-waves span:nth-child(6) { animation-delay: 0.4s; height: 13px; }
+.prado-wa-rec-waves span:nth-child(7) { animation-delay: 0.25s; height: 7px; }
+
+@keyframes pradoWaveAnim {
+  0% { transform: scaleY(0.4); opacity: 0.4; }
+  100% { transform: scaleY(1.3); opacity: 1; }
+}
+@keyframes pradoRecPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.85); }
+}
+.prado-wa-rec-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.prado-wa-rec-btn-cancel {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #ef4444;
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.prado-wa-rec-btn-cancel:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+.prado-wa-rec-btn-send {
+  background: #008069;
+  border: none;
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 4px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.15s;
+}
+.prado-wa-rec-btn-send:hover {
+  background: #006853;
+}
+
+/* Botão Circular Verde Separado (Microfone: Segure para gravar | Aviãozinho: Enviar) */
+.prado-wa-action-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #008069;
+  color: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  flex-shrink: 0;
+  transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.prado-wa-action-circle:hover {
+  background: #00705a;
+  transform: scale(1.06);
+}
+.prado-wa-action-circle:active, .prado-wa-action-circle.holding {
+  background: #ef4444 !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.6) !important;
+}
+
+/* Modo Aviãozinho de Envio Ativo */
+.prado-wa-action-circle.send-mode {
+  background: #00a884;
+  box-shadow: 0 3px 10px rgba(0, 168, 132, 0.45);
+}
+.prado-wa-action-circle.send-mode:hover {
+  background: #008f6f;
+  transform: scale(1.08);
+}
+
+
+/* Popover de Emojis em Grade Ampla */
+.prado-wa-emoji-popover {
+  position: absolute;
+  bottom: 64px;
+  left: 12px;
+  width: 260px;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  border: 1px solid #e2e8f0;
+  z-index: 10005;
+}
+.prado-wa-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+.prado-wa-emoji-grid button {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, transform 0.12s;
+}
+.prado-wa-emoji-grid button:hover {
+  background: #f1f5f9;
+  transform: scale(1.2);
+}
+
+/* Lista de Integrantes Online */
+.prado-wa-online-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 10px;
+}
+.prado-wa-online-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+.prado-wa-online-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #005c4b;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+.prado-wa-online-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #25d366;
+  border: 2px solid #ffffff;
+}
+.prado-wa-online-info {
+  flex: 1;
+  min-width: 0;
+}
+.prado-wa-online-info b {
+  display: block;
+  font-size: 13.5px;
+  color: #111b21;
+}
+.prado-wa-online-info small {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.prado-wa-online-loc {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 10.5px;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+.prado-wa-call-btn {
+  background: #008069;
+  color: #ffffff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 16px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.prado-wa-call-btn:hover {
+  background: #006853;
+}
+
+/* ==========================================================================
+   GRUPOS DE SETORES NO WHATSAPP CORPORATIVO PRADO
+   ========================================================================== */
+.prado-wa-groups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 0;
+}
+.prado-wa-group-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.prado-wa-group-card:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+.prado-wa-group-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #e8f5e9;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #c8e6c9;
+}
+.prado-wa-group-info {
+  flex: 1;
+  min-width: 0;
+}
+.prado-wa-group-info-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+.prado-wa-group-info-top b {
+  font-size: 13.5px;
+  color: #111b21;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.prado-wa-group-time {
+  font-size: 10px;
+  color: #667781;
+}
+.prado-wa-group-desc {
+  font-size: 11.5px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+.prado-wa-group-membros {
+  font-size: 10px;
+  color: #059669;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.prado-wa-group-header-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #ffffff;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+.prado-wa-group-back-btn {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s;
+}
+.prado-wa-group-back-btn:hover {
+  background: #e2e8f0;
+}
+.prado-wa-group-header-title {
+  font-size: 12px;
+  color: #0f172a;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.prado-wa-sender-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+
 
 

@@ -38,32 +38,52 @@ CREATE POLICY "Leitura de perfis" ON public.perfis
     );
 
 CREATE POLICY "Atualização de próprio perfil ou por admin" ON public.perfis
-    FOR UPDATE USING (
+    FOR UPDATE 
+    USING (
         public.is_admin() OR id = auth.uid()
+    )
+    WITH CHECK (
+        public.is_admin() OR (
+            id = auth.uid() 
+            AND papel = (SELECT p.papel FROM public.perfis p WHERE p.id = auth.uid())
+            AND email = (SELECT p.email FROM public.perfis p WHERE p.id = auth.uid())
+        )
     );
 
--- Trigger para criar perfil automaticamente no cadastro pelo Supabase Auth
+-- Trigger para criar perfil automaticamente no cadastro pelo Supabase Auth (suporte a Google OAuth)
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 DECLARE
     papel_inicial TEXT;
 BEGIN
-    IF NEW.email = 'licitadigitaltech@gmail.com' THEN
+    IF NEW.email = 'licitadigitaltech@gmail.com' OR NEW.email = 'comercial@pradosolucoes.com.br' THEN
         papel_inicial := 'admin_global';
     ELSE
         papel_inicial := 'operador';
     END IF;
 
-    INSERT INTO public.perfis (id, nome, email, papel, cargo)
+    INSERT INTO public.perfis (id, nome, email, papel, cargo, avatar_url)
     VALUES (
         NEW.id,
-        COALESCE(NEW.raw_user_meta_data->>'nome', split_part(NEW.email, '@', 1)),
+        COALESCE(
+            NEW.raw_user_meta_data->>'full_name',
+            NEW.raw_user_meta_data->>'name',
+            NEW.raw_user_meta_data->>'nome',
+            split_part(NEW.email, '@', 1)
+        ),
         NEW.email,
         papel_inicial,
-        CASE WHEN papel_inicial = 'admin_global' THEN 'Administrador' ELSE 'Representante Comercial' END
+        CASE WHEN papel_inicial = 'admin_global' THEN 'Administrador Geral / Diretoria' ELSE 'Representante Comercial' END,
+        COALESCE(
+            NEW.raw_user_meta_data->>'avatar_url',
+            NEW.raw_user_meta_data->>'picture'
+        )
     )
     ON CONFLICT (id) DO UPDATE
-    SET email = EXCLUDED.email;
+    SET email = EXCLUDED.email,
+        nome = COALESCE(EXCLUDED.nome, public.perfis.nome),
+        avatar_url = COALESCE(EXCLUDED.avatar_url, public.perfis.avatar_url),
+        updated_at = TIMEZONE('utc', NOW());
 
     RETURN NEW;
 END;

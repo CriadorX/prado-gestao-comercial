@@ -3,14 +3,44 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-  <meta name="description" content="Gestão de intermediações comerciais da Prado Comércio & Soluções">
-  <title>Prado Gestão Comercial</title>
-  <link rel="icon" type="image/x-icon" href="favicon.ico?v=3">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-solid.png?v=3">
-  <link rel="icon" type="image/png" sizes="192x192" href="favicon-solid.png?v=3">
-  <link rel="shortcut icon" href="favicon.ico?v=3">
-  <link rel="apple-touch-icon" href="favicon-solid.png?v=3">
-  <link rel="stylesheet" href="styles.css?v=20261019_02">
+  <meta name="description" content="Plataforma de gestão comercial, intermediações corporativas, cotações com IA, emissão de NF-e e controle financeiro integrado da Prado Comércio & Soluções.">
+  <title>Prado Gestão Comercial — Plataforma Oficial de Intermediações</title>
+
+  <!-- OPEN GRAPH / METATAGS DE COMPARTILHAMENTO (WHATSAPP, DISCORD, TELEGRAM, LINKEDIN, FACEBOOK) -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://pradocomerciosolucoes.vercel.app/">
+  <meta property="og:site_name" content="Prado Comércio & Soluções">
+  <meta property="og:title" content="Prado Gestão Comercial — Plataforma Oficial de Intermediações">
+  <meta property="og:description" content="Sua central de gestão comercial, intermediações corporativas, cotações com inteligência artificial, NF-e e controle financeiro integrado.">
+  <meta property="og:image" content="https://pradocomerciosolucoes.vercel.app/og-banner.jpg?v=20261024_clean3d">
+  <meta property="og:image:secure_url" content="https://pradocomerciosolucoes.vercel.app/og-banner.jpg?v=20261024_clean3d">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="720">
+  <meta property="og:image:alt" content="Prado Gestão Comercial - Plataforma Oficial de Intermediações">
+
+  <!-- TWITTER / X CARD (SUMMARY LARGE IMAGE) -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://pradocomerciosolucoes.vercel.app/">
+  <meta name="twitter:title" content="Prado Gestão Comercial — Plataforma Oficial de Intermediações">
+  <meta name="twitter:description" content="Sua central de gestão comercial, intermediações corporativas, cotações com inteligência artificial, NF-e e controle financeiro integrado.">
+  <meta name="twitter:image" content="https://pradocomerciosolucoes.vercel.app/og-banner.jpg?v=20261024_clean3d">
+  <meta name="twitter:image:alt" content="Prado Gestão Comercial">
+
+  <link rel="manifest" href="manifest.json?v=20261022">
+  <meta name="theme-color" content="#07355f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Prado Gestão">
+  <meta name="application-name" content="Prado Gestão">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=4">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-solid.png?v=4">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon-solid.png?v=4">
+  <link rel="icon" type="image/png" sizes="512x512" href="favicon-solid.png?v=4">
+  <link rel="shortcut icon" href="favicon.ico?v=4">
+  <link rel="apple-touch-icon" href="favicon-solid.png?v=4">
+  <link rel="stylesheet" href="styles.css?v=20261022_10">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.48.1/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -19,16 +49,69 @@
       window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
   </script>
-  <script>
-    // Mantém a sessão do usuário ativa e previne flicker de login ao recarregar a tela (F5)
-    try {
-      if (localStorage.getItem('pradoCurrentUser')) {
-        document.documentElement.classList.add('usuario-ja-logado');
+  <style>
+    /* BARRA FIXA SUPERIOR DE MANUTENÇÃO / DESENVOLVIMENTO (ESTILO RECSEEN) */
+    #topDevBanner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 38px;
+      background: linear-gradient(90deg, #ea580c, #c2410c);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      z-index: 99999;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+      padding: 0 16px;
+      letter-spacing: 0.2px;
+      text-align: center;
+      user-select: none;
+    }
+    body {
+      padding-top: 38px !important;
+    }
+    .sidebar {
+      top: 38px !important;
+      height: calc(100vh - 38px) !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      overscroll-behavior-y: contain !important;
+    }
+    @media (max-width: 760px) {
+      #topDevBanner {
+        font-size: 11px;
+        height: 42px;
+        padding: 0 10px;
+        line-height: 1.25;
       }
-    } catch (e) {}
-  </script>
-</head>
+      body {
+        padding-top: 42px !important;
+      }
+      .sidebar {
+        top: 42px !important;
+        height: calc(100vh - 42px) !important;
+        max-height: calc(100vh - 42px) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior-y: contain !important;
+        touch-action: pan-y !important;
+        padding-bottom: 85px !important;
+      }
+    }
+  </style>
 <body>
+  <!-- BARRA DE AVISO FIXA NO TOPO (REFERÊNCIA DE MANUTENÇÃO / DESENVOLVIMENTO) -->
+  <aside id="topDevBanner" role="alert" aria-live="polite">
+    <span style="font-size:15px;line-height:1">💬</span>
+    <span>A <b>Prado Comércio &amp; Soluções</b> passará por uma manutenção em breve para a implementação de novas atualizações, melhorias de desempenho e otimizações na plataforma. Agradecemos a compreensão e a paciência de todos! 💚</span>
+  </aside>
+
   <!-- TELA DE LOGIN EM 3 ETAPAS ESTILO CORRETORA (MONTEBRAVO / PRADO) -->
   <div id="loginOverlay" class="login-overlay auth-overlay">
     <!-- LADO ESQUERDO: CARROSSEL HERO CORPORATIVO (ESTILO MONTEBRAVO) -->
@@ -110,15 +193,15 @@
         </section>
 
         <!-- ETAPA 1b: IDENTIFICAÇÃO (CPF OU E-MAIL) -->
-        <section class="auth-step" data-step="email" hidden>
+        <section class="auth-step active" data-step="email">
           <p class="auth-kicker">Boas-vindas à Prado!</p>
-          <h2 class="auth-title">Informe seu CPF ou número de conta para continuar</h2>
+          <h2 class="auth-title">Informe seu CPF, RG ou número de conta para continuar</h2>
           <form id="authEmailForm" novalidate>
             <label class="auth-field">
-              <span>CPF ou Número de conta</span>
+              <span>CPF, RG ou Número de conta</span>
               <div class="auth-input-wrap">
                 <span class="auth-input-icon">👤</span>
-                <input type="text" id="authEmail" autocomplete="username" placeholder="000.000.000-00 ou e-mail" required>
+                <input type="text" id="authEmail" autocomplete="username" placeholder="000.000.000-00, RG ou e-mail" required>
               </div>
             </label>
             <label class="auth-checkbox-wrap" style="display:flex;align-items:center;gap:8px;margin:-4px 0 14px;cursor:pointer;font-size:12.5px;color:#64748b">
@@ -280,14 +363,14 @@
         </form>
       </section>
 
-      <!-- ETAPA 3a: TOKEN DO APLICATIVO / GOOGLE AUTHENTICATOR -->
+      <!-- ETAPA 3a: TOKEN DE CONFIRMAÇÃO (E-MAIL / WHATSAPP / CELULAR) -->
       <section class="auth-step" data-step="token" hidden>
-        <h2 class="auth-title">Informe seu Token do aplicativo</h2>
-        <p class="auth-sub">Digite os 6 dígitos gerados pelo <b>Google Authenticator</b> no seu celular.</p>
+        <h2 class="auth-title">Código de Verificação</h2>
+        <p class="auth-sub" id="authTokenSub">Digite os 6 dígitos enviados para o seu e-mail ou celular.</p>
         
-        <div class="auth-tip-box" style="background:#eff6ff;border-color:#bfdbfe;color:#1e40af">
-          📱 <b>Como ver o código:</b> Abra o app Google Authenticator no seu celular. Os 6 dígitos estão aparecendo na tela sob o nome <b>Prado Gestão</b>!<br>
-          <small style="display:block;margin-top:6px;color:#1d4ed8">🔒 <b>Solicitado apenas 1x ao dia:</b> Uma vez validado hoje para este usuário, os próximos acessos do dia entrarão diretamente após digitar a senha.</small>
+        <div class="auth-tip-box" id="authTokenTipBox" style="background:#eff6ff;border-color:#bfdbfe;color:#1e40af">
+          📬 <b>Código de Acesso Seguro:</b> Enviamos um código de 6 dígitos.<br>
+          <small id="authTokenSentTarget" style="display:block;margin-top:6px;color:#1d4ed8;font-weight:600">Verifique seu e-mail ou celular.</small>
         </div>
 
         <div class="otp" id="otpToken">
@@ -300,69 +383,28 @@
         </div>
         <p class="auth-error" hidden></p>
         <button type="button" class="auth-btn auth-btn-purple auth-confirm" id="authTokenConfirm" disabled>Confirmar e acessar conta</button>
-        <button type="button" class="auth-btn auth-btn-purple-soft" id="authBtnShowQr" style="margin-top:10px">📲 Ver QR Code / Cadastrar outro celular</button>
+        <button type="button" class="auth-btn auth-btn-purple-soft" id="authBtnResendToken" style="margin-top:10px">📨 Reenviar código (E-mail / WhatsApp)</button>
         <button type="button" class="auth-link auth-back auth-cancel-mfa">‹ Cancelar e sair</button>
       </section>
 
-      <!-- ETAPA 3b: CADASTRAR NO GOOGLE AUTHENTICATOR (QR CODE VISÍVEL) -->
-      <section class="auth-step" data-step="enroll" hidden>
-        <h2 class="auth-title">Cadastre seu Google Authenticator</h2>
-        <p class="auth-sub">Aponte a câmera do seu celular para cadastrar a Prado no seu app.</p>
-        <ol class="auth-steps-list">
-          <li>Abra o <b>Google Authenticator</b> no celular e toque no botão <b>＋</b></li>
-          <li>Escolha <b>Ler código QR</b> e aponte para o quadrado abaixo</li>
-          <li>Olhe na tela do celular: digite os <b>6 dígitos</b> que apareceram no app</li>
-        </ol>
-        <div class="auth-qr">
-          <img id="authQrImg" alt="QR Code do Google Authenticator" style="width:200px;height:200px;background:#fff;padding:8px;border:2px solid #5b4db7;border-radius:18px">
+      <!-- ETAPA LOGIN DIRETO COM CONTA GOOGLE -->
+      <section class="auth-step" data-step="google-account" hidden>
+        <div style="text-align:center;margin-bottom:12px">
+          <svg width="44" height="44" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17Z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24Z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.97 0 12s.45 3.82 1.25 5.42l4.03-3.15Z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z"/></svg>
         </div>
-        <div class="auth-secret">
-          <small>Chave para digitação manual no app:</small>
-          <code id="authSecret">PRAD OGES TAOM FA23</code>
-          <button type="button" class="auth-link" id="authCopySecret">Copiar chave</button>
-        </div>
-
-        <div class="auth-tip-box" style="background:#eff6ff;border-color:#bfdbfe;color:#1e40af">
-          📱 <b>Leu o QR Code?</b> O app no seu celular já está mostrando 6 números! Digite-os nos 6 quadradinhos abaixo para confirmar a ativação.
-        </div>
-
-        <div class="otp" id="otpEnroll">
-          <input class="otp-box" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Dígito 1">
-          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 2">
-          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 3">
-          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 4">
-          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 5">
-          <input class="otp-box" inputmode="numeric" maxlength="1" aria-label="Dígito 6">
-        </div>
-        <p class="auth-error" hidden></p>
-        <button type="button" class="auth-btn auth-btn-purple auth-confirm" id="authEnrollConfirm" disabled>Ativar e acessar conta</button>
-        <button type="button" class="auth-link auth-back" id="authBackToToken" style="margin-top:12px">‹ Já cadastrei, apenas digitar código</button>
-      </section>
-
-      <!-- CONFIGURAÇÃO SUPABASE DISCRETA (apenas atalho de suporte, nunca bloqueia) -->
-      <section class="auth-step" data-step="config" hidden>
-        <h2 class="auth-title">Conexão Supabase</h2>
-        <p class="auth-sub">Configuração técnica para desenvolvedores e administradores.</p>
-        <label class="auth-field">
-          <span>Project URL</span>
-          <div class="auth-input-wrap">
-            <input type="url" id="inputSupabaseUrl" placeholder="https://xxxxxxxx.supabase.co">
-          </div>
-        </label>
-        <label class="auth-field">
-          <span>Anon public key</span>
-          <div class="auth-input-wrap">
-            <input type="password" id="inputSupabaseKey" placeholder="eyJhbGci...">
-          </div>
-        </label>
-        <p class="auth-error" hidden></p>
-        <button type="button" class="auth-btn auth-btn-purple" id="btnSalvarSupabase">Salvar e conectar</button>
-        <button type="button" class="auth-link auth-back" id="authConfigBack">‹ Voltar ao Login</button>
+        <h2 class="auth-title">Acessar com Conta Google</h2>
+        <p class="auth-sub">Conecte-se com sua conta Google oficial corporativa via Supabase Auth com validação de dois fatores.</p>
+        <form id="authGoogleForm">
+          <p class="auth-error" hidden></p>
+          <button type="submit" class="auth-btn auth-btn-google" id="authGoogleSubmitBtn" style="justify-content:center;font-weight:700">
+            <span>➜ Conectar ao Google (OAuth Oficial)</span>
+          </button>
+          <button type="button" class="auth-link auth-back" id="authGoogleBack">‹ Voltar ao Login</button>
+        </form>
       </section>
 
       <div class="auth-footer-bar">
-        <span>🔒 Protegido por autenticação em 2 etapas</span>
-        <button type="button" id="authOpenConfigBtn" class="auth-gear-btn" title="Configuração técnica do banco">⚙️</button>
+        <span>🔒 Protegido por autenticação segura de 2 etapas</span>
       </div>
     </div> <!-- fim auth-card -->
   </div> <!-- fim auth-form-pane -->
@@ -379,8 +421,11 @@
       <button class="nav-item" id="sidebarThemeBtn" onclick="alternarModoEscuro()" style="width:100%;margin:0;padding:10px 12px;background:rgba(255,255,255,.06);font-size:12.5px" title="Alternar entre Modo Escuro e Claro">
         <b style="font-size:16px">🌓</b><span id="sidebarThemeTxt">Modo Escuro</span>
       </button>
+      <button class="nav-item" id="sidebarInstallAppBtn" onclick="window.abrirInstalacaoApp()" style="width:100%;margin-top:6px;padding:10px 12px;background:rgba(215,157,33,.14);border:1px solid rgba(215,157,33,.35);font-size:12px;color:#ffd875" title="Baixar / Instalar Aplicativo no Celular">
+        <b style="font-size:15px">📲</b><span>Instalar Aplicativo</span>
+      </button>
     </div>
-    <div class="profile"><div class="avatar">MP</div><div><b>Michel do Prado</b><small>Administrador</small></div></div>
+    <div class="profile" onclick="window.irParaConfiguracoes(true)" style="cursor:pointer" title="Clique para abrir Configurações"><div class="avatar" id="userAvatar">?</div><div><b id="userName">Não Autenticado</b><small id="userRole">Faça login</small></div></div>
   </aside>
 
   <!-- BACKDROP PARA FECHAMENTO TOUCH DO MENU NO CELULAR -->
@@ -403,15 +448,9 @@
         <button class="secondary" id="themeToggleBtn" onclick="alternarModoEscuro()" title="Alternar entre Modo Escuro e Claro">🌙 Modo Escuro</button>
         <button class="secondary" onclick="openLoginOverlay()" title="Trocar Usuário">👤 Trocar Usuário</button>
         <button class="secondary" onclick="fazerLogout()" title="Sair do sistema (Logoff)" style="color:var(--red);border-color:#fca5a5;background:#fff5f5;font-weight:700">🚪 Sair</button>
-        <button class="primary" data-action="new">＋ Novo cadastro</button>
+        <button class="primary" id="headerNewBtn" data-action="new" style="display:none">＋ Novo cadastro</button>
       </div>
     </header>
-
-    <div class="notice">
-      <b>Sistema Ativo</b>
-      <span>Plataforma conectada. Dados operando com validação e regras de acesso por usuário.</span>
-      <button>Entendi</button>
-    </div>
 
     <section id="app"></section>
   </main>
@@ -490,7 +529,7 @@
           </div>
           <div class="field">
             <label for="orc_cli_nome">Razão Social / Nome do Cliente</label>
-            <input id="orc_cli_nome" placeholder="Ex: Lar dos Velhinhos de Piracicaba" required>
+            <input id="orc_cli_nome" placeholder="Ex: Cliente Corporativo Homologado" required>
           </div>
           <div class="field">
             <label for="orc_cli_doc">CNPJ ou CPF (Busca Automática)</label>
@@ -708,9 +747,9 @@
         </div>
 
         <div class="timbrado-subempresa">
-          <b>LicitaDigitalTech – Comércio & Soluções</b> | Razão Social 59.825.765 Michel do Prado<br>
-          CNPJ 59.825.765/0001-03 | IE 465.150.144.115 | Monte Mor - SP<br>
-          (19) 98814-6164 | licitadigitaltech@gmail.com
+          <b>Prado Comércio & Soluções</b> | Gestão Comercial B2B<br>
+          CNPJ CNPJ Corporativo Protegido | IE IE Corporativa | Monte Mor - SP<br>
+          Canal Corporativo Oficial | Atendimento Corporativo Oficial
         </div>
 
         <!-- 2. METADADOS -->
@@ -724,10 +763,10 @@
         <div class="timbrado-box-cliente">
           <div class="row" style="margin-bottom:6px">
             <div style="flex:1;min-width:260px">
-              Cliente: <b id="propCliNome">Lar dos Velhinhos de Piracicaba</b>
+              Cliente: <b id="propCliNome">Cliente Corporativo Homologado</b>
             </div>
             <div style="min-width:240px">
-              CNPJ: <span id="propCliDoc">54.406.723/0001-14</span><br>
+              CNPJ: <span id="propCliDoc">00.000.000/0001-00</span><br>
               E-mail: <span id="propCliEmail">compras@lardosvelhinhospiracicaba.org.br</span>
             </div>
           </div>
@@ -801,20 +840,20 @@
         <div style="background:#f8fafc;border:1px solid #b0c4de;border-radius:6px;padding:10px 14px;font-size:12px;line-height:1.5;margin-bottom:14px;clear:both">
           <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
             <div>
-              <b>Chave PIX Oficial (CNPJ):</b> <code style="font-size:13px;font-weight:800;color:#073863;background:#eef6fa;padding:2px 8px;border-radius:4px">59.825.765/0001-03</code><br>
-              <b>Favorecido:</b> 59.825.765 Michel do Prado (Prado Comércio &amp; Soluções)<br>
+              <b>Chave PIX Oficial (CNPJ):</b> <code style="font-size:13px;font-weight:800;color:#073863;background:#eef6fa;padding:2px 8px;border-radius:4px">CNPJ Corporativo Protegido</code><br>
+              <b>Favorecido:</b> PRADO COMÉRCIO & SOLUÇÕES (Prado Comércio &amp; Soluções)<br>
               <span style="color:#059669;font-weight:700">✓ Faturamento direto e acompanhamento logístico integral até o destino</span>
             </div>
             <div style="text-align:right">
               <b>Contato Comercial / Envio de Comprovante:</b><br>
-              (19) 98814-6164 · licitadigitaltech@gmail.com
+              Canal Corporativo Oficial · Central Comercial Prado
             </div>
           </div>
         </div>
 
         <!-- 7. RODAPÉ INSTITUCIONAL -->
         <div class="timbrado-footer">
-          PRADO COMÉRCIO & SOLUÇÕES | CNPJ 59.825.765/0001-03 | Monte Mor - SP
+          PRADO COMÉRCIO & SOLUÇÕES | CNPJ CNPJ Corporativo Protegido | Monte Mor - SP
         </div>
       </div>
     </div>
@@ -889,9 +928,9 @@
               🏢 Emitente (Sua Empresa)
             </div>
             <div style="font-size:12px;color:#334155;line-height:1.6">
-              <b>59.825.765 Michel do Prado</b><br>
+              <b>PRADO COMÉRCIO & SOLUÇÕES</b><br>
               <span style="color:#64748b">Nome Fantasia:</span> Prado Comércio & Soluções / LicitaDigitalTech<br>
-              <span style="color:#64748b">CNPJ:</span> <b>59.825.765/0001-03</b> · <span style="color:#64748b">IE:</span> 465.150.144.115<br>
+              <span style="color:#64748b">CNPJ:</span> <b>CNPJ Corporativo Protegido</b> · <span style="color:#64748b">IE:</span> IE Corporativa<br>
               <span style="color:#64748b">Regime:</span> Simples Nacional / CRT 4 (MEI SEBRAE SP)<br>
               <span style="color:#64748b">Município:</span> Monte Mor - SP · CEP 13190-000
             </div>
@@ -1059,7 +1098,7 @@
         <div style="border:1px solid #000;margin-bottom:8px">
           <div style="display:flex;border-bottom:1px solid #000">
             <div style="flex:1;padding:4px 6px;font-size:9.5px;border-right:1px solid #000">
-              RECEBEMOS DE <b>59.825.765 MICHEL DO PRADO (PRADO COMÉRCIO & SOLUÇÕES)</b> OS PRODUTOS/SERVIÇOS CONSTANTES DA NOTA FISCAL INDICADA AO LADO
+              RECEBEMOS DE <b>PRADO COMÉRCIO & SOLUÇÕES (PRADO COMÉRCIO & SOLUÇÕES)</b> OS PRODUTOS/SERVIÇOS CONSTANTES DA NOTA FISCAL INDICADA AO LADO
             </div>
             <div style="width:170px;padding:4px 6px;text-align:center">
               <b>NF-e Nº <span class="danfe-num-val">000.027</span></b><br>
@@ -1084,11 +1123,11 @@
               <img src="logo-prado-horizontal.png" alt="Prado Comércio &amp; Soluções" style="max-height:46px;max-width:125px;object-fit:contain;display:block;margin:0 auto">
             </div>
             <div style="flex:1;line-height:1.2">
-              <b style="font-size:11.5px;display:block;color:#000">59.825.765 MICHEL DO PRADO</b>
+              <b style="font-size:11.5px;display:block;color:#000">PRADO COMÉRCIO & SOLUÇÕES</b>
               <span style="font-size:9.5px;font-weight:bold;color:#073863;display:block">PRADO COMÉRCIO &amp; SOLUÇÕES</span>
               <span style="font-size:8.5px;color:#222;display:block">RUA PRINCIPAL, 100 - CENTRO - MONTE MOR - SP</span>
-              <span style="font-size:8.5px;color:#222;display:block">CEP: 13190-000 | FONE: (19) 98814-6164</span>
-              <span style="font-size:8px;color:#444;display:block">licitadigitaltech@gmail.com</span>
+              <span style="font-size:8.5px;color:#222;display:block">CEP: 13190-000 | FONE: Canal Corporativo Oficial</span>
+              <span style="font-size:8px;color:#444;display:block">Departamento Fiscal &amp; Faturamento</span>
             </div>
           </div>
 
@@ -1135,13 +1174,13 @@
         <!-- INSCRIÇÃO ESTADUAL E CNPJ -->
         <div style="display:flex;border:1px solid #000;margin-bottom:8px">
           <div style="flex:1;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
-            INSCRIÇÃO ESTADUAL<br><b>465.150.144.115</b>
+            INSCRIÇÃO ESTADUAL<br><b>IE Corporativa</b>
           </div>
           <div style="flex:1;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
             INSCRIÇÃO ESTADUAL DO SUBST. TRIBUTÁRIO<br><b>—</b>
           </div>
           <div style="flex:1;padding:4px 6px;font-size:9.5px">
-            CNPJ DO EMITENTE<br><b>59.825.765/0001-03</b>
+            CNPJ DO EMITENTE<br><b>CNPJ Corporativo Protegido</b>
           </div>
         </div>
 
@@ -1150,10 +1189,10 @@
         <div style="border:1px solid #000;margin-bottom:8px">
           <div style="display:flex;border-bottom:1px solid #000">
             <div style="flex:2;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
-              NOME / RAZÃO SOCIAL<br><b id="danfeDestNome">Lar dos Velhinhos de Piracicaba</b>
+              NOME / RAZÃO SOCIAL<br><b id="danfeDestNome">Cliente Corporativo Homologado</b>
             </div>
             <div style="flex:1.2;padding:4px 6px;border-right:1px solid #000;font-size:9.5px">
-              CNPJ / CPF<br><b id="danfeDestCnpj">54.406.723/0001-14</b>
+              CNPJ / CPF<br><b id="danfeDestCnpj">00.000.000/0001-00</b>
             </div>
             <div style="width:110px;padding:4px 6px;font-size:9.5px">
               DATA DA EMISSÃO<br><b id="danfeDataEmissao">18/10/2026</b>
@@ -1361,7 +1400,7 @@
             <img src="logo-prado-horizontal.png" alt="Prado Comércio & Soluções" style="height:55px;max-width:220px;object-fit:contain">
             <div>
               <b style="font-size:16px;color:#073863;display:block">PRADO COMÉRCIO &amp; SOLUÇÕES</b>
-              <span style="font-size:11.5px">59.825.765 MICHEL DO PRADO | CNPJ: 59.825.765/0001-03</span><br>
+              <span style="font-size:11.5px">PRADO COMÉRCIO & SOLUÇÕES | CNPJ: CNPJ Corporativo Protegido</span><br>
               <span style="font-size:11px;color:#475569">Conta Bancária: Banco do Brasil (001) | Monte Mor - SP</span>
             </div>
           </div>
@@ -1448,7 +1487,7 @@
         <div style="display:flex;justify-content:space-around;margin-top:40px;gap:20px;text-align:center;font-size:11.5px">
           <div style="flex:1">
             <div style="border-top:1px solid #334155;width:80%;margin:0 auto 4px"></div>
-            <b>59.825.765 MICHEL DO PRADO</b><br>
+            <b>PRADO COMÉRCIO & SOLUÇÕES</b><br>
             <span>Titular / Administrador Comercial</span>
           </div>
           <div style="flex:1">
@@ -1481,9 +1520,101 @@
     </div>
   </div>
 
-  <script src="app.js?v=20261019_01"></script>
-  <script src="settings.js?v=20261019_01"></script>
-  <script src="audit.js?v=20261019_01"></script>
-  <script src="auth.js?v=20261019_01"></script>
+  <!-- MODAL DE INSTALAÇÃO DO APP (ANDROID, IPHONE, DESKTOP) -->
+  <dialog id="modalInstallApp" style="border:0;border-radius:16px;padding:0;width:min(460px,94vw);box-shadow:0 25px 70px rgba(0,0,0,0.5)">
+    <div style="background:linear-gradient(135deg,#072f54,#0b477c);color:#fff;padding:22px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:12px">
+        <img src="favicon-solid.png" alt="Prado" style="width:44px;height:44px;border-radius:12px;background:#fff;padding:2px;box-shadow:0 3px 10px rgba(0,0,0,.3)">
+        <div>
+          <h3 style="margin:0;font-size:16.5px;font-weight:800;letter-spacing:.3px">Instalar Prado Gestão</h3>
+          <span style="font-size:12px;color:#a8d8e0">Aplicativo Oficial Web &amp; Mobile</span>
+        </div>
+      </div>
+      <button type="button" onclick="document.querySelector('#modalInstallApp')?.close()" style="background:rgba(255,255,255,.15);color:#fff;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;border:0;display:grid;place-items:center">✕</button>
+    </div>
+    <div style="padding:22px;background:#fff;color:var(--ink)">
+      <p style="margin:0 0 16px;font-size:13.5px;color:#334155;line-height:1.55">
+        Instale a plataforma diretamente no seu celular ou computador como um <b>aplicativo nativo</b>, com ícone na tela de início, carregamento veloz e navegação em tela cheia sem barras de navegador.
+      </p>
+      
+      <div id="installAndroidArea" style="display:none;margin-bottom:16px">
+        <button id="btnConfirmInstallPwa" class="primary" style="width:100%;padding:14px;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(11,71,124,.35)">
+          📲 Instalar Agora no Dispositivo
+        </button>
+      </div>
+
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;font-size:13px;line-height:1.6">
+        <b style="display:block;margin-bottom:8px;color:var(--navy);font-size:13.5px">Como instalar passo a passo no seu celular:</b>
+        <div style="margin-bottom:12px;padding-left:4px">
+          🤖 <b style="color:#0f766e">No Celular Android (Google Chrome):</b><br>
+          Toque nos <b>3 pontinhos (⋮)</b> no topo direito do navegador e clique em <b>"Instalar aplicativo"</b> ou <b>"Adicionar à tela inicial"</b>.
+        </div>
+        <div style="padding-left:4px">
+          🍎 <b style="color:#b45309">No iPhone / iPad (Safari da Apple):</b><br>
+          Toque no botão <b>Compartilhar ⎋</b> (no rodapé do Safari) e selecione <b>"Adicionar à Tela de Início ⊞"</b>.
+        </div>
+      </div>
+
+      <div style="margin-top:14px">
+        <a href="prado-gestao-comercial.apk" download="Prado_Gestao_Comercial.apk" class="secondary" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;text-decoration:none;font-weight:700;color:var(--navy);border:1.5px solid #cbd5e1;border-radius:10px;background:#f1f5f9;font-size:13.5px">
+          📦 Baixar Instalador Direto para Android (.APK)
+        </a>
+      </div>
+
+      <div style="margin-top:16px;display:flex;justify-content:flex-end;gap:10px">
+        <button type="button" class="secondary" onclick="document.querySelector('#modalInstallApp')?.close()" style="padding:10px 18px">Fechar</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="app.js?v=20261029_login_fixed"></script>
+  <script src="settings.js?v=20261029_login_fixed"></script>
+  <script src="audit.js?v=20261029_login_fixed"></script>
+  <script src="auth.js?v=20261029_login_fixed"></script>
+  <script src="chat.js?v=20261029_login_fixed"></script>
+
+  <script>
+    // Gerenciamento de Instalação do App (PWA) no Celular e Desktop
+    let deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      const area = document.querySelector('#installAndroidArea');
+      if (area) area.style.display = 'block';
+    });
+
+    window.abrirInstalacaoApp = function() {
+      const modal = document.querySelector('#modalInstallApp');
+      if (modal) {
+        modal.showModal();
+        const area = document.querySelector('#installAndroidArea');
+        if (deferredInstallPrompt && area) {
+          area.style.display = 'block';
+        }
+      }
+    };
+
+    document.querySelector('#btnConfirmInstallPwa')?.addEventListener('click', async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          if (typeof toast === 'function') toast('Instalação iniciada! O app aparecerá na tela de início.');
+        }
+        deferredInstallPrompt = null;
+        document.querySelector('#modalInstallApp')?.close();
+      }
+    });
+
+    // Registro do Service Worker Oficial da Prado
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js?v=20261029_login_fixed').catch(err => {
+          console.warn('SW:', err);
+        });
+      });
+    }
+  </script>
 </body>
 </html>
+

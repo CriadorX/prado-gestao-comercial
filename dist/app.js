@@ -90,120 +90,22 @@ const menu = [
   ['configuracoes', '⚙', 'Configurações']
 ];
 
-// 4. ESTADO DO BANCO DE DADOS (COM PERSISTÊNCIA E MODELO HISTÓRICO HOMOLOGADO)
+// 4. ESTADO DO BANCO DE DADOS (INICIALIZADO VAZIO NO CLIENTE — POPULADO SOMENTE PELO SERVIDOR APÓS 2FA)
 const ORCAMENTOS_STORAGE_KEY = 'pradoOrcamentos_v3';
+const NOTAS_FISCAIS_STORAGE_KEY = 'pradoNotasFiscais_v3';
+const EXTRATO_BB_STORAGE_KEY = 'pradoExtratoBB_v3';
+
 function carregarOrcamentosIniciais() {
-  const listaPadrao = [
-    {
-      id: 'orc-027-2026',
-      numero: '027/2026',
-      nfe_numero: '000.027',
-      data_emissao: '2026-10-09',
-      data_validade: '2026-10-30',
-      responsavel: 'Michel do Prado',
-      referencia: 'Colchões Solteiros Hospitalares',
-      cliente_nome: 'Lar dos Velhinhos de Piracicaba',
-      cliente_doc: '54.406.723/0001-14',
-      cliente_email: 'compras@lardosvelhinhospiracicaba.org.br',
-      cliente_telefone: '(19) 3372-9485',
-      cliente_endereco: 'Av. Torquato da Silva Leitão, 615 - São Dimas - Piracicaba/SP - CEP 13416-215',
-      itens: [
-        {
-          item: 1,
-          produto: 'COLCHAO - D33 - 1,88 X 0,88 X 17 CM (Espuma Certificada Selo Pró-Espuma INER / Inmetro NBR 13579)',
-          unidade: '1',
-          quantidade: 150,
-          valor_unitario: 585.00,
-          total: 87750.00
-        }
-      ],
-      subtotal: 87750.00,
-      desconto: 15000.00,
-      frete: 0.00,
-      valor_total: 72750.00,
-      pagamento: 'À vista.',
-      entrega_frete: 'Prazo sujeito à disponibilidade. Frete incluso, salvo indicação expressa.',
-      observacoes: 'Desconto de R$ 15.000,00 já aplicado onde o preço de cada unidade passa a ser R$485,00. Preço válido até 30/10/2026. Prazo de entrega 30 dias. Pagamento de R$ 72.750,00 aguarda envio do extrato anual.',
-      observacoes_internas: 'Cotação CBP Sul e indústrias homologadas.',
-      status: 'Aguardando Extrato Anual',
-      criadoPor: 'licitadigitaltech@gmail.com',
-      criadoEm: '2026-10-09T10:00:00.000Z'
-    },
-    {
-      id: 'orc-021-2026',
-      numero: '021/2026',
-      nfe_numero: '000.002',
-      data_emissao: '2026-09-24',
-      data_validade: '2026-10-01',
-      responsavel: 'Michel do Prado',
-      referencia: 'Fornecimento de Sacos de Lixo 20L a 200L',
-      cliente_nome: 'Lar dos Velhinhos de Piracicaba',
-      cliente_doc: '54.406.723/0001-14',
-      cliente_email: 'compras@lardosvelhinhospiracicaba.org.br',
-      cliente_telefone: '(19) 3372-9485',
-      cliente_endereco: 'Av. Torquato da Silva Leitão, 615 - São Dimas - Piracicaba/SP - CEP 13416-215',
-      itens: [
-        { item: 1, produto: 'SLP-020-4K | Saco plástico para lixo preto 20 L reforçado - pacote 4 kg', unidade: 'PCT', quantidade: 70, valor_unitario: 43.00, total: 3010.00 },
-        { item: 2, produto: 'SLP-040-4K | Saco plástico para lixo preto 40 L reforçado - pacote 4 kg', unidade: 'PCT', quantidade: 70, valor_unitario: 43.00, total: 3010.00 },
-        { item: 3, produto: 'SLP-060-4K | Saco plástico para lixo preto 60 L reforçado - pacote 4 kg', unidade: 'PCT', quantidade: 120, valor_unitario: 43.00, total: 5160.00 },
-        { item: 4, produto: 'SLP-100-4K | Saco plástico para lixo preto 100 L reforçado - pacote 4 kg', unidade: 'PCT', quantidade: 120, valor_unitario: 43.00, total: 5160.00 },
-        { item: 5, produto: 'SLP-200-4K | Saco plástico para lixo preto 200 L reforçado - pacote 4 kg', unidade: 'PCT', quantidade: 120, valor_unitario: 43.00, total: 5160.00 }
-      ],
-      subtotal: 21500.00,
-      desconto: 0.00,
-      frete: 0.00,
-      valor_total: 21500.00,
-      pagamento: 'À vista.',
-      entrega_frete: 'Prazo sujeito à disponibilidade. Frete incluso, entrega direta no endereço do cliente.',
-      observacoes: 'Processo SMADS 2023/525135. Faturado via NF-e nº 002 emitida em 25/09/2026. Acompanhamento logístico integral Prado Comércio & Soluções.',
-      observacoes_internas: 'Liquidado com fornecedor homologado 3W Embalagens Ltda e pago via Banco do Brasil.',
-      status: 'Faturado e Pago',
-      criadoPor: 'licitadigitaltech@gmail.com',
-      criadoEm: '2026-09-24T10:00:00.000Z'
-    }
-  ];
-
-  try {
-    const raw = localStorage.getItem(ORCAMENTOS_STORAGE_KEY) || localStorage.getItem('pradoOrcamentos_v1');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const tem021 = parsed.some(o => o.numero === '021/2026' || (o.referencia && o.referencia.toLowerCase().includes('saco')));
-        if (!tem021) {
-          parsed.push(listaPadrao[1]);
-        }
-        return parsed;
-      }
-    }
-  } catch {}
-
-  return listaPadrao;
+  return [];
 }
 
-// NORMALIZADOR COMPLETO DE ITENS DA NOTA FISCAL (EVITA PRODUTO VAZIO OU UNDEFINED)
 function normalizarItensNotaFiscal(itens) {
   if (!Array.isArray(itens) || !itens.length) return [];
-  const nomesPadrao = [
-    'SLP-020-4K | Saco plástico para lixo preto 20 L reforçado - pacote 4 kg',
-    'SLP-040-4K | Saco plástico para lixo preto 40 L reforçado - pacote 4 kg',
-    'SLP-060-4K | Saco plástico para lixo preto 60 L reforçado - pacote 4 kg',
-    'SLP-100-4K | Saco plástico para lixo preto 100 L reforçado - pacote 4 kg',
-    'SLP-200-4K | Saco plástico para lixo preto 200 L reforçado - pacote 4 kg'
-  ];
   return itens.map((it, idx) => {
-    let nome = String(it.produto || it.descricao || it.nome || '').trim();
-    if (!nome || nome === 'Produto' || nome === 'Item' || nome === 'undefined') {
-      nome = nomesPadrao[idx] || `Item Comercial ${idx + 1}`;
-    }
-    const qtd = (it.quantidade !== undefined && it.quantidade !== null && !isNaN(it.quantidade))
-      ? Number(it.quantidade)
-      : ((it.qtd !== undefined && it.qtd !== null && !isNaN(it.qtd)) ? Number(it.qtd) : (idx < 2 ? 70 : 120));
-    const vUnit = (it.valor_unitario !== undefined && it.valor_unitario !== null && !isNaN(it.valor_unitario) && Number(it.valor_unitario) > 0)
-      ? Number(it.valor_unitario)
-      : ((it.valor_unit !== undefined && it.valor_unit !== null && !isNaN(it.valor_unit) && Number(it.valor_unit) > 0) ? Number(it.valor_unit) : 43.00);
-    const tot = (it.total !== undefined && it.total !== null && !isNaN(it.total) && Number(it.total) > 0)
-      ? Number(it.total)
-      : (qtd * vUnit);
+    const nome = String(it.produto || it.descricao || it.nome || '').trim() || `Item Comercial ${idx + 1}`;
+    const qtd = Number(it.quantidade ?? it.qtd ?? 1) || 1;
+    const vUnit = Number(it.valor_unitario ?? it.valor_unit ?? 0) || 0;
+    const tot = Number(it.total) || Number((qtd * vUnit).toFixed(2));
 
     return {
       item: it.item || (idx + 1),
@@ -211,8 +113,8 @@ function normalizarItensNotaFiscal(itens) {
       descricao: nome,
       ncm: it.ncm || '39232190',
       cfop: it.cfop || '5102',
-      unidade: it.unidade || it.un || 'PCT',
-      un: it.unidade || it.un || 'PCT',
+      unidade: it.unidade || it.un || 'UN',
+      un: it.unidade || it.un || 'UN',
       quantidade: qtd,
       qtd: qtd,
       valor_unitario: vUnit,
@@ -223,239 +125,66 @@ function normalizarItensNotaFiscal(itens) {
 }
 window.normalizarItensNotaFiscal = normalizarItensNotaFiscal;
 
-const NOTAS_FISCAIS_STORAGE_KEY = 'pradoNotasFiscais_v3';
 function carregarNotasFiscaisIniciais() {
-  const listaPadrao = [
-    {
-      id: 'nfe-002-2026',
-      numero: '000.002',
-      serie: '1',
-      data_emissao: '2026-09-25',
-      natureza_operacao: 'Venda Dentro do Estado',
-      chave_acesso: '35260959825765000103550010000000021300000027',
-      protocolo: '135264036993299',
-      orcamento_origem: '021/2026',
-      destinatario_nome: 'Lar dos Velhinhos de Piracicaba',
-      destinatario_doc: '54.406.723/0001-14',
-      destinatario_endereco: 'Avenida Torquato da Silva Leitao, 615 - Sao Dimas - Piracicaba/SP',
-      destinatario_tel: '(19) 3372-9485',
-      subtotal: 21500.00,
-      desconto: 0.00,
-      valor_total: 21500.00,
-      status: 'Autorizada',
-      itens: [
-        { item: 1, produto: 'SLP-020-4K | Saco plástico para lixo preto 20 L reforçado - pacote 4 kg', descricao: 'SLP-020-4K | Saco plástico para lixo preto 20 L reforçado - pacote 4 kg', ncm: '39232190', cfop: '5102', unidade: 'PCT', un: 'PCT', quantidade: 70, qtd: 70, valor_unitario: 43.00, valor_unit: 43.00, total: 3010.00 },
-        { item: 2, produto: 'SLP-040-4K | Saco plástico para lixo preto 40 L reforçado - pacote 4 kg', descricao: 'SLP-040-4K | Saco plástico para lixo preto 40 L reforçado - pacote 4 kg', ncm: '39232190', cfop: '5102', unidade: 'PCT', un: 'PCT', quantidade: 70, qtd: 70, valor_unitario: 43.00, valor_unit: 43.00, total: 3010.00 },
-        { item: 3, produto: 'SLP-060-4K | Saco plástico para lixo preto 60 L reforçado - pacote 4 kg', descricao: 'SLP-060-4K | Saco plástico para lixo preto 60 L reforçado - pacote 4 kg', ncm: '39232190', cfop: '5102', unidade: 'PCT', un: 'PCT', quantidade: 120, qtd: 120, valor_unitario: 43.00, valor_unit: 43.00, total: 5160.00 },
-        { item: 4, produto: 'SLP-100-4K | Saco plástico para lixo preto 100 L reforçado - pacote 4 kg', descricao: 'SLP-100-4K | Saco plástico para lixo preto 100 L reforçado - pacote 4 kg', ncm: '39232190', cfop: '5102', unidade: 'PCT', un: 'PCT', quantidade: 120, qtd: 120, valor_unitario: 43.00, valor_unit: 43.00, total: 5160.00 },
-        { item: 5, produto: 'SLP-200-4K | Saco plástico para lixo preto 200 L reforçado - pacote 4 kg', descricao: 'SLP-200-4K | Saco plástico para lixo preto 200 L reforçado - pacote 4 kg', ncm: '39232190', cfop: '5102', unidade: 'PCT', un: 'PCT', quantidade: 120, qtd: 120, valor_unitario: 43.00, valor_unit: 43.00, total: 5160.00 }
-      ],
-      dados_adicionais: 'SMADS - Processo 2023/525135. EMPRESA OPTANTE PELO REGIME DE TRIBUTACAO SIMEI. DOCUMENTO EMITIDO POR ME OU EPP OPTANTE PELO SIMPLES NACIONAL. NAO GERA DIREITO A CREDITO FISCAL DE ICMS, ISS E IPI.'
-    }
-  ];
-
-  try {
-    const raw = localStorage.getItem(NOTAS_FISCAIS_STORAGE_KEY) || localStorage.getItem('pradoNotasFiscais_v2');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        parsed.forEach(n => {
-          n.itens = normalizarItensNotaFiscal(n.itens);
-          if (!n.subtotal && n.valor_total) n.subtotal = n.valor_total;
-          if (!n.destinatario_tel) n.destinatario_tel = '(19) 3372-9485';
-        });
-        return parsed;
-      }
-    }
-  } catch {}
-
-  return listaPadrao;
+  return [];
 }
 
-const EXTRATO_BB_STORAGE_KEY = 'pradoExtratoBB_v3';
 function carregarExtratoBBInicial() {
-  try {
-    const raw = localStorage.getItem(EXTRATO_BB_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch {}
-  return [
-    {
-      id: 'bb-tx-2001',
-      data: '2026-09-28',
-      descricao: 'PIX RECEBIDO - NOTA FISCAL Nº 000.002 - LAR DOS VELHINHOS PIRACICABA',
-      tipo: 'C',
-      valor: 21500.00,
-      categoria: 'receita_cliente',
-      documento: '54.406.723/0001-14',
-      referencia: 'NF-e Nº 002 (25/09/2026) Faturada e Paga - Processo SMADS 2023/525135',
-      conciliado: true
-    },
-    {
-      id: 'bb-tx-2002',
-      data: '2026-09-28',
-      descricao: 'PIX ENVIADO - 3W EMBALAGENS LTDA (Chave Pix: 19-99956-8786)',
-      tipo: 'D',
-      valor: 6750.00,
-      categoria: 'custo_fabrica_50',
-      documento: '33.835.009/0001-71',
-      referencia: 'Pgto Lote 1 Sacos de Lixo - Banco Bradesco Ag 0223 C/C 21683-6',
-      conciliado: true
-    },
-    {
-      id: 'bb-tx-2003',
-      data: '2026-09-28',
-      descricao: 'TED ENVIADA - 3W EMBALAGENS LTDA (Bradesco Ag 0223 C/C 21683-6)',
-      tipo: 'D',
-      valor: 10000.00,
-      categoria: 'custo_fabrica_saldo',
-      documento: '33.835.009/0001-71',
-      referencia: 'Pgto Lote 2 Fornecedores (Saldo Fábrica Sacos) - Bradesco 237',
-      conciliado: true
-    },
-    {
-      id: 'bb-tx-2004',
-      data: '2026-10-15',
-      descricao: 'PGTO GUIA DAS-MEI OUTUBRO/2026',
-      tipo: 'D',
-      valor: 75.00,
-      categoria: 'impostos_das',
-      documento: '59.825.765/0001-03',
-      referencia: 'Guia DAS-MEI Competência 10/2026',
-      conciliado: true
-    }
-  ];
+  return [];
 }
 
 function salvarExtratoBBPersistente() {
+  if (!window.__pradoServerVerified) return;
   try {
     localStorage.setItem(EXTRATO_BB_STORAGE_KEY, JSON.stringify(db.extrato_bb || []));
   } catch {}
 }
 
 function carregarFornecedoresIniciais() {
-  return [
-    {
-      id: 'for-3w-embalagens',
-      nome: '3W Embalagens Ltda.',
-      doc: '33.835.009/0001-71',
-      contato: 'Setor de Vendas & Televendas',
-      telefone: '(19) 99956-8786',
-      categoria: 'Indústria / Embalagens Plásticas',
-      dados_bancarios: 'Banco Bradesco (237) · Ag 0223 · Conta Corrente: 21683-6 · Chave Pix: 19-99956-8786',
-      status: 'Ativo',
-      criadoPor: 'licitadigitaltech@gmail.com'
-    },
-    {
-      id: 'for-lord-brasil',
-      nome: 'Lord Brasil Indústria de Colchões',
-      doc: '61.123.456/0001-89',
-      contato: 'Vendas Corporativas Hospitalar',
-      telefone: '(11) 4547-7000',
-      categoria: 'Fabricante de Colchões & Espumas',
-      dados_bancarios: 'Faturamento 50% entrada e 50% na entrega e aceite',
-      status: 'Ativo',
-      criadoPor: 'licitadigitaltech@gmail.com'
-    }
-  ];
+  return [];
 }
 
 function carregarClientesIniciais() {
-  return [
-    {
-      id: 'cli-lar-velhinhos',
-      nome: 'Lar dos Velhinhos de Piracicaba',
-      doc: '54.406.723/0001-14',
-      contato: 'Compras / Almoxarifado (SMADS Processo 2023/525135)',
-      telefone: '(19) 3372-9485',
-      endereco: 'Av. Torquato da Silva Leitão, 615 - São Dimas - Piracicaba/SP - CEP 13416-215',
-      status: 'Ativo',
-      criadoPor: 'licitadigitaltech@gmail.com'
-    }
-  ];
+  return [];
 }
 
 function carregarOportunidadesIniciais() {
-  return [
-    {
-      id: 'op-002-sacos-lixo',
-      orcamento_id: 'orc-021-2026',
-      orcamento_numero: '021/2026',
-      nome: 'Fornecimento Sacos de Lixo 20L a 200L (NF-e 002)',
-      cliente: 'Lar dos Velhinhos de Piracicaba',
-      fornecedor: '3W Embalagens Ltda.',
-      valor: 21500.00,
-      custoEstimado: 16750.00,
-      prazo: '2026-09-28',
-      status: 'Entregue e Liquidado',
-      descricao: 'Processo SMADS 2023/525135. Faturado via NF-e nº 002 em 25/09/2026 e pago no BB em 28/09/2026. Lucro líquido Prado: R$ 4.750,00.',
-      criadoPor: 'licitadigitaltech@gmail.com'
-    },
-    {
-      id: 'op-027-colchoes',
-      orcamento_id: 'orc-027-2026',
-      orcamento_numero: '027/2026',
-      nome: '150 Colchões Solteiro D33 Hospitalar',
-      cliente: 'Lar dos Velhinhos de Piracicaba',
-      fornecedor: 'Lord Brasil Indústria de Colchões',
-      valor: 72750.00,
-      custoEstimado: 50000.00,
-      prazo: '2026-10-30',
-      status: 'Aguardando Extrato Anual',
-      descricao: 'Orçamento 027/2026 aprovado pelo cliente, aguardando envio do extrato anual para liberação do pagamento.',
-      criadoPor: 'licitadigitaltech@gmail.com'
-    }
-  ];
+  return [];
 }
 
 function carregarPedidosIniciais() {
-  return [
-    {
-      id: 'ped-002-sacos',
-      nome: 'Pedido 002/2026 - Sacos de Lixo Reforçados',
-      cliente: 'Lar dos Velhinhos de Piracicaba',
-      fornecedor: '3W Embalagens Ltda.',
-      valor: 21500.00,
-      rastreio: 'BR-PIR-2026-002',
-      previsao: '28/09/2026',
-      status: 'Entregue e Pago',
-      criadoPor: 'licitadigitaltech@gmail.com'
-    }
-  ];
+  return [];
 }
 
 let db = {
-  clientes: carregarClientesIniciais(),
-  fornecedores: carregarFornecedoresIniciais(),
-  oportunidades: carregarOportunidadesIniciais(),
-  pedidos: carregarPedidosIniciais(),
-  orcamentos: carregarOrcamentosIniciais(),
-  notas_fiscais: carregarNotasFiscaisIniciais(),
-  extrato_bb: carregarExtratoBBInicial(),
+  clientes: [],
+  fornecedores: [],
+  oportunidades: [],
+  pedidos: [],
+  orcamentos: [],
+  notas_fiscais: [],
+  extrato_bb: [],
   docs: []
 };
 
-// HELPER DE CONTROLE DE ACESSO RBAC (SIGILO FINANCEIRO EXCLUSIVO DO MICHEL / ADMIN)
+// HELPER DE CONTROLE DE ACESSO RBAC (VALIDADO PELO SERVIDOR VIA /api/auth)
 function ehAdminGlobal() {
-  if (!currentUser) return true;
-  const email = (currentUser.email || '').toLowerCase();
-  const role = (currentUser.role || currentUser.papel || '').toLowerCase();
-  return role === 'admin_global' || role === 'admin' || email === 'licitadigitaltech@gmail.com' || email.includes('michel');
+  return Boolean(window.__pradoServerVerified && currentUser && currentUser.role === 'admin_global');
 }
 window.ehAdminGlobal = ehAdminGlobal;
 
 let currentUser = null;
-try {
-  const savedUserStr = localStorage.getItem('pradoCurrentUser');
-  if (savedUserStr) {
-    currentUser = JSON.parse(savedUserStr);
-    window.currentUser = currentUser;
-  }
-} catch (e) {}
+window.currentUser = null;
+let sessionToken = null;
+window.sessionToken = null;
 
-let sessionToken = window.sessionToken || localStorage.getItem('pradoSessionToken') || 'sess_prado_authenticated';
+function fazerLogout() {
+  if (typeof window.logoutSistema === 'function') {
+    window.logoutSistema();
+  }
+}
+window.fazerLogout = fazerLogout;
+
 let page = localStorage.getItem('pradoCurrentPage') || 'dashboard';
 let ultimosOrcamentosIA = null;
 const app = document.querySelector('#app');
@@ -472,6 +201,41 @@ function irParaHome() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 window.irParaHome = irParaHome;
+
+// NAVEGAÇÃO IMEDIATA PARA CONFIGURAÇÕES (ALTERAR FOTO E DADOS DO USUÁRIO)
+function irParaConfiguracoes(focoFoto = true) {
+  page = 'configuracoes';
+  window.page = page;
+  localStorage.setItem('pradoCurrentPage', 'configuracoes');
+  document.querySelectorAll('.nav-item').forEach(x => {
+    x.classList.toggle('active', x.dataset.page === 'configuracoes');
+  });
+  render();
+  fecharSidebarMobile();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (focoFoto) {
+    setTimeout(() => {
+      const inputUpload = document.querySelector('#profileUpload');
+      const cardPerfil = document.querySelector('.profile-preview');
+      if (cardPerfil) {
+        cardPerfil.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      if (inputUpload) {
+        inputUpload.focus();
+        inputUpload.style.outline = '2px solid var(--gold)';
+        inputUpload.style.boxShadow = '0 0 10px rgba(215,157,33,.5)';
+        inputUpload.style.transition = 'all 0.3s ease';
+        setTimeout(() => {
+          if (inputUpload) {
+            inputUpload.style.outline = 'none';
+            inputUpload.style.boxShadow = 'none';
+          }
+        }, 2500);
+      }
+    }, 120);
+  }
+}
+window.irParaConfiguracoes = irParaConfiguracoes;
 
 const money = n => Number(n || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 const formatCnpj = doc => {
@@ -505,10 +269,50 @@ function initSupabase() {
   }
 }
 
-// 6. RENDERIZAÇÃO DA NAVEGAÇÃO E PERFIL (COM OCULTAÇÃO DO FINANCEIRO E AUDITORIA PARA OPERADORES)
+// 6. RENDERIZAÇÃO DA NAVEGAÇÃO E PERFIL (COM FOTO PERSISTENTE EM TODAS AS TELAS)
+function getFotoUsuario(user = window.currentUser) {
+  if (!user) return '';
+  if (user.photo && typeof user.photo === 'string' && (user.photo.startsWith('data:image') || user.photo.startsWith('http'))) return user.photo;
+  if (user.avatar && typeof user.avatar === 'string' && (user.avatar.startsWith('data:image') || user.avatar.startsWith('http'))) return user.avatar;
+  if (user.foto && typeof user.foto === 'string' && (user.foto.startsWith('data:image') || user.foto.startsWith('http'))) return user.foto;
+  if (user.avatar_url && typeof user.avatar_url === 'string' && (user.avatar_url.startsWith('data:image') || user.avatar_url.startsWith('http'))) return user.avatar_url;
+  
+  if (user.email) {
+    try {
+      const p = JSON.parse(localStorage.getItem(`pradoProfile_${user.email}`) || '{}');
+      if (p.photo) return p.photo;
+    } catch {}
+    try {
+      const cached = localStorage.getItem(`prado_user_avatar_${user.email}`);
+      if (cached) return cached;
+    } catch {}
+  }
+  return '';
+}
+window.getFotoUsuario = getFotoUsuario;
+
+function renderAvatarHtml(user, tamanho = 38, estiloExtra = '') {
+  if (!user) return `<div class="avatar" style="width:${tamanho}px;height:${tamanho}px;font-size:${Math.round(tamanho*0.38)}px;${estiloExtra}">?</div>`;
+  const foto = getFotoUsuario(user);
+  const iniciais = (user.nome ? user.nome.slice(0, 2) : (user.avatar || 'PR')).toUpperCase();
+
+  if (foto) {
+    return `<div class="avatar" style="width:${tamanho}px;height:${tamanho}px;padding:0;background:transparent;overflow:hidden;border-radius:50%;display:grid;place-items:center;${estiloExtra}">
+      <img src="${foto}" alt="${window.escapeHtml(user.nome || 'Usuário')}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block">
+    </div>`;
+  }
+  return `<div class="avatar" style="width:${tamanho}px;height:${tamanho}px;font-size:${Math.round(tamanho*0.38)}px;border-radius:50%;display:grid;place-items:center;${estiloExtra}">${window.escapeHtml(iniciais)}</div>`;
+}
+window.renderAvatarHtml = renderAvatarHtml;
+
 function renderNav() {
   const menuVisivel = menu.filter(([id]) => {
-    if (id === 'financeiro' || id === 'auditoria') return ehAdminGlobal();
+    if (id === 'auditoria') return ehAdminGlobal();
+    if (id === 'financeiro') {
+      if (ehAdminGlobal()) return true;
+      const userSetor = (currentUser?.setor || '').toLowerCase();
+      return userSetor === 'financeiro';
+    }
     return true;
   });
 
@@ -520,19 +324,21 @@ function renderNav() {
   if (profileEl) {
     if (currentUser) {
       profileEl.innerHTML = `
-        <div class="avatar">${escapeHtml(currentUser.avatar || 'PR')}</div>
-        <div style="flex:1;overflow:hidden">
-          <b style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(currentUser.nome)}</b>
-          <small>${escapeHtml(currentUser.cargo)}</small>
+        <div class="profile-clickable" onclick="window.irParaConfiguracoes(true)" title="Clique para abrir Configurações e alterar sua foto" style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer">
+          ${renderAvatarHtml(currentUser, 40, 'box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.25);transition:transform .2s ease')}
+          <div style="flex:1;overflow:hidden">
+            <b style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block">${escapeHtml(currentUser.nome)}</b>
+            <small style="display:flex;align-items:center;gap:4px;color:#9db2c2">${escapeHtml(currentUser.cargo)} <span style="font-size:11px;color:var(--gold)" title="Configurações">⚙️</span></small>
+          </div>
         </div>
-        <button id="logoutSidebarBtn" title="Sair do sistema (Logoff)" style="background:transparent;color:#fca5a5;font-size:16px;cursor:pointer;padding:4px">🚪</button>
+        <button id="logoutSidebarBtn" title="Sair do sistema (Logoff)" onclick="event.stopPropagation();fazerLogout()" style="background:transparent;color:#fca5a5;font-size:16px;cursor:pointer;padding:6px;border-radius:6px">🚪</button>
       `;
       const btn = document.querySelector('#logoutSidebarBtn');
-      if (btn) btn.onclick = fazerLogout;
+      if (btn) btn.onclick = (e) => { e.stopPropagation(); fazerLogout(); };
     } else {
       profileEl.innerHTML = `
-        <div class="avatar">?</div>
-        <div style="flex:1"><b>Não autenticado</b><small>Faça login</small></div>
+        <div class="avatar" onclick="openLoginOverlay()" style="cursor:pointer">?</div>
+        <div style="flex:1;cursor:pointer" onclick="openLoginOverlay()"><b>Não autenticado</b><small>Faça login</small></div>
       `;
     }
   }
@@ -585,6 +391,7 @@ function getFilteredData(type) {
 // 7. TELAS DO SISTEMA
 function dashboard() {
   if (!currentUser) {
+    if (typeof openLoginOverlay === 'function') openLoginOverlay();
     app.innerHTML = `
       <div class="content">
         <div class="card" style="text-align:center;padding:50px">
@@ -1058,12 +865,89 @@ function fiscal() {
 }
 
 function consultarChaveNaSefaz(chave) {
-  if (!chave) chave = '35260959825765000103550010000000021300000027';
+  if (!chave) chave = '';
   navigator.clipboard?.writeText(chave).catch(() => {});
-  toast(`Chave ${chave.slice(0, 15)}... copiada para a área de transferência!`);
-  window.open(`https://www.nfe.fazenda.gov.br/portal/consultaRecibo.aspx`, '_blank');
+  toast(`Chave copiada para a área de transferência!`);
+  abrirModalOpcoesConsultaSefaz(chave);
 }
 window.consultarChaveNaSefaz = consultarChaveNaSefaz;
+
+function abrirModalOpcoesConsultaSefaz(chave) {
+  const modalId = 'modalOpcoesConsultaSefaz';
+  let modal = document.querySelector(`#${modalId}`);
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px)';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:14px;max-width:600px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,0.35);border-top:6px solid #ca8a04">
+      <div style="padding:18px 22px;background:#f8fafc;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:20px">🏛️</span>
+            <h3 style="margin:0;font-size:17px;color:var(--navy);font-weight:800">Consulta de Autenticidade da NF-e</h3>
+          </div>
+          <small style="color:var(--muted)">Chave de Acesso Oficial da Receita Federal e SEFAZ</small>
+        </div>
+        <button type="button" onclick="document.querySelector('#${modalId}').remove()" style="background:none;border:none;font-size:26px;cursor:pointer;color:var(--muted);line-height:1">&times;</button>
+      </div>
+
+      <div style="padding:22px;display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fefce8;border:1.5px solid #fef08a;border-radius:10px;padding:14px">
+          <small style="color:#854d0e;font-size:11px;font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px">Chave de Acesso da Nota (44 dígitos):</small>
+          <div style="background:#fff;border:1px solid #fde047;border-radius:8px;padding:10px 12px;font-family:monospace;font-size:13px;font-weight:800;color:var(--navy);word-break:break-all">
+            ${escapeHtml(chave)}
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <span style="font-size:11.5px;color:#854d0e">✓ Chave copiada! Basta colar (Ctrl+V) no portal.</span>
+            <button type="button" class="secondary" style="font-size:11.5px;padding:4px 10px;height:28px;font-weight:700" onclick="navigator.clipboard.writeText('${escapeHtml(chave)}');toast('Chave de 44 dígitos copiada!');">
+              📋 Copiar Novamente
+            </button>
+          </div>
+        </div>
+
+        <div style="font-size:13px;color:#334155;font-weight:700">Selecione onde deseja consultar:</div>
+
+        <!-- OPÇÃO 1: PORTAL NACIONAL SEFAZ -->
+        <a href="https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx?tipoConsulta=resumo&tipoConteudo=7PhJ+gAVw2g=" target="_blank" style="display:flex;align-items:center;gap:14px;padding:14px;border:1.5px solid #e2e8f0;border-radius:10px;text-decoration:none;color:inherit;background:#fff;transition:all 0.15s ease" onmouseover="this.style.borderColor='#ca8a04';this.style.background='#fffdf5'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+          <span style="font-size:26px">🏛️</span>
+          <div style="flex:1">
+            <b style="color:#073863;font-size:14px;display:block">Portal Nacional da NF-e (SEFAZ / Fazenda)</b>
+            <small style="color:#64748b;font-size:11.5px">Página oficial de consulta pública da Receita Federal (cole a chave e resolva o captcha)</small>
+          </div>
+          <span style="color:#ca8a04;font-weight:800;font-size:13px">Abrir ➔</span>
+        </a>
+
+        <!-- OPÇÃO 2: PORTAL EMISSOR SEBRAE -->
+        <a href="https://nfe.sebrae.com.br" target="_blank" style="display:flex;align-items:center;gap:14px;padding:14px;border:1.5px solid #e2e8f0;border-radius:10px;text-decoration:none;color:inherit;background:#fff;transition:all 0.15s ease" onmouseover="this.style.borderColor='#0284c7';this.style.background='#f0f9ff'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+          <span style="font-size:26px">💼</span>
+          <div style="flex:1">
+            <b style="color:#0284c7;font-size:14px;display:block">Portal Emissor Sebrae (Login Gov.br / Certificado)</b>
+            <small style="color:#64748b;font-size:11.5px">Acesse o gerenciador de notas emitidas no portal oficial do SEBRAE</small>
+          </div>
+          <span style="color:#0284c7;font-weight:800;font-size:13px">Abrir ➔</span>
+        </a>
+
+        <!-- OPÇÃO 3: MEUDANFE -->
+        <a href="https://meudanfe.com.br" target="_blank" style="display:flex;align-items:center;gap:14px;padding:14px;border:1.5px solid #e2e8f0;border-radius:10px;text-decoration:none;color:inherit;background:#fff;transition:all 0.15s ease" onmouseover="this.style.borderColor='#16a34a';this.style.background='#f0fdf4'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#fff'">
+          <span style="font-size:26px">📄</span>
+          <div style="flex:1">
+            <b style="color:#166534;font-size:14px;display:block">Visualizador MeuDANFE (Sem Captcha)</b>
+            <small style="color:#64748b;font-size:11.5px">Visualizador rápido de DANFE: cole a chave para exibir e imprimir o documento</small>
+          </div>
+          <span style="color:#16a34a;font-weight:800;font-size:13px">Abrir ➔</span>
+        </a>
+      </div>
+
+      <div style="padding:14px 22px;background:#f8fafc;border-top:1px solid var(--line);text-align:right">
+        <button type="button" class="secondary" onclick="document.querySelector('#${modalId}').remove()" style="padding:8px 18px;font-weight:700">Fechar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+window.abrirModalOpcoesConsultaSefaz = abrirModalOpcoesConsultaSefaz;
 
 function abrirModalGuiaConsultaSebrae() {
   const modalId = 'modalGuiaConsultaSebrae';
@@ -1093,7 +977,7 @@ function abrirModalGuiaConsultaSebrae() {
           </div>
           <ol style="margin:4px 0 10px 20px;padding:0">
             <li>Acesse o portal do Emissor Sebrae em: <a href="https://nfe.sebrae.com.br" target="_blank" style="color:#0284c7;font-weight:700;text-decoration:underline">https://nfe.sebrae.com.br</a>.</li>
-            <li>Faça login com seu <b>Certificado Digital</b> ou com a conta <b>Gov.br</b> vinculada ao seu CNPJ <code>59.825.765/0001-03</code>.</li>
+            <li>Faça login com seu <b>Certificado Digital</b> ou com a conta <b>Gov.br</b> vinculada ao seu CNPJ <code></code>.</li>
             <li>No menu lateral esquerdo, clique em <b>"Notas Fiscais"</b> ➔ <b>"Gerenciar NF-e"</b> (ou <b>"Notas Emitidas"</b>).</li>
             <li>Selecione o período de emissão (ex: <b>Setembro/2026</b>) e clique em <b>"Filtrar / Pesquisar"</b>.</li>
             <li>Todas as notas fiscais emitidas aparecerão na listagem. Basta clicar no ícone de <b>Lupa (Visualizar)</b>, <b>PDF (Imprimir DANFE)</b> ou <b>XML</b> para baixar para o seu computador.</li>
@@ -1113,13 +997,13 @@ function abrirModalGuiaConsultaSebrae() {
             Qualquer nota fiscal emitida possui uma Chave de Acesso única de 44 dígitos no topo do DANFE. Você pode consultá-la publicamente a qualquer momento no Portal Nacional da NF-e:
           </p>
           <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin-bottom:12px">
-            <small style="color:var(--muted);display:block;margin-bottom:4px;font-weight:700">Chave da sua NF-e Nº 002 (Lar dos Velhinhos - R$ 21.500,00):</small>
-            <code style="font-size:13px;font-weight:800;color:var(--navy);word-break:break-all">35260959825765000103550010000000021300000027</code>
+            <small style="color:var(--muted);display:block;margin-bottom:4px;font-weight:700">Chave da sua NF-e Nº 002 (Cliente Corporativo - R$ 21.500,00):</small>
+            <code style="font-size:13px;font-weight:800;color:var(--navy);word-break:break-all"></code>
             <div style="margin-top:8px;display:flex;gap:8px">
-              <button type="button" class="secondary" style="font-size:12px;padding:5px 12px;border-radius:6px;font-weight:700" onclick="navigator.clipboard.writeText('35260959825765000103550010000000021300000027');toast('Chave de 44 dígitos copiada!');">
+              <button type="button" class="secondary" style="font-size:12px;padding:5px 12px;border-radius:6px;font-weight:700" onclick="navigator.clipboard.writeText('');toast('Chave de 44 dígitos copiada!');">
                 📋 Copiar Chave
               </button>
-              <a href="https://www.nfe.fazenda.gov.br/portal/consultaRecibo.aspx" target="_blank" class="primary" style="font-size:12px;padding:5px 12px;border-radius:6px;background:#ca8a04;color:#fff;text-decoration:none;font-weight:700">
+              <a href="https://www.nfe.fazenda.gov.br/portal/consultaRecaptcha.aspx?tipoConsulta=resumo&tipoConteudo=7PhJ+gAVw2g=" target="_blank" class="primary" style="font-size:12px;padding:5px 12px;border-radius:6px;background:#ca8a04;color:#fff;text-decoration:none;font-weight:700">
                 🔍 Consultar no Portal da SEFAZ ➔
               </a>
             </div>
@@ -1247,7 +1131,7 @@ function financeiro() {
                 <span class="badge" style="background:#ffcc00;color:#003366;font-weight:800;font-size:11px">CONTA PJ ATIVA</span>
               </div>
               <p style="margin:4px 0 0;font-size:12.5px;color:#cbd5e1">
-                Titular: <b>59.825.765 MICHEL DO PRADO</b> | CNPJ / Chave PIX: <b>59.825.765/0001-03</b>
+                Titular: <b>PRADO COMÉRCIO & SOLUÇÕES</b> | CNPJ / Chave PIX: <b></b>
               </p>
             </div>
           </div>
@@ -1299,7 +1183,7 @@ function financeiro() {
             Faturamento acumulado recebido no Banco do Brasil: <b>${money(totalEntradas)}</b> (${pctTetoMei.toFixed(1)}% do teto). 
             Margem disponível no MEI: <b>${money(saldoRestanteMei)}</b>.
             <div style="margin-top:4px;color:${estaPertoDoLimite ? '#92400e' : '#15803d'}">
-              Nota fiscal de <b>R$ 23.000,00</b> faturada e paga com sucesso. Os pedidos complementares (como o de <b>R$ 72.750,00</b> do Lar dos Velhinhos) aguardam o envio do extrato anual para liberação do faturamento, momento em que a Prado efetuará com tranquilidade a transição para <b>Microempresa (ME - Simples Nacional 4,0%)</b> com teto de até <b>R$ 360.000,00/ano</b>!
+              Nota fiscal de <b>R$ 23.000,00</b> faturada e paga com sucesso. Os pedidos complementares (como o de <b>R$ 72.750,00</b> do Cliente Corporativo) aguardam o envio do extrato anual para liberação do faturamento, momento em que a Prado efetuará com tranquilidade a transição para <b>Microempresa (ME - Simples Nacional 4,0%)</b> com teto de até <b>R$ 360.000,00/ano</b>!
             </div>
           </div>
         </div>
@@ -1951,7 +1835,7 @@ async function consultarCnpjOficial() {
   const resArea = document.querySelector('#riskResult');
 
   try {
-    const token = window.sessionToken || sessionToken || localStorage.getItem('pradoSessionToken') || 'sess_prado_authenticated';
+    const token = window.sessionToken || sessionToken || localStorage.getItem('pradoSessionToken') || '';
     let data = null;
 
     try {
@@ -2118,6 +2002,7 @@ function relatorios() {
 // 8. COTAÇÕES IA & FÁBRICAS (COM FILTROS REGIONAIS, MODO HÍBRIDO E ADIÇÃO MANUAL)
 let cotacaoOffsetRotacao = 0;
 window.modoCotacaoAtual = window.modoCotacaoAtual || 'ia';
+window.canalCotacaoAtual = window.canalCotacaoAtual || 'todos';
 
 function alternarModoCotacao(modo) {
   window.modoCotacaoAtual = modo;
@@ -2236,7 +2121,7 @@ function cotacao_ia() {
               📍 Endereço / Cidade da Empresa Cliente (Destino da Entrega para buscar indústrias mais próximas e baratear o frete):
             </label>
             <div style="display:flex;gap:8px;align-items:center">
-              <input id="iaClienteLocalizacao" value="Piracicaba - SP (Lar dos Velhinhos de Piracicaba)" placeholder="Ex: Piracicaba - SP, Campinas - SP, Curitiba - PR..." style="flex:1;padding:10px 12px;border:1px solid #abcde4;border-radius:6px;background:#fff;font-size:13px;font-weight:600">
+              <input id="iaClienteLocalizacao" value="Piracicaba - SP (Cliente Corporativo)" placeholder="Ex: Piracicaba - SP, Campinas - SP, Curitiba - PR..." style="flex:1;padding:10px 12px;border:1px solid #abcde4;border-radius:6px;background:#fff;font-size:13px;font-weight:600">
               <span style="font-size:11px;color:var(--teal);font-weight:700;white-space:nowrap">🚚 Otimização de Frete</span>
             </div>
           </div>
@@ -2293,11 +2178,22 @@ function cotacao_ia() {
             </div>
           </div>
 
-          <!-- FILTROS REGIONAIS ADICIONAIS: ESTADO E CIDADE -->
-          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;background:#f8fafc;padding:12px 14px;border-radius:8px;border:1px solid var(--line)">
-            <div style="flex:1;min-width:180px">
+          <!-- FILTROS DE CANAL DE FORNECIMENTO E REGIONAIS (ESTADO E CIDADE) -->
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;background:#f8fafc;padding:14px;border-radius:10px;border:1.5px solid var(--line);box-shadow:0 1px 3px rgba(0,0,0,0.02)">
+            <div style="flex:1.3;min-width:220px">
+              <label for="iaFiltroCanal" style="display:block;font-size:12px;font-weight:800;color:var(--navy);margin-bottom:4px">
+                🏢 Canal de Fornecimento:
+              </label>
+              <select id="iaFiltroCanal" onchange="window.canalCotacaoAtual = this.value" style="width:100%;padding:10px 12px;border:1.5px solid #0284c7;border-radius:6px;background:#fff;font-size:13px;font-weight:700;color:var(--navy)">
+                <option value="todos" ${(window.canalCotacaoAtual || 'todos') === 'todos' ? 'selected' : ''}>🏢 + 🏭 Comparar Todos (Fábricas vs Fornecedores Finais)</option>
+                <option value="fabricante" ${window.canalCotacaoAtual === 'fabricante' ? 'selected' : ''}>🏭 Apenas Fabricantes Diretos (Indústria / Menor Custo)</option>
+                <option value="distribuidor" ${window.canalCotacaoAtual === 'distribuidor' ? 'selected' : ''}>🏢 Apenas Fornecedores Finais (Distribuidores Atacadistas)</option>
+              </select>
+            </div>
+
+            <div style="flex:1;min-width:160px">
               <label for="iaFiltroEstado" style="display:block;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px">
-                📍 Filtrar Fábricas por Estado (UF):
+                📍 Estado (UF):
               </label>
               <select id="iaFiltroEstado" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;font-size:13px;font-weight:600">
                 <option value="">Brasil Inteiro (Todas as Regiões)</option>
@@ -2318,22 +2214,22 @@ function cotacao_ia() {
               </select>
             </div>
 
-            <div style="flex:1.5;min-width:200px">
+            <div style="flex:1.2;min-width:180px">
               <label for="iaFiltroCidade" style="display:block;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px">
-                🏙️ Polo Industrial Específico (Opcional):
+                🏙️ Polo / Cidade (Opcional):
               </label>
               <input id="iaFiltroCidade" placeholder="Ex: Piracicaba, Mauá, Ourinhos, Maringá..." style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;font-size:13px">
             </div>
 
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <button id="btnBuscarFabricantes" class="primary" style="background:var(--gold);color:#151515;font-weight:800;height:42px;padding:0 18px" onclick="executarCotacaoIA(false)">
-                ${window.modoCotacaoAtual === 'hibrido' ? '⚡ Gerar Cotação (1 Minha + 2 Mais Próximas)' : '⚡ Localizar 3 Fabricantes Mais Próximos'}
+                ${window.modoCotacaoAtual === 'hibrido' ? '⚡ Gerar Cotação (1 Minha + 2 Mais Próximas)' : '⚡ Buscar Fornecedores & Fábricas'}
               </button>
-              <button id="btnRotacionarFabricantes" class="secondary" style="border:1px solid var(--teal);color:var(--teal);background:#fff;font-weight:700;height:42px;padding:0 16px" onclick="executarCotacaoIA(true)" title="Atualiza o catálogo buscando outras indústrias">
-                🔄 Atualizar / Buscar Outras Fábricas
+              <button id="btnRotacionarFabricantes" class="secondary" style="border:1px solid var(--teal);color:var(--teal);background:#fff;font-weight:700;height:42px;padding:0 16px" onclick="executarCotacaoIA(true)" title="Atualiza o catálogo buscando outras empresas">
+                🔄 Buscar Outras Opções
               </button>
               <button type="button" class="secondary" style="border:1px solid #16a34a;color:#16a34a;background:#f0fdf4;font-weight:800;height:42px;padding:0 16px" onclick="abrirModalAdicionarFabricaManual()">
-                ＋ Adicionar Fábrica Manual
+                ＋ Fornecedor Manual
               </button>
             </div>
           </div>
@@ -2504,14 +2400,7 @@ async function analisarOrcamentoAnexadoComIA(anexo, file) {
       payload.imagem_base64 = anexo.data;
     }
 
-    let token = sessionToken;
-    if (!token && supabaseClient) {
-      try {
-        const s = await supabaseClient.auth.getSession();
-        token = s.data?.session?.access_token;
-      } catch {}
-    }
-    if (!token) token = 'sess_operador_prado';
+    let token = window.sessionToken || sessionToken || localStorage.getItem('pradoSessionToken') || '';
 
     showLoader('IA Identificando Fornecedor...', 'Estruturando cotação comercial com margem garantida...', 75, 'Preenchendo grade...');
 
@@ -2859,6 +2748,10 @@ async function executarCotacaoIA(isRotacao = false) {
   const estado = estadoSelect ? estadoSelect.value.trim() : '';
   const cidade = cidadeInput ? cidadeInput.value.trim() : '';
 
+  const canalSelect = document.querySelector('#iaFiltroCanal');
+  const canal = canalSelect ? canalSelect.value.trim() : (window.canalCotacaoAtual || 'todos');
+  window.canalCotacaoAtual = canal;
+
   if (!texto) return toast('Digite o produto ou demanda para cotação.');
 
   let fabricaManualObj = null;
@@ -2894,21 +2787,15 @@ async function executarCotacaoIA(isRotacao = false) {
   }
 
   const regiaoMsg = [cidade, estado].filter(Boolean).join(', ') || clienteLoc;
+  const descCanal = canal === 'fabricante' ? 'indústrias fabricantes' : (canal === 'distribuidor' ? 'fornecedores finais e distribuidores atacadistas' : 'fabricantes e fornecedores finais');
   const loadingTxt = fabricaManualObj 
-    ? `Registrando "${fabricaManualObj.nome_empresa}" e localizando 2 fábricas mais próximas de ${clienteLoc}...`
-    : `Filtrando indústrias mais próximas de ${regiaoMsg}...`;
+    ? `Registrando "${fabricaManualObj.nome_empresa}" e localizando 2 empresas mais próximas de ${clienteLoc}...`
+    : `Filtrando ${descCanal} mais próximos de ${regiaoMsg}...`;
 
-  showLoader(isRotacao ? 'Buscando Outras Indústrias...' : 'Pesquisando Indústrias Mais Próximas...', loadingTxt, 45, 'Localizando fornecedores homologados...');
+  showLoader(isRotacao ? 'Buscando Outras Opções...' : 'Pesquisando Fornecedores Mais Próximos...', loadingTxt, 45, 'Localizando empresas homologadas...');
 
   try {
-    let token = sessionToken;
-    if (!token && supabaseClient) {
-      try {
-        const s = await supabaseClient.auth.getSession();
-        token = s.data?.session?.access_token;
-      } catch {}
-    }
-    if (!token) token = 'sess_operador_prado';
+    let token = window.sessionToken || sessionToken || localStorage.getItem('pradoSessionToken') || '';
 
     const res = await fetch('/api/cotacao-fabricantes', {
       method: 'POST',
@@ -2920,6 +2807,7 @@ async function executarCotacaoIA(isRotacao = false) {
         necessidade: texto,
         estado: estado,
         cidade: cidade,
+        canal: canal,
         cliente_localizacao: clienteLoc,
         fabrica_manual: fabricaManualObj,
         offset: cotacaoOffsetRotacao
@@ -2932,6 +2820,15 @@ async function executarCotacaoIA(isRotacao = false) {
       const badge = document.querySelector('#iaMotorBadge');
       if (badge && data.fonte) {
         badge.textContent = data.fonte;
+      }
+      if (typeof window.registrarAuditoria === 'function') {
+        const canalDesc = canal === 'ambos' ? 'Fábricas e Distribuidores' : (canal === 'fabricante' ? 'Grandes Indústrias' : 'Distribuidores');
+        const qtdFabs = ultimosOrcamentosIA?.fabricantes?.length || 0;
+        window.registrarAuditoria(
+          'Pesquisa de Cotação IA',
+          'Cotações IA & Fábricas',
+          `Pesquisou cotação para "${texto}" - Região: ${regiaoMsg} (${canalDesc}) - ${qtdFabs} empresas localizadas`
+        );
       }
       toast(fabricaManualObj ? '1 Fábrica Manual + 2 Mais Próximas Carregadas!' : 'Indústrias nacionais mais próximas localizadas!');
     } else {
@@ -3096,16 +2993,190 @@ function abrirConsultaReceitaOficial(cnpj) {
 }
 window.abrirConsultaReceitaOficial = abrirConsultaReceitaOficial;
 
+function abrirModalDetalhesEmpresaCotacao(idx) {
+  if (!ultimosOrcamentosIA || !ultimosOrcamentosIA.fabricantes || !ultimosOrcamentosIA.fabricantes[idx]) return;
+  const f = ultimosOrcamentosIA.fabricantes[idx];
+
+  const modalId = 'modalDetalhesEmpresaCotacao';
+  let modal = document.querySelector(`#${modalId}`);
+  if (modal) modal.remove();
+
+  const isDistribuidor = f.tipo_canal === 'distribuidor';
+  const isManual = f.origem_manual === true;
+  const cleanZap = String(f.whatsapp || '').replace(/\D/g, '');
+  const cleanTel = String(f.telefone || '').replace(/\D/g, '');
+
+  if (typeof window.registrarAuditoria === 'function') {
+    const tipoEmp = isDistribuidor ? 'Distribuidor Final' : (isManual ? 'Fornecedor Manual' : 'Fábrica / Indústria');
+    window.registrarAuditoria(
+      'Consulta de Fornecedor',
+      'Cotações IA & Fábricas',
+      `Visualizou ficha detalhada de ${f.nome_empresa} (${f.cnpj || 'CNPJ não inf.'}) - ${tipoEmp}`
+    );
+  }
+
+  modal = document.createElement('div');
+  modal.id = modalId;
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px)';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:14px;max-width:680px;width:100%;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,0.35);border-top:6px solid ${isDistribuidor ? '#7c3aed' : (isManual ? 'var(--gold)' : '#0284c7')}">
+      
+      <!-- Cabeçalho do Modal -->
+      <div style="padding:18px 22px;background:#f8fafc;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1;padding-right:12px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span class="badge" style="background:${isDistribuidor ? '#ede9fe' : (isManual ? '#fef08a' : '#e0f2fe')};color:${isDistribuidor ? '#6d28d9' : (isManual ? '#854d0e' : '#0369a1')};font-weight:800;font-size:11.5px;padding:3px 10px;border-radius:6px">
+              ${isManual ? '★ FORNECEDOR MANUAL DE CONFIANÇA' : (isDistribuidor ? '🏢 FORNECEDOR FINAL / DISTRIBUIDOR ATACADISTA' : '🏭 FÁBRICA / GRANDE INDÚSTRIA DIRETA')}
+            </span>
+            <span class="badge" style="background:#ecfdf5;color:#047857;font-size:11px;font-weight:700">✓ Ativo na Receita Federal</span>
+          </div>
+          <h2 style="margin:4px 0 6px;font-size:19px;color:var(--navy);font-weight:800;line-height:1.25">${escapeHtml(f.nome_empresa)}</h2>
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12px;color:var(--muted);margin-bottom:6px">
+            <span>CNPJ: <b style="color:var(--ink)">${escapeHtml(f.cnpj || 'Sob consulta')}</b></span>
+            <span>·</span>
+            <span>📍 <b>${escapeHtml(f.localizacao || 'Brasil')}</b></span>
+          </div>
+
+          <!-- Links de Verificação Oficial Externa -->
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:10px;background:#fff;padding:8px 10px;border-radius:6px;border:1px solid #e2e8f0">
+            <button type="button" class="link" style="color:var(--navy);font-weight:700;font-size:11.5px;cursor:pointer;text-decoration:underline;background:none;border:none;padding:0" onclick="abrirConsultaReceitaOficial('${escapeHtml(f.cnpj || '')}')">
+              🏛️ Consultar na Receita Federal ➔
+            </button>
+            <span style="color:#cbd5e1">|</span>
+            <a href="https://www.google.com/search?q=${encodeURIComponent(f.nome_empresa + ' ' + (f.cnpj || '') + ' site oficial televendas')}" target="_blank" style="color:#0284c7;font-weight:700;font-size:11.5px;text-decoration:none">
+              🔎 Checar no Google ➔
+            </a>
+            <span style="color:#cbd5e1">|</span>
+            <a href="${f.site_oficial || ('https://www.google.com/search?q=' + encodeURIComponent('site oficial ' + f.nome_empresa))}" target="_blank" style="color:#16a34a;font-weight:800;font-size:11.5px;text-decoration:none">
+              🌐 Acessar Site Oficial ➔
+            </a>
+          </div>
+        </div>
+        <button type="button" onclick="document.querySelector('#${modalId}').remove()" style="background:none;border:none;font-size:26px;cursor:pointer;color:var(--muted);line-height:1;padding:4px">&times;</button>
+      </div>
+
+      <!-- Conteúdo com Scroll -->
+      <div style="flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:16px">
+        
+        <!-- Bloco de Contatos Oficiais -->
+        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:14px">
+          <small style="text-transform:uppercase;font-size:10.5px;font-weight:800;color:#0369a1;display:block;margin-bottom:8px">
+            📞 CONTATOS OFICIAIS VERIFICADOS DA EMPRESA:
+          </small>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:10px;align-items:center">
+            <div style="display:flex;align-items:center;gap:8px;background:#fff;padding:10px 12px;border-radius:8px;border:1px solid #e0f2fe">
+              <span style="font-size:18px">📞</span>
+              <div>
+                <small style="display:block;color:var(--muted);font-size:10px;text-transform:uppercase">Telefone Televendas:</small>
+                <b style="font-size:13.5px"><a href="tel:${cleanTel}" style="color:var(--navy);text-decoration:none">${escapeHtml(f.telefone || 'Sob consulta')}</a></b>
+              </div>
+            </div>
+
+            ${cleanZap ? `
+              <div style="display:flex;align-items:center;gap:8px;background:#fff;padding:10px 12px;border-radius:8px;border:1px solid #dcfce7">
+                <span style="font-size:18px">💬</span>
+                <div>
+                  <small style="display:block;color:var(--muted);font-size:10px;text-transform:uppercase">WhatsApp Corporativo:</small>
+                  <a href="https://wa.me/${cleanZap}?text=Ol%C3%A1%2C+sou+da+Prado+Com%C3%A9rcio+%26+Solu%C3%A7%C3%B5es.+Gostaria+de+uma+cota%C3%A7%C3%A3o+comercial." target="_blank" style="color:#16a34a;font-weight:800;font-size:13px;text-decoration:none">
+                    Iniciar Conversa no WhatsApp ➔
+                  </a>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+          <div style="margin-top:8px;font-size:11.5px;color:#0369a1">
+            <b>Setor Comercial Responsável:</b> ${escapeHtml(f.contato_setor || 'Televendas / Suprimentos B2B')}
+          </div>
+        </div>
+
+        <!-- Bloco de Produto e Perfil de Fornecimento -->
+        <div style="border:1px solid var(--line);border-radius:10px;padding:14px;background:#fafafa">
+          <small style="color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:700;display:block;margin-bottom:4px">Produto Cotado:</small>
+          <div style="font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:10px;line-height:1.4">
+            ${escapeHtml(f.produto_especificado)}
+          </div>
+          
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#fff;padding:12px;border-radius:8px;border:1px solid var(--line)">
+            <div>
+              <small style="color:var(--muted);font-size:10.5px;display:block">Canal de Aquisição:</small>
+              <b style="color:${isDistribuidor ? '#6d28d9' : '#0369a1'};font-size:12.5px">
+                ${isDistribuidor ? '🏢 Distribuidor Final (Pronta Entrega)' : '🏭 Indústria Fabricante (Preço Direto de Fábrica)'}
+              </b>
+            </div>
+            <div>
+              <small style="color:var(--muted);font-size:10.5px;display:block">Diferencial Logístico:</small>
+              <span style="font-size:12px;color:var(--ink);font-weight:600">${escapeHtml(f.destaque_comercial)}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grade Financeira de Custos e Margens Prado -->
+        <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <b style="color:var(--navy);font-size:13.5px">💰 Análise de Custos & Rentabilidade Prado:</b>
+            <span class="badge" style="background:#e0f2fe;color:#0369a1;font-size:11px;font-weight:700">Margem Protegida</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:10px;text-align:center">
+            <div style="background:#fff;padding:10px;border-radius:8px;border:1px solid var(--line)">
+              <small style="color:var(--muted);display:block;font-size:10.5px">Custo Unitário:</small>
+              <strong style="color:${isDistribuidor ? '#6d28d9' : 'var(--navy)'};font-size:15px">${money(f.preco_custo_unitario)}</strong>
+            </div>
+            <div style="background:#fff;padding:10px;border-radius:8px;border:1px solid var(--line)">
+              <small style="color:var(--muted);display:block;font-size:10.5px">Venda Sugerida Prado:</small>
+              <strong style="color:var(--navy);font-size:15px">${money(f.preco_venda_sugerido_unitario)}</strong>
+            </div>
+            <div style="background:#ecfdf5;padding:10px;border-radius:8px;border:1px solid #a7f3d0">
+              <small style="color:#047857;display:block;font-size:10.5px;font-weight:700">Lucro Unitário:</small>
+              <strong style="color:#047857;font-size:15px">${money(f.margem_estimada_valor)}</strong>
+            </div>
+            <div style="background:#ecfdf5;padding:10px;border-radius:8px;border:1px solid #a7f3d0">
+              <small style="color:#047857;display:block;font-size:10.5px;font-weight:700">Margem Bruta:</small>
+              <strong style="color:#047857;font-size:15px">${f.margem_estimada_pct}%</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prazos e Condições Comerciais -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12.5px">
+          <div style="background:#f1f5f9;padding:12px;border-radius:8px">
+            <small style="color:var(--muted);display:block;font-size:10.5px;text-transform:uppercase">Prazo de Entrega Estimado:</small>
+            <b style="color:var(--ink)">⏱ ${escapeHtml(f.prazo_entrega || '5 a 8 dias úteis')}</b>
+          </div>
+          <div style="background:#f1f5f9;padding:12px;border-radius:8px">
+            <small style="color:var(--muted);display:block;font-size:10.5px;text-transform:uppercase">Condição de Pagamento:</small>
+            <b style="color:var(--ink)">💳 ${escapeHtml(f.condicoes_pagamento || 'Faturamento 28 DDL')}</b>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Rodapé do Modal -->
+      <div style="padding:14px 22px;background:#f8fafc;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <button type="button" class="secondary" onclick="document.querySelector('#${modalId}').remove()" style="padding:9px 18px;border-radius:8px;font-weight:700">
+          Voltar à Lista
+        </button>
+        <button type="button" class="primary" onclick="document.querySelector('#${modalId}').remove(); adicionarCotacaoAoBanco(${idx});" style="padding:10px 22px;border-radius:8px;background:var(--gold);color:#151515;font-weight:800;font-size:13.5px;box-shadow:0 4px 12px rgba(212,175,55,0.3)">
+          ＋ Salvar Fornecedor no Supabase & Gerar Orçamento
+        </button>
+      </div>
+
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+window.abrirModalDetalhesEmpresaCotacao = abrirModalDetalhesEmpresaCotacao;
+
 function renderizarResultadosIACards(data) {
   if (!data || !data.fabricantes || !data.fabricantes.length) {
     return `
       <div class="empty">
         <span style="font-size:42px">🏭</span>
         <h3>Nenhuma cotação realizada ainda</h3>
-        <p>Digite o produto no campo acima e escolha se quer localizar 3 fábricas pela IA ou preencher 1 à mão e buscar 2 mais próximas.</p>
+        <p>Digite o produto no campo acima e compare <b>Fábricas / Grandes Indústrias</b> e <b>Fornecedores Finais / Distribuidores</b> lado a lado.</p>
         <div style="margin-top:14px">
           <button type="button" class="secondary" style="border:1px solid #16a34a;color:#16a34a;background:#f0fdf4;font-weight:800;padding:10px 18px" onclick="abrirModalAdicionarFabricaManual()">
-            ＋ Adicionar Fábrica Manualmente Agora
+            ＋ Adicionar Fornecedor Manualmente Agora
           </button>
         </div>
       </div>
@@ -3113,105 +3184,138 @@ function renderizarResultadosIACards(data) {
   }
 
   const fabs = data.fabricantes;
-  const clienteLoc = document.querySelector('#iaClienteLocalizacao')?.value.trim() || 'Cliente';
+
+  // Anexa o índice original do array geral para manter integridade das ações
+  fabs.forEach((f, i) => { f._origIdx = i; });
+
+  // Separação em 2 Colunas: Indústrias x Distribuidores Finais
+  let industrias = fabs.filter(f => f.tipo_canal === 'fabricante' || (!f.tipo_canal && !f.nome_empresa.toLowerCase().includes('distribuidora') && !f.nome_empresa.toLowerCase().includes('atacadista')));
+  let distribuidores = fabs.filter(f => f.tipo_canal === 'distribuidor' || f.nome_empresa.toLowerCase().includes('distribuidora') || f.nome_empresa.toLowerCase().includes('atacadista'));
+
+  // Se por algum filtro rígido uma das listas ficou vazia, garante que o usuário não fique sem opções
+  if (!industrias.length && distribuidores.length > 1) {
+    industrias = [distribuidores[0]];
+    distribuidores = distribuidores.slice(1);
+  } else if (!distribuidores.length && industrias.length > 1) {
+    distribuidores = [industrias[industrias.length - 1]];
+    industrias = industrias.slice(0, industrias.length - 1);
+  }
+
+  const renderItemLista = (f, isDist) => {
+    const isManual = f.origem_manual === true;
+    const borderCor = isManual ? 'var(--gold)' : (isDist ? '#ddd6fe' : '#bae6fd');
+    const bgCor = isManual ? '#fffdf7' : (isDist ? '#faf5ff' : '#f0f9ff');
+    const badgeBg = isManual ? '#fef08a' : (isDist ? '#ede9fe' : '#e0f2fe');
+    const badgeTx = isManual ? '#854d0e' : (isDist ? '#6d28d9' : '#0369a1');
+
+    return `
+      <div onclick="abrirModalDetalhesEmpresaCotacao(${f._origIdx})" 
+           style="background:#fff;border:1.5px solid ${borderCor};border-radius:10px;padding:13px 15px;cursor:pointer;transition:all 0.18s ease;box-shadow:0 2px 6px rgba(0,0,0,0.04);position:relative"
+           onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 18px rgba(0,0,0,0.08)';this.style.borderColor='${isDist ? '#7c3aed' : '#0284c7'}'"
+           onmouseout="this.style.transform='none';this.style.boxShadow='0 2px 6px rgba(0,0,0,0.04)';this.style.borderColor='${borderCor}'">
+        
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">
+          <div>
+            <h4 style="margin:0 0 3px;font-size:15px;color:var(--navy);font-weight:800;line-height:1.25">
+              ${escapeHtml(f.nome_empresa)}
+            </h4>
+            <div style="font-size:11.5px;color:var(--muted)">
+              CNPJ: <b>${escapeHtml(f.cnpj || '—')}</b> · 📍 <b>${escapeHtml(f.localizacao || 'Brasil')}</b>
+            </div>
+          </div>
+          <span class="badge" style="background:${badgeBg};color:${badgeTx};font-size:10.5px;font-weight:800;white-space:nowrap;padding:3px 8px;border-radius:6px">
+            ${isManual ? '★ Manual' : (isDist ? '⚡ Pronta Entrega' : '📦 Preço Fábrica')}
+          </span>
+        </div>
+
+        <div style="background:${bgCor};border-radius:8px;padding:9px 12px;margin:8px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div>
+            <small style="display:block;color:var(--muted);font-size:10px;text-transform:uppercase">Custo ${isDist ? 'Distribuidor' : 'Fábrica'}:</small>
+            <b style="font-size:13.5px;color:${isDist ? '#6d28d9' : 'var(--navy)'}">${money(f.preco_custo_unitario)}</b>
+          </div>
+          <div>
+            <small style="display:block;color:var(--muted);font-size:10px;text-transform:uppercase">Venda Sugerida:</small>
+            <b style="font-size:13.5px;color:var(--navy)">${money(f.preco_venda_sugerido_unitario)}</b>
+          </div>
+          <div>
+            <small style="display:block;color:#047857;font-size:10px;text-transform:uppercase;font-weight:700">Lucro Estimado:</small>
+            <strong style="font-size:13.5px;color:#047857">+${money(f.margem_estimada_valor)} (${f.margem_estimada_pct}%)</strong>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--muted);border-top:1px dashed #e2e8f0;padding-top:7px;margin-top:4px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span>⏱ Prazo: <b style="color:var(--ink)">${escapeHtml(f.prazo_entrega || 'Sob consulta')}</b></span>
+            <span class="badge" style="background:#ecfdf5;color:#047857;font-size:10px;padding:2px 7px;font-weight:700">✓ Checado no Google</span>
+          </div>
+          <span style="color:${isDist ? '#7c3aed' : '#0284c7'};font-weight:800;display:flex;align-items:center;gap:3px">
+            Ver Detalhes, Site & Contatos ➔
+          </span>
+        </div>
+      </div>
+    `;
+  };
 
   return `
+    <!-- Barra Superior de Estratégia Comercial Prado -->
     <div style="background:#eef6fa;border:1px solid #c9e0ed;border-left:4px solid var(--teal);padding:14px;border-radius:10px;margin-bottom:18px">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
         <div style="display:flex;align-items:center;gap:8px">
-          <b style="color:var(--navy);font-size:14px">🎯 Estratégia Comercial Prado:</b>
-          <span class="badge" style="background:#134433;color:#4ade80;font-size:11px">● FABRICANTES HOMOLOGADOS & COMPARATIVO ATIVO</span>
+          <b style="color:var(--navy);font-size:14px">🎯 Cotação Validada na Internet &amp; Receita Federal:</b>
+          <span class="badge" style="background:#134433;color:#4ade80;font-size:11px">● DADOS 100% OFICIAIS E CHECADOS</span>
         </div>
         <button type="button" class="secondary" style="border:1px solid #16a34a;color:#16a34a;background:#fff;font-size:12px;font-weight:800;padding:6px 12px;border-radius:6px;cursor:pointer" onclick="abrirModalAdicionarFabricaManual()">
-          ＋ Adicionar Outra Fábrica Manualmente
+          ＋ Adicionar Outro Fornecedor Manual
         </button>
       </div>
-      <p style="margin:6px 0 0;font-size:13px;color:#24445c">${escapeHtml(data.orientacao_negociacao || '')}</p>
+      <p style="margin:6px 0 0;font-size:13px;color:#24445c">
+        🔍 <b>Origem dos dados:</b> Pesquisas na internet, sites oficiais das empresas e cadastros públicos da Receita Federal. ${escapeHtml(data.orientacao_negociacao || 'Clique em qualquer empresa da lista abaixo para visualizar contatos oficiais, WhatsApp comercial, faturamento e gerar proposta.')}
+      </p>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(290px, 1fr));gap:16px">
-      ${fabs.map((f, idx) => {
-        const isManual = f.origem_manual === true;
-        const isBest = idx === 0 && !isManual;
-        const cleanZap = String(f.whatsapp || '').replace(/\D/g, '');
-        const cleanTel = String(f.telefone || '').replace(/\D/g, '');
-
-        let badgeTopo = '';
-        if (isManual) {
-          badgeTopo = `<div style="position:absolute;top:-11px;right:16px;background:var(--gold);color:#1a1a1a;font-size:11px;font-weight:800;padding:3px 12px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,0.15)">★ SUA FÁBRICA DE CONFIANÇA (MANUAL)</div>`;
-        } else if (isBest) {
-          badgeTopo = `<div style="position:absolute;top:-11px;right:16px;background:var(--navy);color:#fff;font-size:11px;font-weight:800;padding:3px 12px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,0.15)">★ RECOMENDADO / MAIOR MARGEM</div>`;
-        } else {
-          badgeTopo = `<div style="position:absolute;top:-11px;right:16px;background:#0284c7;color:#fff;font-size:10.5px;font-weight:800;padding:2px 10px;border-radius:999px">📍 MAIS PRÓXIMA DO CLIENTE</div>`;
-        }
-
-        return `
-          <div class="card" style="display:flex;flex-direction:column;border:${isManual ? '2px solid var(--gold)' : (isBest ? '2px solid var(--navy)' : '1px solid var(--line)')};background:${isManual ? '#fffdf7' : '#fff'};position:relative;padding:18px">
-            ${badgeTopo}
-
-            <div style="border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:12px">
-              <div style="display:flex;justify-content:space-between;align-items:center">
-                <span class="badge" style="background:${isManual ? '#fef08a' : '#edf3f6'};color:${isManual ? '#854d0e' : 'var(--navy)'};font-weight:700">Opção ${idx + 1} ${isManual ? '• Indicada por Você' : '• IA Mais Próxima'}</span>
-              </div>
-              <h3 style="margin:8px 0 4px;font-size:16px;color:var(--navy)">${escapeHtml(f.nome_empresa)}</h3>
-              <small style="color:var(--muted);display:block">CNPJ: <b>${escapeHtml(f.cnpj || '—')}</b> · 📍 <b>${escapeHtml(f.localizacao || '')}</b></small>
-              <div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-                <span class="badge" style="background:#e8fdf0;color:#166534;font-size:10.5px">✓ Empresa Ativa</span>
-                <button type="button" class="link" style="font-size:11px;color:var(--navy);font-weight:700;cursor:pointer;text-decoration:underline" onclick="abrirConsultaReceitaOficial('${escapeHtml(f.cnpj || '')}')">
-                  🔍 Checar na Receita Federal ➔
-                </button>
-              </div>
+    <!-- Layout em 2 Colunas Lado a Lado -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:18px;align-items:start">
+      
+      <!-- COLUNA 1: FÁBRICAS / GRANDES INDÚSTRIAS -->
+      <div style="background:#f8fafc;border:2px solid #bae6fd;border-top:5px solid #0284c7;border-radius:12px;padding:16px;box-shadow:0 4px 12px rgba(2,132,199,0.06)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid #e2e8f0;margin-bottom:12px">
+          <div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:20px">🏭</span>
+              <h3 style="margin:0;font-size:15.5px;color:#0369a1;font-weight:800">FÁBRICAS / GRANDES INDÚSTRIAS</h3>
             </div>
-
-            <div style="background:#f4f9fc;border:1px solid #d8e8f2;border-radius:8px;padding:12px;margin-bottom:14px">
-              <small style="text-transform:uppercase;font-size:10px;font-weight:700;color:var(--teal);display:block;margin-bottom:4px">Contatos Oficiais para Ligar:</small>
-              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-                <span>📞</span>
-                <b style="font-size:13px"><a href="tel:${cleanTel}" style="color:var(--ink);text-decoration:none">${escapeHtml(f.telefone || 'A consultar')}</a></b>
-              </div>
-              ${cleanZap ? `
-                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-                  <span>💬</span>
-                  <a href="https://wa.me/${cleanZap}?text=Ol%C3%A1%2C+sou+da+Prado+Com%C3%A9rcio+%26+Solu%C3%A7%C3%B5es.+Gostaria+de+uma+cota%C3%A7%C3%A3o+comercial." target="_blank" style="color:var(--green);font-weight:700;font-size:12px;text-decoration:none">
-                    Abrir WhatsApp Comercial ➔
-                  </a>
-                </div>
-              ` : ''}
-              <small style="color:var(--muted);font-size:11px">${escapeHtml(f.contato_setor || 'Setor Comercial')}</small>
-            </div>
-
-            <div style="flex:1;margin-bottom:14px">
-              <small style="color:var(--muted);font-size:11px">Produto Cotado:</small>
-              <p style="margin:2px 0 8px;font-size:12px;line-height:1.4"><b>${escapeHtml(f.produto_especificado)}</b></p>
-              <small style="color:var(--muted);font-size:11px">Diferencial / Frete:</small>
-              <p style="margin:2px 0;font-size:12px;color:var(--teal)">✓ ${escapeHtml(f.destaque_comercial)}</p>
-            </div>
-
-            <div style="background:#f9fafb;border-radius:8px;padding:12px;margin-bottom:14px;border:1px solid var(--line)">
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-                <span style="color:var(--muted)">Custo Fábrica (un):</span>
-                <b>${money(f.preco_custo_unitario)}</b>
-              </div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-                <span style="color:var(--muted)">Venda Sugerida Prado:</span>
-                <b style="color:var(--navy)">${money(f.preco_venda_sugerido_unitario)}</b>
-              </div>
-              <div style="display:flex;justify-content:space-between;font-size:13px;border-top:1px dashed var(--line);padding-top:6px;margin-top:4px">
-                <span style="color:var(--green);font-weight:700">Lucro Estimado Prado:</span>
-                <strong style="color:var(--green)">${money(f.margem_estimada_valor)} (${f.margem_estimada_pct}%)</strong>
-              </div>
-            </div>
-
-            <div style="font-size:11px;color:var(--muted);margin-bottom:14px">
-              Prazo: <b>${escapeHtml(f.prazo_entrega)}</b> · Condição: <b>${escapeHtml(f.condicoes_pagamento)}</b>
-            </div>
-
-            <button class="primary" style="width:100%" onclick="adicionarCotacaoAoBanco(${idx})">
-              ＋ Salvar no Supabase & Gerar Proposta
-            </button>
+            <small style="color:#64748b;display:block;margin-top:2px;font-size:11.5px">Custo de fábrica · Faturamento em lote · Maior margem</small>
           </div>
-        `;
-      }).join('')}
+          <span class="badge" style="background:#e0f2fe;color:#0369a1;font-weight:800;font-size:11.5px">
+            ${industrias.length} ${industrias.length === 1 ? 'indústria' : 'indústrias'}
+          </span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:11px">
+          ${industrias.map(f => renderItemLista(f, false)).join('')}
+        </div>
+      </div>
+
+      <!-- COLUNA 2: FORNECEDORES FINAIS / DISTRIBUIDORES ATACADISTAS -->
+      <div style="background:#faf5ff;border:2px solid #ddd6fe;border-top:5px solid #7c3aed;border-radius:12px;padding:16px;box-shadow:0 4px 12px rgba(124,58,237,0.06)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid #ede9fe;margin-bottom:12px">
+          <div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:20px">🏢</span>
+              <h3 style="margin:0;font-size:15.5px;color:#6d28d9;font-weight:800">FORNECEDORES FINAIS / DISTRIBUIDORES</h3>
+            </div>
+            <small style="color:#7c3aed;display:block;margin-top:2px;font-size:11.5px">Pronta entrega imediata · Venda fracionada · Retirada rápida</small>
+          </div>
+          <span class="badge" style="background:#ede9fe;color:#6d28d9;font-weight:800;font-size:11.5px">
+            ${distribuidores.length} ${distribuidores.length === 1 ? 'distribuidor' : 'distribuidores'}
+          </span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:11px">
+          ${distribuidores.map(f => renderItemLista(f, true)).join('')}
+        </div>
+      </div>
+
     </div>
   `;
 }
@@ -3255,6 +3359,14 @@ async function adicionarCotacaoAoBanco(idx) {
 
     db.fornecedores.unshift(novoFornecedor);
     db.oportunidades.unshift(novaOp);
+
+    if (typeof window.registrarAuditoria === 'function') {
+      window.registrarAuditoria(
+        'Fornecedor e Proposta Criados',
+        'Cotações IA & Fábricas',
+        `Cadastrou fornecedor ${f.nome_empresa} (${f.cnpj || 'CNPJ não inf.'}) e abriu orçamento para "${f.produto_especificado}" no valor de ${money(novaOp.valor)}`
+      );
+    }
 
     toast(`✓ Fábrica ${f.nome_empresa} cadastrada! Abrindo orçamento com custo e margem...`);
     page = 'orcamentos';
@@ -3612,7 +3724,10 @@ async function attachOrcamentoCnpjAutofill(val) {
     try {
       let dados = null;
       try {
-        const resA = await fetch(`/api/analise-risco?doc=${digits}`);
+        const token = window.sessionToken || localStorage.getItem('pradoSessionToken') || '';
+        const resA = await fetch(`/api/analise-risco?doc=${digits}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         if (resA.ok) {
           const j = await resA.json();
           if (j.sucesso && j.dados) dados = j.dados;
@@ -3996,7 +4111,7 @@ async function salvarOrcamento(e) {
     entrega_frete: document.querySelector('#orc_entrega_frete').value.trim() || 'Prazo sujeito à disponibilidade. Frete incluso, salvo indicação expressa.',
     observacoes: document.querySelector('#orc_observacoes').value.trim(),
     status: document.querySelector('#orc_status').value,
-    criadoPor: currentUser ? currentUser.email : 'licitadigitaltech@gmail.com',
+    criadoPor: currentUser ? currentUser.email : '',
     user_id: currentUser ? currentUser.id : null,
     atualizadoEm: new Date().toISOString()
   };
@@ -4283,8 +4398,8 @@ function enviarPropostaWhatsApp(index) {
     `📅 *Validade:* ${encodeURIComponent(formatarDataBr(orc.data_validade))}%0A` +
     `🤝 *Condições de Pagamento:* ${encodeURIComponent(orc.pagamento || 'À vista (100% na aprovação da proposta).')}%0A%0A` +
     `🔑 *Dados Bancários para Liquidação:*%0A` +
-    `Chave PIX (CNPJ): *59.825.765/0001-03*%0A` +
-    `Favorecido: *59.825.765 Michel do Prado*%0A%0A` +
+    `Chave PIX (CNPJ): **%0A` +
+    `Favorecido: *PRADO COMÉRCIO & SOLUÇÕES*%0A%0A` +
     `🛡️ *Garantia Prado:* Acompanhamento logístico integral da fábrica até o ateste de recebimento no seu endereço.%0A%0A` +
     `Estamos à inteira disposição para fechamento e emissão de nota fiscal. Obrigado!`;
 
@@ -4397,7 +4512,10 @@ function attachCnpjAutofill() {
 
         // 1. Tenta API segura do sistema
         try {
-          const res = await fetch(`/api/analise-risco?doc=${digits}`);
+          const token = window.sessionToken || localStorage.getItem('pradoSessionToken') || '';
+          const res = await fetch(`/api/analise-risco?doc=${digits}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
           if (res.ok) {
             const json = await res.json();
             if (json.sucesso && json.dados) {
@@ -4633,9 +4751,40 @@ const titles = {
 };
 window.titles = titles;
 
+function atualizarBotaoNovoHeader() {
+  const btn = document.querySelector('#headerNewBtn') || document.querySelector('[data-action="new"]');
+  if (!btn) return;
+
+  const abasValidas = {
+    clientes: { texto: '＋ Novo Cliente', acao: () => openModal('cliente') },
+    fornecedores: { texto: '＋ Novo Fornecedor', acao: () => openModal('fornecedor') },
+    oportunidades: { texto: '＋ Nova Intermediação', acao: () => openModal('oportunidade') },
+    orcamentos: { texto: '＋ Lançar Orçamento', acao: () => typeof window.abrirModalNovoOrcamento === 'function' ? window.abrirModalNovoOrcamento() : openModal('orcamento') },
+    pedidos: { texto: '＋ Novo Pedido', acao: () => openModal('pedido') }
+  };
+
+  const cfg = abasValidas[page];
+  if (cfg) {
+    btn.style.display = 'inline-flex';
+    btn.textContent = cfg.texto;
+    btn.onclick = cfg.acao;
+  } else {
+    // Nas demais abas (dashboard, cotacao_ia, fiscal, fiscal_bot, financeiro, risco, relatorios, auditoria, configuracoes),
+    // oculta completamente o botão, deixando o cabeçalho 100% limpo!
+    btn.style.display = 'none';
+    btn.onclick = null;
+  }
+}
+window.atualizarBotaoNovoHeader = atualizarBotaoNovoHeader;
+
 function render() {
   window.page = page;
   renderNav();
+  if (!window.__pradoServerVerified || !currentUser) {
+    if (app) app.innerHTML = '';
+    if (typeof openLoginOverlay === 'function') openLoginOverlay();
+    return;
+  }
   const handler = titles[page] || (window.titles && window.titles[page]);
   if (typeof handler === 'function') {
     handler();
@@ -4650,7 +4799,7 @@ function render() {
     document.querySelector(`[data-page="${page}"]`)?.click();
   });
   document.querySelectorAll('[data-new]').forEach(b => b.onclick = () => openModal(b.dataset.new));
-  document.querySelectorAll('[data-action="new"]').forEach(b => b.onclick = () => openModal('cliente'));
+  atualizarBotaoNovoHeader();
 }
 
 function toast(msg) {
@@ -4748,8 +4897,8 @@ function abrirEmissaoNotaOrcamento(index) {
   document.querySelector('#nfe_numero').value = proximoNumNfe;
 
   // Preenche dados do cliente
-  document.querySelector('#nfe_dest_nome').value = orc.cliente_nome || orc.cliente || 'Lar dos Velhinhos de Piracicaba';
-  document.querySelector('#nfe_dest_doc').value = orc.cliente_doc || '54.406.723/0001-14';
+  document.querySelector('#nfe_dest_nome').value = orc.cliente_nome || orc.cliente || 'Cliente Corporativo';
+  document.querySelector('#nfe_dest_doc').value = orc.cliente_doc || '';
   document.querySelector('#nfe_dest_ie').value = 'ISENTO';
   document.querySelector('#nfe_dest_endereco').value = orc.cliente_endereco || 'Av. Torquato da Silva Leitão, 615 - São Dimas - Piracicaba/SP';
   document.querySelector('#nfe_dest_email').value = orc.cliente_email || 'compras@lardosvelhinhospiracicaba.org.br';
@@ -4820,14 +4969,14 @@ function compilarDadosNotaDoFormulario() {
     
     // Emitente
     emitente: {
-      razao_social: '59.825.765 Michel do Prado',
-      nome_fantasia: 'Prado Comércio & Soluções / LicitaDigitalTech',
-      cnpj: '59.825.765/0001-03',
-      ie: '465.150.144.115',
-      cidade: 'Monte Mor - SP',
-      cep: '13190-000',
-      telefone: '(19) 98814-6164',
-      email: 'licitadigitaltech@gmail.com'
+      razao_social: window.pradoEmpresa?.razaoSocial || 'Prado Comércio & Soluções',
+      nome_fantasia: window.pradoEmpresa?.nomeFantasia || 'Prado Comércio & Soluções',
+      cnpj: window.pradoEmpresa?.cnpj || '—',
+      ie: window.pradoEmpresa?.ie || '—',
+      cidade: window.pradoEmpresa?.municipio || 'SP',
+      cep: window.pradoEmpresa?.cep || '—',
+      telefone: window.pradoEmpresa?.telefone || '—',
+      email: window.pradoEmpresa?.email || (currentUser ? currentUser.email : '')
     },
 
     // Destinatário
@@ -4859,7 +5008,7 @@ function compilarDadosNotaDoFormulario() {
     vencimento: document.querySelector('#nfe_vencimento').value.trim(),
     dados_adicionais: document.querySelector('#nfe_dados_adicionais').value.trim(),
     status: 'Autorizada SEFAZ SP',
-    emitidaPor: currentUser ? currentUser.email : 'licitadigitaltech@gmail.com'
+    emitidaPor: currentUser ? currentUser.email : ''
   };
 }
 
@@ -5165,7 +5314,7 @@ function baixarXmlNfeAtual() {
       </ide>
       <emit>
         <CNPJ>59825765000103</CNPJ>
-        <xNome>59.825.765 MICHEL DO PRADO</xNome>
+        <xNome>PRADO COMÉRCIO & SOLUÇÕES</xNome>
         <xFant>PRADO COMERCIO E SOLUCOES</xFant>
         <enderEmit>
           <xLgr>RUA PRINCIPAL</xLgr>

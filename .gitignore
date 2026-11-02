@@ -20,3 +20,12 @@ node_modules/
 .swarm/
 # Claude Flow runtime data
 # Environment variables
+
+# Local keys and packages
+private-android-keys/
+*.zip
+*.pdf
+
+# Vibix local workspace data
+.vibix-app/
+.vibix-leases/

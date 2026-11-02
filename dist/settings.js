@@ -22,19 +22,22 @@ titles.configuracoes = function() {
       <div class="grid2">
         <section class="card">
           <div class="card-head"><h2>Meu perfil</h2></div>
-          <div class="profile-preview">
-            <img id="profilePicture" alt="Sua foto de perfil" hidden>
-            <div class="avatar" id="profileInitials">${escapeHtml(user.avatar || 'PR')}</div>
+          <div class="profile-preview" style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+            <div style="position:relative;width:72px;height:72px;flex-shrink:0;cursor:pointer" onclick="document.querySelector('#profileUpload')?.click()" title="Clique para escolher uma foto do seu dispositivo">
+              <img id="profilePicture" alt="Sua foto de perfil" style="width:72px;height:72px;border-radius:50%;object-fit:cover;box-shadow:0 4px 12px rgba(0,0,0,0.15);border:2px solid var(--gold);display:${profile.photo ? 'block' : 'none'}">
+              <div class="avatar" id="profileInitials" style="width:72px;height:72px;font-size:24px;border-radius:50%;border:2px solid var(--gold);display:${profile.photo ? 'none' : 'grid'}">${escapeHtml(user.avatar || 'MP')}</div>
+              <span style="position:absolute;bottom:-2px;right:-2px;background:var(--navy);color:#fff;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;border:1.5px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.3)">📷</span>
+            </div>
             <div>
-              <b style="font-size:16px">${escapeHtml(user.nome)}</b>
-              <p>${escapeHtml(user.cargo)}</p>
+              <b style="font-size:17px;color:var(--navy);display:block">${escapeHtml(user.nome)}</b>
+              <p style="margin:2px 0 4px;font-size:13px;color:#0369a1;font-weight:600">${escapeHtml(user.cargo)}</p>
               <small style="color:var(--muted)">${escapeHtml(user.email)}</small>
             </div>
           </div>
           <div class="field">
             <label for="profileUpload">Foto de perfil</label>
             <input id="profileUpload" type="file" accept="image/png,image/jpeg,image/webp">
-            <small>PNG, JPG ou WebP, até 2 MB.</small>
+            <small>PNG, JPG ou WebP, até 2 MB. Clique na foto ou no botão acima para escolher.</small>
           </div>
           <div style="display:flex;gap:10px;margin-top:14px">
             <button class="secondary" id="removePicture">Remover foto</button>
@@ -115,23 +118,66 @@ titles.configuracoes = function() {
   function showPhoto(url) {
     const img = document.querySelector('#profilePicture');
     const initials = document.querySelector('#profileInitials');
-    if (!img || !initials) return;
-    img.hidden = !url;
-    initials.hidden = !!url;
-    if (url) img.src = url;
-
-    const sidebarAvatar = document.querySelector('.sidebar .avatar');
-    if (sidebarAvatar) {
-      sidebarAvatar.replaceChildren();
+    if (img && initials) {
       if (url) {
-        const el = document.createElement('img');
-        el.src = url;
-        el.alt = 'Foto do perfil';
-        el.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover';
-        sidebarAvatar.append(el);
+        img.src = url;
+        img.style.display = 'block';
+        img.removeAttribute('hidden');
+        initials.style.display = 'none';
+        initials.setAttribute('hidden', '');
       } else {
-        sidebarAvatar.textContent = user.avatar || 'PR';
+        img.src = '';
+        img.style.display = 'none';
+        img.setAttribute('hidden', '');
+        initials.style.display = 'grid';
+        initials.removeAttribute('hidden');
       }
+    }
+
+    // Atualiza em memória no currentUser ativo (sem gravar sessão em localStorage)
+    if (window.currentUser) {
+      window.currentUser.photo = url || '';
+      window.currentUser.avatar = url || (window.currentUser.nome ? window.currentUser.nome.slice(0, 2).toUpperCase() : 'MP');
+    }
+
+    // Cache persistente por e-mail
+    if (user && user.email) {
+      try {
+        if (url) {
+          localStorage.setItem(`prado_user_avatar_${user.email}`, url);
+        } else {
+          localStorage.removeItem(`prado_user_avatar_${user.email}`);
+        }
+      } catch {}
+    }
+
+    // Atualiza lista geral de usuários cadastrados
+    try {
+      const uKey = 'prado_usuarios_cadastrados';
+      const users = JSON.parse(localStorage.getItem(uKey) || '[]');
+      users.forEach(u => {
+        if (u.email && user.email && u.email.toLowerCase() === user.email.toLowerCase()) {
+          u.photo = url || '';
+          u.avatar = url || (u.nome ? u.nome.slice(0, 2).toUpperCase() : 'MP');
+        }
+      });
+      localStorage.setItem(uKey, JSON.stringify(users));
+    } catch {}
+
+    // Persiste nas sessões online para que apareça para todos em tempo real
+    try {
+      const oKey = 'prado_sessoes_online';
+      const sessoes = JSON.parse(localStorage.getItem(oKey) || '{}');
+      if (user && user.email && sessoes[user.email]) {
+        sessoes[user.email].photo = url || '';
+        sessoes[user.email].avatar = url || user.avatar;
+        localStorage.setItem(oKey, JSON.stringify(sessoes));
+      }
+    } catch {}
+
+    // Atualiza imediatamente a barra lateral para a imagem não sumir ao navegar
+    if (typeof window.renderNav === 'function') {
+      window.renderNav();
     }
   }
 

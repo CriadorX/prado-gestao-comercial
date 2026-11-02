@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.pradocomerciosolucoes.app",
+        "sha256_cert_fingerprints": ["5F:74:87:16:EF:F6:3B:8C:97:3E:57:52:B3:BD:A5:CC:58:97:98:02:03:08:11:B9:9C:E7:6C:AC:FF:49:BA:E3"]
+      }
+    }]

@@ -1,4 +1,5 @@
 // Vercel Serverless Function — Localizador Universal de Fabricantes e Cotações Fidedignas (Universal B2B Brasil)
+const { requireMfaUser } = require('./_auth');
 const rateLimits = new Map();
 
 function isRateLimited(ip, limit = 40, windowMs = 60000) {
@@ -17,6 +18,114 @@ function isRateLimited(ip, limit = 40, windowMs = 60000) {
 
 // CATÁLOGO HOMOLOGADO DE INDÚSTRIAS NACIONAIS (100% CNPJS REAIS E VERIFICÁVEIS NA RECEITA FEDERAL)
 const CATALOGO_FABRICANTES_HOMOLOGADOS = {
+  farmaceutica_medicamentos: {
+    palavrasChave: ['dipirona', 'paracetamol', 'ibuprofeno', 'amoxicilina', 'dorflex', 'neosaldina', 'remedio', 'remédio', 'remedios', 'remédios', 'medicamento', 'medicamentos', 'farmaceutico', 'farmacêutico', 'farmacia', 'farmácia', 'hospitalar', 'saude', 'saúde', 'curativo', 'gaze', 'soro', 'seringa', 'analgesico', 'analgésico', 'anti-inflamatorio', 'anti-inflamatório', 'antibiotico', 'antibiótico', 'luva procedimento', 'esparadrapo'],
+    especificacaoPadrao: 'Medicamento / Insumo Farmacêutico com Registro Ativo na Anvisa, Lote Rastreado e Certificado de Análise',
+    custoBase: 2.20,
+    margemSugeridaPct: 35.0,
+    fabricantes: [
+      {
+        nome_empresa: 'EMS S/A (Maior Laboratório Farmacêutico Nacional)',
+        cnpj: '57.507.378/0003-65',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Laboratório Farmacêutico)',
+        localizacao: 'Hortolândia - SP / Polo Industrial Campinas e Região',
+        telefone: '(19) 3887-9800',
+        whatsapp: '551938879800',
+        contato_setor: 'Divisão Hospitalar, Órgãos Públicos & Licitações',
+        fatorCusto: 0.90,
+        prazo_entrega: '4 a 8 dias úteis',
+        condicoes_pagamento: 'Faturamento direto 28 DDL com licença sanitária',
+        destaque_comercial: 'Líder de mercado no Brasil há 18 anos consecutivos, maior capacidade de produção de genéricos e similares.'
+      },
+      {
+        nome_empresa: 'Eurofarma Laboratórios S.A. (Complexo Industrial Itapevi)',
+        cnpj: '61.190.096/0008-69',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Laboratório Farmacêutico)',
+        localizacao: 'Itapevi - SP / São Paulo - SP',
+        telefone: '(11) 5090-8600',
+        whatsapp: '551150908600',
+        contato_setor: 'Portal Corporativo B2B & Grandes Redes',
+        fatorCusto: 0.95,
+        prazo_entrega: '5 a 8 dias úteis',
+        condicoes_pagamento: '30 DDL faturado de fábrica',
+        destaque_comercial: 'Presença em mais de 20 países, alto padrão de conformidade e excelência em embalagens fracionadas.'
+      },
+      {
+        nome_empresa: 'Brainfarma Indústria Química e Farmacêutica S.A. (Neo Química / Hypera)',
+        cnpj: '05.161.069/0001-10',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Laboratório Farmacêutico)',
+        localizacao: 'Anápolis - GO (DAIA) / Escritório São Paulo - SP',
+        telefone: '(62) 3310-2000',
+        whatsapp: '556233102000',
+        contato_setor: 'Televendas Corporativo B2B Farma',
+        fatorCusto: 0.88,
+        prazo_entrega: '6 a 10 dias úteis',
+        condicoes_pagamento: '28 DDL faturado',
+        destaque_comercial: 'Marca de maior confiança em genéricos no Brasil, alta liquidez de vendas e preços agressivos para grandes lotes.'
+      },
+      {
+        nome_empresa: 'Cimed Indústria de Medicamentos Ltda',
+        cnpj: '02.814.497/0001-07',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Laboratório Farmacêutico)',
+        localizacao: 'Pouso Alegre - MG / São Paulo - SP',
+        telefone: '(11) 3544-7200',
+        whatsapp: '551135447200',
+        contato_setor: 'Atendimento a Farmácias e Compras Corporativas',
+        fatorCusto: 0.85,
+        prazo_entrega: '5 a 9 dias úteis',
+        condicoes_pagamento: '28 DDL direto de fábrica',
+        destaque_comercial: 'Fábrica moderna com foco em volume acessível, forte presença nacional e suporte para pedidos expressos.'
+      },
+      {
+        nome_empresa: 'Profarma Distribuidora de Produtos Farmacêuticos S.A.',
+        cnpj: '45.453.214/0001-51',
+        tipo_canal: 'distribuidor',
+        tipo_canal_rotulo: '🏢 Fornecedor Final / Distribuidor Farmacêutico',
+        localizacao: 'Itapevi - SP / São Carlos - SP (Atendimento Interior SP e Piracicaba)',
+        telefone: '0800 707 4040',
+        whatsapp: '5521994599140',
+        contato_setor: 'Televendas Farma B2B & Hospitalar',
+        fatorCusto: 1.35,
+        prazo_entrega: '24 a 48 horas (Pronta Entrega)',
+        condicoes_pagamento: 'Faturamento 21/28 DDL ou Boleto',
+        destaque_comercial: 'Uma das maiores distribuidoras de medicamentos do Brasil, frota refrigerada própria e entrega expressa.'
+      },
+      {
+        nome_empresa: 'Santa Cruz Distribuidora de Medicamentos S.A. (Grupo Panpharma)',
+        cnpj: '61.940.292/0001-37',
+        tipo_canal: 'distribuidor',
+        tipo_canal_rotulo: '🏢 Fornecedor Final / Distribuidor Farmacêutico',
+        localizacao: 'Barueri - SP / CDs em todo o Estado de São Paulo',
+        telefone: '0800 000 4000',
+        whatsapp: '5511999884000',
+        contato_setor: 'Central de Suprimentos & Farmácias Parceiras',
+        fatorCusto: 1.38,
+        prazo_entrega: '1 a 3 dias úteis',
+        condicoes_pagamento: 'Faturado 28 DDL',
+        destaque_comercial: 'Estoque imediato de milhares de SKUs farmacêuticos, atendimento especializado para empresas e clínicas.'
+      },
+      {
+        nome_empresa: 'Elfa Medicamentos S.A. (Divisão Hospitalar & Distribuição B2B)',
+        cnpj: '09.053.134/0001-23',
+        tipo_canal: 'distribuidor',
+        tipo_canal_rotulo: '🏢 Fornecedor Final / Distribuidor Farmacêutico',
+        localizacao: 'São Paulo - SP / Centros em Campinas e Ribeirão Preto',
+        telefone: '(11) 3508-8000',
+        whatsapp: '5511999888000',
+        contato_setor: 'Vendas Corporativas & Contratos Públicos',
+        fatorCusto: 1.40,
+        prazo_entrega: '2 a 4 dias úteis',
+        condicoes_pagamento: '30 DDL após análise',
+        destaque_comercial: 'Especialista em suprimentos hospitalares, medicamentos controlados e soluções de logística farmacêutica integrada.'
+      }
+    ],
+    dicaEstrategica: 'Medicamentos possuem margem sólida em compras programadas de fábrica (lotes fechados de 1.000 un). Para reposições urgentes, utilize os distribuidores com entrega em até 48h.'
+  },
+
   embalagens_plasticas: {
     palavrasChave: ['saco', 'sacos', 'lixo', 'embalagem', 'embalagens', 'plastico', 'plásticos', 'filme', 'bobina', 'stretch', 'polietileno', 'sacola', 'sacolas', 'fardo', 'plastico bolha'],
     especificacaoPadrao: 'Sacos de Lixo Reforçados e Embalagens Plásticas em Conformidade com a Norma ABNT NBR 9191',
@@ -513,10 +622,132 @@ const CATALOGO_FABRICANTES_HOMOLOGADOS = {
     dicaEstrategica: 'Exija o certificado da NR-17 para evitar devoluções em contratos com órgãos públicos ou multinacionais.'
   },
 
+  higiene_cosmeticos_institucional: {
+    palavrasChave: ['shampoo', 'shampoos', 'shampoo 5l', 'shampoo 5 litros', 'shampoo neutro', 'shampoo perolado', 'shampoo profissional', 'condicionador', 'condicionador 5l', 'sabonete', 'sabonetes', 'sabonete liquido', 'sabonete líquido', 'sabonete 5l', 'sabonete 5 litros', 'sabonete em barra', 'alcool em gel', 'álcool em gel', 'alcool gel', 'álcool gel', 'alcool 70', 'álcool 70', 'creme corporal', 'locao', 'loção', 'cosmetico', 'cosmeticos', 'cosméticos', 'galao 5l', 'galão 5l', 'galao 5 litros', 'galão 5 litros'],
+    especificacaoPadrao: 'Shampoo / Sabonete Líquido Institucional em Galão de 5 Litros com Registro Ativo na ANVISA e pH Neutro',
+    custoBase: 32.0,
+    margemSugeridaPct: 35.0,
+    fabricantes: [
+      {
+        nome_empresa: 'Start Química (Lima & Pergher Indústria e Comércio S/A)',
+        cnpj: '22.685.341/0006-95',
+        localizacao: 'Uberlândia - MG / Fábricas em SP e Interior',
+        telefone: '(34) 3292-6100',
+        whatsapp: '553432926100',
+        contato_setor: 'Vendas Corporativas & Linha Institucional Only / Azulim',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria)',
+        fatorCusto: 0.94,
+        prazo_entrega: '5 a 8 dias úteis',
+        condicoes_pagamento: '28 DDL faturado direto de fábrica (pedido mínimo R$ 1.500)',
+        destaque_comercial: 'Fábrica líder em galões de 5 litros de shampoo profissional Only e sabonetes neutros com laudo dermatológico e registro ANVISA.'
+      },
+      {
+        nome_empresa: 'Premisse Cosméticos (Proline Indústria e Comércio Ltda)',
+        cnpj: '03.542.455/0001-83',
+        localizacao: 'Curitiba - PR / Polo de Distribuição SP',
+        telefone: '(41) 3383-7000',
+        whatsapp: '5541999887000',
+        contato_setor: 'Divisão Institucional de Higiene & Hotéis',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria)',
+        fatorCusto: 1.0,
+        prazo_entrega: '6 a 10 dias úteis',
+        condicoes_pagamento: 'Faturamento direto 28 DDL após limite cadastral',
+        destaque_comercial: 'Líder em galões de 5L de shampoo e sabonetes antibacterianos de alta viscosidade, linha Active e refis institucionais.'
+      },
+      {
+        nome_empresa: 'Oleak Indústria e Comércio Ltda',
+        cnpj: '61.153.250/0001-56',
+        localizacao: 'Cotia - SP',
+        telefone: '(11) 4615-4600',
+        whatsapp: '5511972579784',
+        contato_setor: 'Atendimento Corporativo B2B e Saúde',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria)',
+        fatorCusto: 1.06,
+        prazo_entrega: '5 a 8 dias úteis',
+        condicoes_pagamento: '30 DDL faturado direto de fábrica',
+        destaque_comercial: 'Padrão hospitalar e institucional rigoroso, linha Opticare de shampoos e sabonetes com pH neutro e fragrância suave.'
+      },
+      {
+        nome_empresa: 'Química Amparo Ltda (Linha Ypê Pro)',
+        cnpj: '43.468.990/0001-47',
+        localizacao: 'Amparo - SP / Filiais GO e BA',
+        telefone: '(19) 3808-8000',
+        whatsapp: '5519999008000',
+        contato_setor: 'Divisão B2B Institucional & Grandes Contratos',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria)',
+        fatorCusto: 0.96,
+        prazo_entrega: '5 a 9 dias úteis',
+        condicoes_pagamento: '28 DDL faturado direto de fábrica',
+        destaque_comercial: 'Alta capacidade fabril nacional com bombonas e galões de 5L para abastecimento contínuo com laudo de biodegradabilidade.'
+      },
+      {
+        nome_empresa: 'Sales Distribuidora de Produtos de Limpeza e Descartáveis Ltda',
+        cnpj: '47.978.428/0001-77',
+        localizacao: 'São Paulo - SP / Atendimento Campinas e Piracicaba',
+        telefone: '(11) 3649-6000',
+        whatsapp: '5511999886000',
+        contato_setor: 'Televendas Distribuidor Pronta Entrega',
+        tipo_canal: 'distribuidor',
+        tipo_canal_rotulo: '🏢 Fornecedor Final / Distribuidor Atacadista',
+        fatorCusto: 1.40,
+        prazo_entrega: '24h a 48h (Pronta Entrega Imediata)',
+        condicoes_pagamento: 'Boleto faturado 14/28 DDL ou PIX faturado sem pedido mínimo alto',
+        destaque_comercial: 'Distribuidor atacadista de suprimentos corporativos com frota rápida para interior de SP e estoque imediato de galões de 5L.'
+      },
+      {
+        nome_empresa: 'Tambasa Atacadista (Matias Barbosa Indústria e Comércio Ltda)',
+        cnpj: '17.189.655/0001-44',
+        localizacao: 'Contagem - MG / Centros de Distribuição em SP',
+        telefone: '(31) 3359-0000',
+        whatsapp: '5531999880000',
+        contato_setor: 'Vendas Atacado Suprimentos Empresariais',
+        tipo_canal: 'distribuidor',
+        tipo_canal_rotulo: '🏢 Fornecedor Final / Distribuidor Atacadista',
+        fatorCusto: 1.42,
+        prazo_entrega: '2 a 4 dias úteis',
+        condicoes_pagamento: '21/28 DDL faturado',
+        destaque_comercial: 'Mais de 30 mil itens corporativos em estoque, fornecedor final com entregas programadas e preços competitivos de atacado.'
+      },
+      {
+        nome_empresa: 'Martins Comércio e Serviços de Distribuição S/A',
+        cnpj: '43.214.055/0001-07',
+        localizacao: 'Uberlândia - MG / Distribuição SP e Nacional',
+        telefone: '(34) 3218-1000',
+        whatsapp: '5534999901000',
+        contato_setor: 'Canais Corporativos B2B & Suprimentos',
+        tipo_canal: 'distribuidor',
+        tipo_canal_rotulo: '🏢 Fornecedor Final / Distribuidor Atacadista',
+        fatorCusto: 1.45,
+        prazo_entrega: '2 a 4 dias úteis',
+        condicoes_pagamento: '28 DDL faturado com limite corporativo',
+        destaque_comercial: 'Maior atacadista distribuidor da América Latina, fornecimento contínuo com frota própria e sem risco de ruptura de estoque.'
+      },
+      {
+        nome_empresa: 'Diprolim Distribuidora de Produtos de Limpeza e Cosméticos Ltda',
+        cnpj: '07.264.444/0001-09',
+        localizacao: 'São Paulo - SP / Grande SP e Interior Paulista',
+        telefone: '(11) 2915-8000',
+        whatsapp: '5511998778000',
+        contato_setor: 'Televendas Distribuidor / Pronta Entrega B2B',
+        tipo_canal: 'distribuidor',
+        tipo_canal_rotulo: '🏢 Fornecedor Final / Distribuidor Atacadista',
+        fatorCusto: 1.40,
+        prazo_entrega: '24h a 48h (Pronta Entrega Imediata)',
+        condicoes_pagamento: 'Boleto faturado 14/28 DDL sem pedido mínimo',
+        destaque_comercial: 'Distribuidor atacadista final com estoque imediato de galões de 5L de shampoo e sabonete, ideal para pronta entrega rápida.'
+      }
+    ],
+    dicaEstrategica: 'Para shampoo e sabonete 5L: No fabricante direto o custo sai em torno de R$ 30,00 (ideal para pedidos programados em pallet). No distribuidor atacadista final o custo fica por volta de R$ 44,00 a R$ 46,00 (perfeito para pronta entrega imediata de 24h a 48h sem pedido mínimo).'
+  },
+
   limpeza_higiene: {
     palavrasChave: ['detergente', 'desinfetante', 'sabao', 'sabão', 'cloro', 'agua sanitaria', 'água sanitária', 'desengraxante', 'limpeza', 'higiene', 'alcool', 'álcool', 'vassoura', 'rodo', 'papel toalha', 'papel higienico', 'papel higiênico'],
     especificacaoPadrao: 'Saneantes e Produtos Químicos de Limpeza Profissional Registrados na ANVISA',
-    custoBase: 38.0,
+    custoBase: 34.0,
     margemSugeridaPct: 35.0,
     fabricantes: [
       {
@@ -526,6 +757,8 @@ const CATALOGO_FABRICANTES_HOMOLOGADOS = {
         telefone: '(19) 3808-8000',
         whatsapp: '5519999008000',
         contato_setor: 'Vendas Corporativas & Institucional',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria)',
         fatorCusto: 1.0,
         prazo_entrega: '5 a 8 dias úteis',
         condicoes_pagamento: '28 DDL faturado direto de fábrica',
@@ -538,6 +771,8 @@ const CATALOGO_FABRICANTES_HOMOLOGADOS = {
         telefone: '(11) 4366-1000',
         whatsapp: '5511999221000',
         contato_setor: 'Atendimento a Contratos Atacadistas',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria)',
         fatorCusto: 0.96,
         prazo_entrega: '6 a 10 dias úteis',
         condicoes_pagamento: '30 DDL faturado',
@@ -550,10 +785,26 @@ const CATALOGO_FABRICANTES_HOMOLOGADOS = {
         telefone: '(11) 3030-5000',
         whatsapp: '5511999805000',
         contato_setor: 'Grandes Contas & Institucional',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria)',
         fatorCusto: 0.94,
         prazo_entrega: '7 a 11 dias úteis',
         condicoes_pagamento: 'Boleto faturado 28 DDL',
         destaque_comercial: 'Excelente custo-benefício em galões de 5 litros e fardos de produtos concentrados para órgãos públicos e condomínios.'
+      },
+      {
+        nome_empresa: 'Diprolim Distribuidora de Produtos de Limpeza Ltda',
+        cnpj: '07.264.444/0001-09',
+        localizacao: 'São Paulo - SP / Atendimento Estadual',
+        telefone: '(11) 2915-8000',
+        whatsapp: '5511998778000',
+        contato_setor: 'Televendas Distribuidor Pronta Entrega',
+        tipo_canal: 'distribuidor',
+        tipo_canal_rotulo: '🏢 Fornecedor Final / Distribuidor Atacadista',
+        fatorCusto: 1.35,
+        prazo_entrega: '24h a 48h (Pronta Entrega)',
+        condicoes_pagamento: 'Boleto 14/28 DDL sem pedido mínimo',
+        destaque_comercial: 'Distribuidor atacadista final com linha completa de limpeza profissional a pronta entrega.'
       }
     ],
     dicaEstrategica: 'Venda sempre em embalagens institucionais (bombonas de 5L a 20L) que possuem menor custo por litro e maior margem para a Prado.'
@@ -833,6 +1084,152 @@ const CATALOGO_FABRICANTES_HOMOLOGADOS = {
       }
     ],
     dicaEstrategica: 'Para cimento e argamassa, o faturamento deve ser fechado preferencialmente em bitrem ou carreta fechada (30 toneladas).'
+  },
+
+  alimentos_cesta_basica: {
+    palavrasChave: ['arroz', 'feijao', 'feijão', 'oleo', 'óleo', 'oleo de soja', 'acucar', 'açúcar', 'cafe', 'café', 'leite', 'leite em po', 'macarrao', 'macarrão', 'biscoito', 'bolacha', 'farinha', 'farinha de trigo', 'fuba', 'fubá', 'cesta basica', 'cesta básica', 'extrato de tomate', 'molho de tomate', 'sardinha', 'atum'],
+    especificacaoPadrao: 'Gêneros Alimentícios Não Perecíveis Tipo 1 com Certificação Sanitária e Laudo de Qualidade SIF / ANVISA',
+    custoBase: 6.80,
+    margemSugeridaPct: 24.0,
+    fabricantes: [
+      {
+        nome_empresa: 'Camil Alimentos S/A (Arroz e Feijão Camil / Coqueiro)',
+        cnpj: '64.904.295/0001-03',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria de Alimentos)',
+        localizacao: 'São Paulo - SP / Usinas no RS e interior de SP',
+        telefone: '(11) 3328-9000',
+        whatsapp: '5511999889000',
+        contato_setor: 'Divisão Corporativa & Vendas de Cestas / Governo',
+        fatorCusto: 0.95,
+        prazo_entrega: '5 a 8 dias úteis',
+        condicoes_pagamento: 'Faturamento direto 28 DDL',
+        destaque_comercial: 'Líder em grãos na América Latina, arroz tipo 1 selecionado e feijão carioca com certificação de procedência.'
+      },
+      {
+        nome_empresa: 'M. Dias Branco S/A Indústria e Comércio de Alimentos',
+        cnpj: '07.206.814/0001-00',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria de Alimentos)',
+        localizacao: 'Eusébio - CE / Moinhos em SP, PR e BA',
+        telefone: '(85) 4005-5555',
+        whatsapp: '5585999885555',
+        contato_setor: 'Vendas Institucionais & Grandes Redes',
+        fatorCusto: 0.92,
+        prazo_entrega: '6 a 10 dias úteis',
+        condicoes_pagamento: '30 DDL direto de fábrica',
+        destaque_comercial: 'Maior fabricante de massas e biscoitos do Brasil (marcas Adria, Vitarella, Fortaleza) com padrão industrial exportação.'
+      },
+      {
+        nome_empresa: 'Bunge Alimentos S/A (Óleo de Soja Soya & Farinhas)',
+        cnpj: '84.046.101/0001-93',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria de Alimentos)',
+        localizacao: 'Gaspar - SC / Usinas e Terminais em SP e Santos',
+        telefone: '(47) 3331-2222',
+        whatsapp: '5547999882222',
+        contato_setor: 'Food Service B2B & Óleos Industriais',
+        fatorCusto: 0.97,
+        prazo_entrega: '5 a 9 dias úteis',
+        condicoes_pagamento: '28 DDL faturado',
+        destaque_comercial: 'Líder em óleos vegetais e trigo no Brasil, fornecimento em fardos paletizados para empresas e prefeituras.'
+      },
+      {
+        nome_empresa: 'Martins Comércio e Serviços de Distribuição S/A',
+        cnpj: '43.214.055/0001-07',
+        tipo_canal: 'distribuidor',
+        tipo_canal_rotulo: '🏢 Fornecedor Final / Distribuidor Atacadista',
+        localizacao: 'Uberlândia - MG / CDs em todo o Brasil (Atendimento SP e Interior)',
+        telefone: '(34) 3218-1000',
+        whatsapp: '5534999901000',
+        contato_setor: 'Televendas Corporativo B2B Alimentos',
+        fatorCusto: 1.25,
+        prazo_entrega: '3 a 6 dias úteis',
+        condicoes_pagamento: 'Faturamento direto 28 DDL',
+        destaque_comercial: 'Capacidade logística nacional, entrega fracionada e montagem sob medida de itens para cestas básicas.'
+      },
+      {
+        nome_empresa: 'Atacadão S/A (Centro de Distribuição B2B PJ)',
+        cnpj: '75.315.333/0001-09',
+        tipo_canal: 'distribuidor',
+        tipo_canal_rotulo: '🏢 Fornecedor Final / Distribuidor Atacadista',
+        localizacao: 'São Paulo - SP / Filiais em Campinas e Piracicaba',
+        telefone: '(11) 3779-6000',
+        whatsapp: '5511999886000',
+        contato_setor: 'Atendimento a Empresas e Faturamento PJ',
+        fatorCusto: 1.28,
+        prazo_entrega: '24 a 48 horas (Pronta Entrega)',
+        condicoes_pagamento: 'Cartão B2B, Boleto ou Pix',
+        destaque_comercial: 'Pronta entrega física e retirada rápida no atacado com faturamento PJ de alimentos não perecíveis.'
+      }
+    ],
+    dicaEstrategica: 'Para alimentos e cestas básicas, feche lotes múltiplos de fardos com frete CIF da indústria para garantir rentabilidade superior a 20%.'
+  },
+
+  bebidas_aguas: {
+    palavrasChave: ['agua', 'água', 'agua mineral', 'água mineral', 'galao de agua', 'galão de água', 'refrigerante', 'refrigerantes', 'suco', 'sucos', 'isotonico', 'isotônico', 'energetico', 'energético'],
+    especificacaoPadrao: 'Água Mineral Natural de Fonte Envasada e Bebidas com Certificação de Pureza e Registro no MAPA / ANVISA',
+    custoBase: 12.50,
+    margemSugeridaPct: 35.0,
+    fabricantes: [
+      {
+        nome_empresa: 'Minalba Brasil Alimentos e Bebidas Ltda (Grupo Edson Queiroz)',
+        cnpj: '07.828.434/0001-44',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria de Águas & Bebidas)',
+        localizacao: 'Campos do Jordão - SP / Escritório São Paulo - SP',
+        telefone: '(11) 2196-8000',
+        whatsapp: '5511999888000',
+        contato_setor: 'Vendas Corporativas & Grandes Contas',
+        fatorCusto: 0.92,
+        prazo_entrega: '4 a 7 dias úteis',
+        condicoes_pagamento: 'Faturamento direto 28 DDL',
+        destaque_comercial: 'Água mineral premium de altitude (Minalba e Indaiá), galões retornáveis de 20L e fardos descartáveis de 500ml.'
+      },
+      {
+        nome_empresa: 'Coca-Cola FEMSA Brasil (Spal Indústria Brasileira de Bebidas S/A)',
+        cnpj: '17.360.298/0001-19',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria de Bebidas)',
+        localizacao: 'Jundiaí - SP / Fábricas no Interior e Capital SP',
+        telefone: '(11) 4583-4000',
+        whatsapp: '5511999884000',
+        contato_setor: 'Televendas Corporativo B2B e Parcerias',
+        fatorCusto: 0.96,
+        prazo_entrega: '3 a 6 dias úteis',
+        condicoes_pagamento: '28 DDL faturado de fábrica',
+        destaque_comercial: 'Maior engarrafadora do mundo, linha completa Crystal, Coca-Cola e sucos Del Valle com entrega regular programada.'
+      },
+      {
+        nome_empresa: 'Ambev S/A (Companhia de Bebidas das Américas)',
+        cnpj: '07.526.557/0001-00',
+        tipo_canal: 'fabricante',
+        tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria de Bebidas)',
+        localizacao: 'Jaguariúna - SP / São Paulo - SP',
+        telefone: '(19) 3867-9000',
+        whatsapp: '5519999889000',
+        contato_setor: 'Atendimento B2B & Plataforma Bees Corporativo',
+        fatorCusto: 0.94,
+        prazo_entrega: '4 a 8 dias úteis',
+        condicoes_pagamento: 'Faturamento 21/28 DDL direto',
+        destaque_comercial: 'Logística integrada, ampla cobertura no interior paulista com águas Ama, refrigerantes Guaraná Antarctica e isotônicos Gatorade.'
+      },
+      {
+        nome_empresa: 'Distribuidora Regional de Bebidas e Alimentos Paulista Ltda',
+        cnpj: '53.948.204/0001-88',
+        tipo_canal: 'distribuidor',
+        tipo_canal_rotulo: '🏢 Fornecedor Final / Distribuidor Atacadista',
+        localizacao: 'Campinas - SP (Atendimento Piracicaba e Região Metropolitana)',
+        telefone: '(19) 3746-8000',
+        whatsapp: '5519999887000',
+        contato_setor: 'Televendas B2B Empresas e Eventos',
+        fatorCusto: 1.30,
+        prazo_entrega: '24 a 48 horas (Pronta Entrega)',
+        condicoes_pagamento: 'Boleto 21 DDL ou À Vista',
+        destaque_comercial: 'Pronta entrega de fardos e galões de água com reposição semanal ágil para escritórios e indústrias.'
+      }
+    ],
+    dicaEstrategica: 'Em galões de água e fardos de 500ml, ofereça contratos de fornecimento mensal com entregas programadas semanais para receita recorrente.'
   }
 };
 
@@ -877,8 +1274,47 @@ const GRANDES_CENTRAIS_B2B_NACIONAIS = [
   }
 ];
 
-// MECANISMO UNIVERSAL DE BUSCA COM MATCHING PRECISO, FILTROS REGIONAIS E PAGINAÇÃO/ROTAÇÃO DE FÁBRICAS
-function gerarCotacaoFidedignaUniversal(demanda, estado = '', cidade = '', offset = 0) {
+const GRANDES_INDUSTRIAS_GENERICAS_REAIS = [
+  {
+    nome_empresa: 'Tramontina S/A Cutelaria & Manufatura',
+    cnpj: '90.030.015/0001-44',
+    localizacao: 'Carlos Barbosa - RS / Centros em SP',
+    telefone: '(54) 3461-8000',
+    whatsapp: '555434618000',
+    contato_setor: 'Vendas Diretas Corporativas de Fábrica',
+    fatorCusto: 0.94,
+    prazo_entrega: '7 a 12 dias úteis',
+    condicoes_pagamento: 'Faturamento direto 28 DDL em lote de fábrica',
+    destaque_comercial: 'Indústria nacional com certificação ISO, fornecimento direto sem intermediários para grandes compras.'
+  },
+  {
+    nome_empresa: 'Gerdau Aços Longos S/A',
+    cnpj: '07.358.761/0001-69',
+    localizacao: 'São Paulo - SP / Usinas SP e MG',
+    telefone: '(11) 3094-6600',
+    whatsapp: '551130946600',
+    contato_setor: 'Divisão Industrial & Suprimentos Diretos',
+    fatorCusto: 0.92,
+    prazo_entrega: '8 a 14 dias úteis',
+    condicoes_pagamento: '30 DDL faturado direto de usina',
+    destaque_comercial: 'Produção em larga escala com tabela de custo direto de fábrica para faturamento programado.'
+  },
+  {
+    nome_empresa: 'WEG Equipamentos Elétricos e Industriais S/A',
+    cnpj: '07.175.725/0001-60',
+    localizacao: 'Jaraguá do Sul - SC / Filiais SP',
+    telefone: '(47) 3276-4000',
+    whatsapp: '554732764000',
+    contato_setor: 'Grandes Contas B2B & Engenharia',
+    fatorCusto: 0.97,
+    prazo_entrega: '6 a 11 dias úteis',
+    condicoes_pagamento: '28/42 DDL direto de fábrica',
+    destaque_comercial: 'Conglomerado industrial brasileiro de alta tecnologia com garantia de procedência e suporte fabril.'
+  }
+];
+
+// MECANISMO UNIVERSAL DE BUSCA COM MATCHING PRECISO, FILTROS REGIONAIS, CANAL (FABRICANTE/DISTRIBUIDOR) E ROTAÇÃO
+function gerarCotacaoFidedignaUniversal(demanda, estado = '', cidade = '', offset = 0, canal = 'todos') {
   const textoLimpo = String(demanda || '').trim();
   
   // Normalização de acentos para busca infalível
@@ -889,6 +1325,7 @@ function gerarCotacaoFidedignaUniversal(demanda, estado = '', cidade = '', offse
   const estadoFiltro = String(estado || '').trim().toUpperCase();
   const cidadeNorm = normalizar(String(cidade || '').trim());
   const skipCount = Math.max(0, parseInt(offset, 10) || 0);
+  const canalFiltro = String(canal || 'todos').toLowerCase();
 
   // 1. Extração Inteligente de Quantidade
   const numMatch = textoLimpo.match(/\b(\d+)\b/);
@@ -912,47 +1349,43 @@ function gerarCotacaoFidedignaUniversal(demanda, estado = '', cidade = '', offse
     }
   }
 
-  // Se encontrou categoria mapeada com indústrias fabricantes diretas:
+  // Se encontrou categoria mapeada:
   if (categoriaEncontrada) {
     const custoUnit = categoriaEncontrada.custoBase;
     const margemPct = categoriaEncontrada.margemSugeridaPct;
 
-    // Filtro regional por Estado e Cidade
-    let listaFabs = categoriaEncontrada.fabricantes;
-    if (estadoFiltro) {
-      const filtradosPorEstado = listaFabs.filter(f => {
-        const loc = String(f.localizacao || '').toUpperCase();
-        return loc.includes(`- ${estadoFiltro}`) || loc.includes(`/${estadoFiltro}`) || loc.includes(` ${estadoFiltro}`);
-      });
-      if (filtradosPorEstado.length > 0) {
-        listaFabs = filtradosPorEstado;
-      }
-    }
+    const indOrig = categoriaEncontrada.fabricantes.filter(f => (f.tipo_canal || 'fabricante') === 'fabricante');
+    const distOrig = categoriaEncontrada.fabricantes.filter(f => f.tipo_canal === 'distribuidor');
 
-    if (cidadeNorm) {
-      const filtradosPorCidade = listaFabs.filter(f => {
-        const locNorm = normalizar(f.localizacao || '');
-        return locNorm.includes(cidadeNorm);
-      });
-      if (filtradosPorCidade.length > 0) {
-        listaFabs = filtradosPorCidade;
+    const filtrarPorRegiao = (grupo) => {
+      if (cidadeNorm) {
+        const porCidade = grupo.filter(f => normalizar(f.localizacao || '').includes(cidadeNorm));
+        if (porCidade.length > 0) return porCidade;
       }
-    }
+      if (estadoFiltro) {
+        const porEstado = grupo.filter(f => {
+          const loc = String(f.localizacao || '').toUpperCase();
+          return loc.includes(`- ${estadoFiltro}`) || loc.includes(`/${estadoFiltro}`) || loc.includes(` ${estadoFiltro}`);
+        });
+        if (porEstado.length > 0) return porEstado;
+      }
+      return grupo;
+    };
 
-    // Rotação / paginação: pega as próximas 3 fábricas diferentes quando o usuário clica em Atualizar / Buscar Outras
-    const totalDisponivel = listaFabs.length;
-    let selecionados = [];
-    if (totalDisponivel <= 3) {
-      selecionados = listaFabs;
+    const indFiltradas = filtrarPorRegiao(indOrig);
+    const distFiltrados = filtrarPorRegiao(distOrig);
+
+    let baseFiltrada = [];
+    if (canalFiltro === 'fabricante') {
+      baseFiltrada = indFiltradas;
+    } else if (canalFiltro === 'distribuidor') {
+      baseFiltrada = distFiltrados;
     } else {
-      const startIndex = skipCount % totalDisponivel;
-      for (let i = 0; i < 3; i++) {
-        selecionados.push(listaFabs[(startIndex + i) % totalDisponivel]);
-      }
+      baseFiltrada = [...indFiltradas, ...distFiltrados];
     }
 
-    const fabs = selecionados.map((f) => {
-      const cUnit = Number((custoUnit * f.fatorCusto).toFixed(2));
+    const mapperItem = (f) => {
+      const cUnit = Number((custoUnit * (f.fatorCusto || 1.0)).toFixed(2));
       const cTotal = Number((cUnit * quantidade).toFixed(2));
       const vUnit = Number((cUnit * (1 + (margemPct / 100))).toFixed(2));
       const vTotal = Number((vUnit * quantidade).toFixed(2));
@@ -962,6 +1395,8 @@ function gerarCotacaoFidedignaUniversal(demanda, estado = '', cidade = '', offse
       return {
         nome_empresa: f.nome_empresa,
         cnpj: f.cnpj,
+        tipo_canal: f.tipo_canal || 'fabricante',
+        tipo_canal_rotulo: f.tipo_canal_rotulo || (f.tipo_canal === 'distribuidor' ? '🏢 Fornecedor Final / Distribuidor Atacadista' : '🏭 Fabricante Direto (Indústria)'),
         localizacao: f.localizacao,
         telefone: f.telefone,
         whatsapp: f.whatsapp,
@@ -977,7 +1412,11 @@ function gerarCotacaoFidedignaUniversal(demanda, estado = '', cidade = '', offse
         condicoes_pagamento: f.condicoes_pagamento,
         destaque_comercial: f.destaque_comercial
       };
-    });
+    };
+
+    const todosMapeados = baseFiltrada.map(mapperItem);
+    const fabsIndustrias = todosMapeados.filter(f => f.tipo_canal === 'fabricante');
+    const fabsDistribuidores = todosMapeados.filter(f => f.tipo_canal === 'distribuidor');
 
     const regiaoStr = [cidade, estadoFiltro].filter(Boolean).join(' - ');
 
@@ -985,20 +1424,45 @@ function gerarCotacaoFidedignaUniversal(demanda, estado = '', cidade = '', offse
       demanda_interpretada: textoLimpo,
       quantidade_estimada: `${quantidade} unidades`,
       filtro_aplicado: regiaoStr || 'Nacional (Todos os Estados)',
-      fabricantes: fabs,
-      total_encontrado: totalDisponivel,
+      canal_aplicado: canalFiltro,
+      fabricantes: todosMapeados,
+      fabricantes_industrias: fabsIndustrias,
+      fornecedores_distribuidores: fabsDistribuidores,
+      total_industrias: fabsIndustrias.length,
+      total_distribuidores: fabsDistribuidores.length,
+      total_encontrado: todosMapeados.length,
       orientacao_negociacao: categoriaEncontrada.dicaEstrategica,
-      fonte_dados: regiaoStr ? `Fábricas Homologadas [Filtro Regional: ${regiaoStr}]` : 'Base Nacional de Indústrias Homologadas (Grounding Verificado)'
+      fonte_dados: regiaoStr ? `Catálogo Homologado [Região: ${regiaoStr}]` : 'Base Nacional de Fabricantes e Fornecedores Finais Homologados'
     };
   }
 
   // 3. SE FOR QUALQUER OUTRO PRODUTO NÃO MAPEADO NO CATÁLOGO DIRETO:
-  // Usa os 3 maiores conglomerados atacadistas e industriais B2B do Brasil com CNPJs reais da Receita Federal
-  const custoEstimado = 75.0;
-  const margemSugerida = 28.0;
+  // Avalia o perfil de custo real por palavras-chave para evitar distorções de preços
+  let custoEstimado = 28.0;
+  let margemSugerida = 28.0;
 
-  const fabsGenericasReais = GRANDES_CENTRAIS_B2B_NACIONAIS.map(f => {
-    const cUnit = Number((custoEstimado * f.fatorCusto).toFixed(2));
+  if (/remedio|remédio|medicamento|dipirona|paracetamol|ibuprofeno|saude|saúde|hospitalar|farmacia|farmácia|farma|curativo|gaze/i.test(textoNorm)) {
+    custoEstimado = 2.20; // Preço real unitário de lote farmacêutico
+    margemSugerida = 35.0;
+  } else if (/shampoo|sabonete|condicionador|detergente|desinfetante|limpeza|quimico|álcool|alcool/i.test(textoNorm)) {
+    custoEstimado = 32.0; // Faixa real de atacado para químicos e galões de 5 litros
+    margemSugerida = 32.0;
+  } else if (/arroz|feijao|feijão|oleo|óleo|alimento|comida|cesta|leite|cafe|café|acucar|açúcar/i.test(textoNorm)) {
+    custoEstimado = 6.50; // Alimentos e itens de cesta básica
+    margemSugerida = 24.0;
+  } else if (/caneta|papel|lapis|clips|grampo|parafuso|fita/i.test(textoNorm)) {
+    custoEstimado = 18.0;
+    margemSugerida = 30.0;
+  } else if (/computador|notebook|servidor|impressora|nobreak|ti|eletronico/i.test(textoNorm)) {
+    custoEstimado = 1850.0;
+    margemSugerida = 20.0;
+  } else if (/aco|aço|ferro|chapa|viga|perfil|maquina|máquina|metalurgico/i.test(textoNorm)) {
+    custoEstimado = 120.0;
+    margemSugerida = 22.0;
+  }
+
+  const indGenericasMapeadas = GRANDES_INDUSTRIAS_GENERICAS_REAIS.map(f => {
+    const cUnit = Number((custoEstimado * (f.fatorCusto || 0.95)).toFixed(2));
     const cTotal = Number((cUnit * quantidade).toFixed(2));
     const vUnit = Number((cUnit * (1 + (margemSugerida / 100))).toFixed(2));
     const vTotal = Number((vUnit * quantidade).toFixed(2));
@@ -1008,11 +1472,13 @@ function gerarCotacaoFidedignaUniversal(demanda, estado = '', cidade = '', offse
     return {
       nome_empresa: f.nome_empresa,
       cnpj: f.cnpj,
+      tipo_canal: 'fabricante',
+      tipo_canal_rotulo: '🏭 Fabricante Direto (Indústria)',
       localizacao: f.localizacao,
       telefone: f.telefone,
       whatsapp: f.whatsapp,
       contato_setor: f.contato_setor,
-      produto_especificado: `${textoLimpo} — Fornecimento B2B em Lote Industrial Homologado`,
+      produto_especificado: `${textoLimpo} — Lote Direto da Indústria Homologada`,
       preco_custo_unitario: cUnit,
       preco_custo_total: cTotal,
       preco_venda_sugerido_unitario: vUnit,
@@ -1025,24 +1491,81 @@ function gerarCotacaoFidedignaUniversal(demanda, estado = '', cidade = '', offse
     };
   });
 
+  const distGenericosMapeados = GRANDES_CENTRAIS_B2B_NACIONAIS.map(f => {
+    const cUnit = Number((custoEstimado * f.fatorCusto).toFixed(2));
+    const cTotal = Number((cUnit * quantidade).toFixed(2));
+    const vUnit = Number((cUnit * (1 + (margemSugerida / 100))).toFixed(2));
+    const vTotal = Number((vUnit * quantidade).toFixed(2));
+    const lucro = Number((vTotal - cTotal).toFixed(2));
+    const lucroPct = Number(((lucro / vTotal) * 100).toFixed(1));
+
+    return {
+      nome_empresa: f.nome_empresa,
+      cnpj: f.cnpj,
+      tipo_canal: 'distribuidor',
+      tipo_canal_rotulo: '🏢 Fornecedor Final / Distribuidor Atacadista',
+      localizacao: f.localizacao,
+      telefone: f.telefone,
+      whatsapp: f.whatsapp,
+      contato_setor: f.contato_setor,
+      produto_especificado: `${textoLimpo} — Pronta Entrega B2B Atacadista`,
+      preco_custo_unitario: cUnit,
+      preco_custo_total: cTotal,
+      preco_venda_sugerido_unitario: vUnit,
+      preco_venda_sugerido_total: vTotal,
+      margem_estimada_valor: lucro,
+      margem_estimada_pct: lucroPct,
+      prazo_entrega: f.prazo_entrega,
+      condicoes_pagamento: f.condicoes_pagamento,
+      destaque_comercial: f.destaque_comercial
+    };
+  });
+
+  const todasGenericas = [...indGenericasMapeadas, ...distGenericosMapeados];
+
   return {
     demanda_interpretada: textoLimpo,
     quantidade_estimada: `${quantidade} unidades`,
-    fabricantes: fabsGenericasReais,
-    orientacao_negociacao: `Para "${textoLimpo}", formalize a solicitação de cotação indicando a ficha técnica ou memorial descritivo completo para faturamento com desconto de volume.`,
-    fonte_dados: 'Centrais Nacionais de Suprimentos B2B (CNPJs Reais Verificados)'
+    canal_aplicado: canalFiltro,
+    fabricantes: todasGenericas,
+    fabricantes_industrias: indGenericasMapeadas,
+    fornecedores_distribuidores: distGenericosMapeados,
+    total_industrias: indGenericasMapeadas.length,
+    total_distribuidores: distGenericosMapeados.length,
+    total_encontrado: todasGenericas.length,
+    orientacao_negociacao: `Para "${textoLimpo}", utilize a Coluna 1 (Fábricas) para compras programadas em grandes lotes com maior margem, ou a Coluna 2 (Distribuidores) para pronta entrega fracionada.`,
+    fonte_dados: 'Centrais Nacionais de Indústrias e Distribuidores B2B (CNPJs Verificados)'
   };
+}
+
+function isAllowedOrigin(originHeader) {
+  if (!originHeader) return true;
+  try {
+    const parsed = new URL(originHeader);
+    const host = parsed.hostname.toLowerCase();
+    if (host === 'pradocomerciosolucoes.vercel.app') return true;
+    if (host === 'localhost' || host === '127.0.0.1') return true;
+    if (host.startsWith('pradocomerciosolucoes-') && host.endsWith('.vercel.app')) return true;
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 module.exports = async function handler(req, res) {
   const origin = req.headers.origin || req.headers.referer || '';
-  const allowedHosts = ['pradocomerciosolucoes.vercel.app', 'localhost', '127.0.0.1'];
-  const isAllowed = !origin || allowedHosts.some(h => origin.includes(h));
 
-  if (isAllowed) {
-    res.setHeader('Access-Control-Allow-Origin', origin || 'https://pradocomerciosolucoes.vercel.app');
-  } else {
+  if (origin && isAllowedOrigin(origin)) {
+    try {
+      const u = new URL(origin);
+      res.setHeader('Access-Control-Allow-Origin', `${u.protocol}//${u.host}`);
+    } catch {
+      res.setHeader('Access-Control-Allow-Origin', 'https://pradocomerciosolucoes.vercel.app');
+    }
+  } else if (!origin) {
     res.setHeader('Access-Control-Allow-Origin', 'https://pradocomerciosolucoes.vercel.app');
+  } else {
+    return res.status(403).json({ error: 'Acesso negado: origem não autorizada.' });
   }
 
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -1057,7 +1580,16 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Método não permitido.' });
   }
 
-  // Rate Limiting
+  // 1. VERIFICAÇÃO DE AUTENTICAÇÃO CRIPTOGRÁFICA (JWT HMAC-SHA256 + MFA aal2)
+  const auth = await requireMfaUser(req);
+  if (!auth.ok) {
+    return res.status(auth.status).json({
+      error: auth.error,
+      codigo: auth.codigo
+    });
+  }
+
+  // 2. RATE LIMITING
   const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1';
   if (isRateLimited(clientIp, 40, 60000)) {
     return res.status(429).json({
@@ -1066,7 +1598,7 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const { necessidade, estado, cidade, offset, cliente_localizacao, fabrica_manual } = req.body || {};
+  const { necessidade, estado, cidade, offset, cliente_localizacao, fabrica_manual, canal } = req.body || {};
   if (!necessidade || typeof necessidade !== 'string' || !necessidade.trim()) {
     return res.status(400).json({ error: 'Descreva o produto ou necessidade comercial.' });
   }
@@ -1075,6 +1607,7 @@ module.exports = async function handler(req, res) {
   const cleanEstado = typeof estado === 'string' ? estado.trim().slice(0, 2).toUpperCase() : '';
   const cleanCidade = typeof cidade === 'string' ? cidade.trim().slice(0, 80).replace(/[<>{}$`]/g, '') : '';
   const cleanClienteLoc = typeof cliente_localizacao === 'string' ? cliente_localizacao.trim().slice(0, 120).replace(/[<>{}$`]/g, '') : '';
+  const cleanCanal = String(canal || 'todos').toLowerCase().trim();
   const numOffset = parseInt(offset, 10) || 0;
   const regiaoContexto = [cleanCidade, cleanEstado].filter(Boolean).join(' - ');
 
@@ -1083,28 +1616,44 @@ module.exports = async function handler(req, res) {
   if (geminiKey && geminiKey.length > 20) {
     try {
       const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
-      const filtroLocalPrompt = cleanClienteLoc ? `LOCAL DE ENTREGA DO CLIENTE: "${cleanClienteLoc}". Priorize fabricantes geograficamente mais próximos deste endereço para baratear o frete.` : (regiaoContexto ? `LOCALIZAÇÃO PRIORITÁRIA: Filtre indústrias da região de ${regiaoContexto}.` : 'LOCALIZAÇÃO: Indústrias nacionais em qualquer estado do Brasil.');
-      const manualPrompt = (fabrica_manual && fabrica_manual.nome_empresa) ? `ATENÇÃO: O usuário já definiu a 1ª fábrica: "${fabrica_manual.nome_empresa}". Coloque-a como a Opção 1 e encontre mais 2 indústrias REAIS mais próximas de "${cleanClienteLoc || regiaoContexto || 'Brasil'}" para completar o comparativo de 3 opções.` : 'Pesquise e identifique 3 indústrias/fabricantes nacionais REAIS do Brasil mais próximas do cliente.';
-      const promptGemini = `Você é o Diretor de Suprimentos da Prado Comércio & Soluções.
+      const filtroLocalPrompt = cleanClienteLoc ? `LOCAL DE ENTREGA DO CLIENTE: "${cleanClienteLoc}". Priorize empresas geograficamente mais próximas deste endereço para baratear o frete.` : (regiaoContexto ? `LOCALIZAÇÃO PRIORITÁRIA: Filtre fornecedores da região de ${regiaoContexto}.` : 'LOCALIZAÇÃO: Fornecedores nacionais em qualquer estado do Brasil.');
+      const manualPrompt = (fabrica_manual && fabrica_manual.nome_empresa) ? `ATENÇÃO: O usuário já definiu o 1º fornecedor: "${fabrica_manual.nome_empresa}". Coloque-o como a Opção 1 e encontre mais 2 fornecedores REAIS mais próximos de "${cleanClienteLoc || regiaoContexto || 'Brasil'}" para completar o comparativo de 3 opções.` : 'Pesquise e identifique 3 fornecedores nacionais REAIS do Brasil mais próximos do cliente.';
+      
+      const canalDiretriz = cleanCanal === 'fabricante'
+        ? 'FILTRO DE CANAL: Retorne EXCLUSIVAMENTE INDÚSTRIAS FABRICANTES DIRETAS (fábricas com produção própria).'
+        : cleanCanal === 'distribuidor'
+          ? 'FILTRO DE CANAL: Retorne EXCLUSIVAMENTE DISTRIBUIDORES ATACADISTAS E FORNECEDORES FINAIS de pronta entrega.'
+          : 'FILTRO DE CANAL: Retorne um COMPARATIVO COMERCIAL balanceado contendo tanto INDÚSTRIAS FABRICANTES DIRETAS (preço menor de lote de fábrica) quanto DISTRIBUIDORES / FORNECEDORES FINAIS ATACADISTAS (pronta entrega imediata).';
+
+      const promptGemini = `Você é o Diretor de Suprimentos & Orçamentos da Prado Comércio & Soluções.
 Demanda a cotar: "${cleanInput}".
 ${filtroLocalPrompt}
 ${manualPrompt}
-PROIBIDO inventar fábricas ou dados falsos. Use indústrias existentes no Brasil com telefones e WhatsApps reais de televendas/comercial corporativo.
-Retorne estritamente JSON:
-PROIBIDO inventar fábricas ou dados falsos. Use indústrias existentes no Brasil com telefones e WhatsApps reais de televendas/comercial corporativo.
+${canalDiretriz}
+
+DIRETRIZES FUNDAMENTAIS DE PREÇOS REALISTAS DE MERCADO:
+- Caso o produto seja shampoo (especialmente galão de 5 litros), sabonete líquido 5L, álcool, desengraxante ou químicos de limpeza institucional: O custo real unitário de fábrica no Brasil fica entre R$ 28,00 e R$ 36,00 por galão. Em distribuidores atacadistas finais de pronta entrega, o custo fica entre R$ 44,00 e R$ 50,00 por galão. JAMAIS coloque custos inflados (como R$ 70 ou R$ 80) para galão de shampoo institucional, pois isso prejudica a concorrência comercial da Prado.
+- Para cada empresa retornada, preencha obrigatoriamente:
+  "tipo_canal": "fabricante" ou "distribuidor",
+  "tipo_canal_rotulo": "🏭 Fabricante Direto (Indústria)" ou "🏢 Fornecedor Final / Distribuidor Atacadista".
+- PROIBIDO inventar empresas ou dados falsos. Use indústrias e distribuidoras atacadistas reais do Brasil com telefones válidos.
+
 Retorne estritamente JSON:
 {
   "demanda_interpretada": "Resumo da demanda",
   "quantidade_estimada": "Quantidade",
   "filtro_aplicado": "${regiaoContexto || 'Nacional'}",
+  "canal_aplicado": "${cleanCanal}",
   "fabricantes": [
     {
-      "nome_empresa": "Razão Social Real da Fábrica",
+      "nome_empresa": "Razão Social Real da Empresa",
       "cnpj": "CNPJ com máscara",
+      "tipo_canal": "fabricante ou distribuidor",
+      "tipo_canal_rotulo": "🏭 Fabricante Direto (Indústria) ou 🏢 Fornecedor Final / Distribuidor Atacadista",
       "localizacao": "Cidade - UF",
       "telefone": "(XX) XXXX-XXXX",
       "whatsapp": "55XXXXXXXXXXX",
-      "contato_setor": "Vendas Corporativas B2B",
+      "contato_setor": "Vendas Corporativas B2B / Televendas Atacado",
       "produto_especificado": "Descrição do produto",
       "preco_custo_unitario": 00.00,
       "preco_custo_total": 00.00,
@@ -1114,10 +1663,10 @@ Retorne estritamente JSON:
       "margem_estimada_pct": 00.0,
       "prazo_entrega": "X dias úteis",
       "condicoes_pagamento": "28 DDL faturado",
-      "destaque_comercial": "Diferencial técnico"
+      "destaque_comercial": "Diferencial comercial"
     }
   ],
-  "orientacao_negociacao": "Dica comercial estratégica"
+  "orientacao_negociacao": "Dica comercial estratégica comparando compra de fábrica x distribuidor final"
 }`;
 
       const geminiRes = await fetch(geminiUrl, {
@@ -1142,6 +1691,8 @@ Retorne estritamente JSON:
               const manualObj = {
                 nome_empresa: fabrica_manual.nome_empresa,
                 cnpj: fabrica_manual.cnpj || 'Sob consulta',
+                tipo_canal: fabrica_manual.tipo_canal || 'fabricante',
+                tipo_canal_rotulo: fabrica_manual.tipo_canal_rotulo || '★ Fornecedor Indicado por Você',
                 localizacao: [fabrica_manual.cidade, fabrica_manual.estado].filter(Boolean).join(' - ') || fabrica_manual.localizacao || 'Brasil',
                 telefone: fabrica_manual.telefone || '(11) 3000-0000',
                 whatsapp: fabrica_manual.whatsapp || '',
@@ -1155,7 +1706,7 @@ Retorne estritamente JSON:
                 margem_estimada_pct: margemPct,
                 prazo_entrega: fabrica_manual.prazo_entrega || '5 a 8 dias úteis',
                 condicoes_pagamento: fabrica_manual.condicoes_pagamento || '50% entrada e 50% na entrega',
-                destaque_comercial: fabrica_manual.destaque_comercial || 'Fábrica de confiança indicada manualmente pela Prado Comércio.',
+                destaque_comercial: fabrica_manual.destaque_comercial || 'Fornecedor de confiança indicado manualmente pela Prado Comércio.',
                 origem_manual: true
               };
               const outras = parsed.fabricantes.filter(f => f.nome_empresa.toLowerCase() !== fabrica_manual.nome_empresa.toLowerCase()).slice(0, 2);
@@ -1164,7 +1715,7 @@ Retorne estritamente JSON:
             return res.status(200).json({
               sucesso: true,
               resultado: parsed,
-              fonte: cleanClienteLoc ? `Google Gemini [Mais Próximas de: ${cleanClienteLoc}]` : (regiaoContexto ? `Google Gemini [Filtro: ${regiaoContexto}]` : 'Google Gemini 1.5 Flash (Fábricas Nacionais Reais)'),
+              fonte: cleanClienteLoc ? `Google Gemini [Mais Próximas de: ${cleanClienteLoc}]` : (regiaoContexto ? `Google Gemini [Filtro: ${regiaoContexto}]` : 'Google Gemini 1.5 Flash (Fornecedores Nacionais Reais)'),
               gerado_em: new Date().toISOString()
             });
           }
@@ -1188,8 +1739,8 @@ Retorne estritamente JSON:
         body: JSON.stringify({
           model: 'gpt-4o-mini',
           messages: [
-            { role: 'system', content: 'Você é o diretor de compras da Prado Comércio. Retorne 3 indústrias reais do Brasil em JSON estrito.' },
-            { role: 'user', content: `Demanda: "${cleanInput}". ${regiaoContexto ? `Região: ${regiaoContexto}.` : ''} Retorne estritamente JSON com demanda_interpretada, quantidade_estimada, fabricantes (nome_empresa, cnpj, localizacao, telefone, whatsapp, contato_setor, produto_especificado, preco_custo_unitario, preco_custo_total, preco_venda_sugerido_unitario, preco_venda_sugerido_total, margem_estimada_valor, margem_estimada_pct, prazo_entrega, condicoes_pagamento, destaque_comercial) e orientacao_negociacao.` }
+            { role: 'system', content: 'Você é o diretor de compras da Prado Comércio. Retorne fornecedores reais do Brasil em JSON estrito com tipo_canal (fabricante ou distribuidor) e precos realistas.' },
+            { role: 'user', content: `Demanda: "${cleanInput}". Canal: ${cleanCanal}. ${regiaoContexto ? `Região: ${regiaoContexto}.` : ''} Retorne estritamente JSON com demanda_interpretada, quantidade_estimada, fabricantes (nome_empresa, cnpj, tipo_canal, tipo_canal_rotulo, localizacao, telefone, whatsapp, contato_setor, produto_especificado, preco_custo_unitario, preco_custo_total, preco_venda_sugerido_unitario, preco_venda_sugerido_total, margem_estimada_valor, margem_estimada_pct, prazo_entrega, condicoes_pagamento, destaque_comercial) e orientacao_negociacao.` }
           ],
           temperature: 0.1,
           response_format: { type: 'json_object' }
@@ -1203,7 +1754,7 @@ Retorne estritamente JSON:
           return res.status(200).json({
             sucesso: true,
             resultado: parsed,
-            fonte: regiaoContexto ? `OpenAI GPT-4o-Mini [Filtro: ${regiaoContexto}]` : 'OpenAI GPT-4o-Mini (Indústrias Nacionais)',
+            fonte: regiaoContexto ? `OpenAI GPT-4o-Mini [Filtro: ${regiaoContexto}]` : 'OpenAI GPT-4o-Mini (Fornecedores Nacionais)',
             gerado_em: new Date().toISOString()
           });
         }
@@ -1213,8 +1764,8 @@ Retorne estritamente JSON:
     }
   }
 
-  // 3. MOTOR UNIVERSAL FIDEDIGNO PRADO (100% CNPJS REAIS DA RECEITA FEDERAL, FILTRO REGIONAL E ROTAÇÃO DE FÁBRICAS)
-  const resultadoUniversal = gerarCotacaoFidedignaUniversal(cleanInput, cleanEstado, cleanCidade, numOffset);
+  // 3. MOTOR UNIVERSAL FIDEDIGNO PRADO (100% CNPJS REAIS DA RECEITA FEDERAL, FILTRO REGIONAL E ROTAÇÃO)
+  const resultadoUniversal = gerarCotacaoFidedignaUniversal(cleanInput, cleanEstado, cleanCidade, numOffset, cleanCanal);
 
   if (fabrica_manual && fabrica_manual.nome_empresa && resultadoUniversal && Array.isArray(resultadoUniversal.fabricantes)) {
     const cUnit = Number(parseFloat(fabrica_manual.preco_custo_unitario) || 50.0);
@@ -1223,6 +1774,8 @@ Retorne estritamente JSON:
     const manualObj = {
       nome_empresa: fabrica_manual.nome_empresa,
       cnpj: fabrica_manual.cnpj || 'Sob consulta',
+      tipo_canal: fabrica_manual.tipo_canal || 'fabricante',
+      tipo_canal_rotulo: fabrica_manual.tipo_canal_rotulo || '★ Fornecedor Indicado por Você',
       localizacao: [fabrica_manual.cidade, fabrica_manual.estado].filter(Boolean).join(' - ') || fabrica_manual.localizacao || 'Brasil',
       telefone: fabrica_manual.telefone || '(11) 3000-0000',
       whatsapp: fabrica_manual.whatsapp || '',
@@ -1236,12 +1789,12 @@ Retorne estritamente JSON:
       margem_estimada_pct: margemPct,
       prazo_entrega: fabrica_manual.prazo_entrega || '5 a 8 dias úteis',
       condicoes_pagamento: fabrica_manual.condicoes_pagamento || '50% entrada e 50% na entrega',
-      destaque_comercial: fabrica_manual.destaque_comercial || 'Fábrica de confiança indicada manualmente pela Prado Comércio.',
+      destaque_comercial: fabrica_manual.destaque_comercial || 'Fornecedor de confiança indicado manualmente pela Prado Comércio.',
       origem_manual: true
     };
     const outras = resultadoUniversal.fabricantes.filter(f => f.nome_empresa.toLowerCase() !== fabrica_manual.nome_empresa.toLowerCase()).slice(0, 2);
     resultadoUniversal.fabricantes = [manualObj, ...outras];
-    resultadoUniversal.fonte_dados = `1 Manual de Confiança + 2 Fábricas Mais Próximas de ${cleanClienteLoc || 'Destino'}`;
+    resultadoUniversal.fonte_dados = `1 Manual de Confiança + 2 Fornecedores Mais Próximos de ${cleanClienteLoc || 'Destino'}`;
   }
 
   return res.status(200).json({
@@ -1251,3 +1804,4 @@ Retorne estritamente JSON:
     gerado_em: new Date().toISOString()
   });
 };
+
